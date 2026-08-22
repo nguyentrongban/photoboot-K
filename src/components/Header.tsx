@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Step } from '../types';
 import { VolumeUpFill, VolumeMuteFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { getAudioMuted, setAudioMuted } from '../utils/audio';
 import { LottieIcon, LottieIconType } from './LottieIcon';
+import logoImg from '../assets/images/piczo_camera_logo_1787394527785.jpg';
 
 interface HeaderProps {
   currentStep: Step;
@@ -48,13 +49,26 @@ export const Header: React.FC<HeaderProps> = ({
     },
   ];
 
+  const [imgError, setImgError] = useState(false);
+
   return (
     <header className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-xl border-b border-rose-100/60 shadow-[0_2px_12px_rgba(244,114,182,0.04)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between gap-3">
         {/* Cute Brand Logo */}
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 p-0.5 shadow-xs shadow-pink-200 overflow-hidden flex items-center justify-center">
-            <img src="/logo.jpg" alt="PicZo Photobooth Logo" className="w-full h-full object-cover rounded-xl" />
+            {!imgError ? (
+              <img
+                src={logoImg}
+                alt="PicZo Photobooth Logo"
+                className="w-full h-full object-cover rounded-xl"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full text-white flex items-center justify-center p-1">
+                <LottieIcon name="camera" size={22} />
+              </div>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
