@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://photoboot-k.vercel.app/sitemap.xml
+Sitemap: https://piczo.io.vn/sitemap.xml
