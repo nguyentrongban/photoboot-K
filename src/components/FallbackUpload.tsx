@@ -99,7 +99,7 @@ export const FallbackUpload: React.FC<FallbackUploadProps> = ({
                   <>
                     <img
                       src={img}
-                      alt={`Ảnh ${idx + 1}`}
+                      alt={`Ảnh chụp Photobooth ${idx + 1} - PicZo`}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold transition-opacity">

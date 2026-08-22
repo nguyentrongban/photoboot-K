@@ -1,0 +1,16 @@
+{
+  "name": "PicZo - Photobooth Online Hàn Quốc",
+  "short_name": "PicZo",
+  "description": "Ứng dụng Photobooth Online chụp ảnh 4 ô vuông & dải dọc phong cách Hàn Quốc miễn phí",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f43f5e",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { Step1Config } from './components/Step1Config';
 import { Step2Camera } from './components/Step2Camera';
 import { Step3Result } from './components/Step3Result';
+import { SeoContentSection } from './components/SeoContentSection';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -98,6 +99,9 @@ export default function App() {
             onRetake={handleRetake}
           />
         )}
+
+        {/* SEO Article & FAQ Section for Google Search Engine Indexing */}
+        <SeoContentSection />
       </main>
 
       {/* Premium Minimalist Footer */}
