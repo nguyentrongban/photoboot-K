@@ -53,8 +53,8 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between gap-3">
         {/* Cute Brand Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 text-white flex items-center justify-center shadow-xs shadow-pink-200 p-1">
-            <LottieIcon name="camera" size={24} />
+          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 p-0.5 shadow-xs shadow-pink-200 overflow-hidden flex items-center justify-center">
+            <img src="/logo.jpg" alt="PicZo Photobooth Logo" className="w-full h-full object-cover rounded-xl" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
