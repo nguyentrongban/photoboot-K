@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://ais-pre-kyfajq2fhzq2wuq5fdlihw-874517462981.asia-southeast1.run.app/sitemap.xml
+Sitemap: https://photoboot-k.vercel.app/sitemap.xml
