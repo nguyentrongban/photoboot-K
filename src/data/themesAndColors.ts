@@ -1,0 +1,393 @@
+import { FrameColor, FrameTheme, PhotoFilter, LayoutType } from '../types';
+
+export interface LayoutOption {
+  id: LayoutType;
+  name: string;
+  photoCount: number;
+  description: string;
+  aspectRatioLabel: string;
+  badge: string;
+}
+
+export const LAYOUT_OPTIONS: LayoutOption[] = [
+  {
+    id: 'grid-4',
+    name: '4 Tấm Kiểu Vuông (2x2)',
+    photoCount: 4,
+    description: 'Bố cục 4 ô vuông 2x2 thời thượng, cực đẹp khi đăng mạng xã hội & in ảnh',
+    aspectRatioLabel: '1:1 Vuông',
+    badge: 'HOT TREND',
+  },
+  {
+    id: 'strip-3',
+    name: '3 Tấm Dải Dọc (3-Cut)',
+    photoCount: 3,
+    description: 'Dải ảnh dọc 3 tấm truyền thống chuẩn phong cách Photobooth',
+    aspectRatioLabel: 'Dải Dọc 1:3',
+    badge: 'CỔ ĐIỂN',
+  },
+  {
+    id: 'strip-4',
+    name: '4 Tấm Dải Dọc (4-Cut)',
+    photoCount: 4,
+    description: 'Dải ảnh dọc 4 tấm nguyên bản phong cách 인생네컷 Hàn Quốc',
+    aspectRatioLabel: 'Dải Dọc 1:4',
+    badge: 'KOREAN 4-CUT',
+  },
+];
+
+export const FRAME_THEMES: FrameTheme[] = [
+  {
+    id: 'wedding_cake',
+    name: 'Tiệc Cưới & Bánh Kem Nơ',
+    category: 'wedding',
+    description: 'Viền nét vẽ đỏ vintage: chim câu, nơ ruy băng, bánh kem trái tim & hoa lá',
+    badgeText: 'ROMANTIC WEDDING',
+    fontFamily: "'Caveat', cursive",
+    accentColor: '#9F1239',
+    borderStyle: 'solid',
+    defaultTextColor: '#881337',
+    topDecoration: '🕊️  AMIRA & SPENCE  💘',
+    bottomDecoration: 'Forever & Always ♡ 08.23.26',
+    sideDecorations: ['🕊️', '🌿', '🎀', '💘', '🌿', '✨'],
+    cornerDecoration: 'wedding_artwork',
+    isSpecialArtwork: true,
+  },
+  {
+    id: 'astrology',
+    name: 'Nhật Ký Trăng Sao',
+    category: 'vintage',
+    description: 'Nét vẽ nghệ thuật vũ trụ: vầng trăng khuyết treo sao, dải tinh vân chiêm tinh & quả cầu thiên văn cổ',
+    badgeText: 'COSMIC ASTRO',
+    fontFamily: "'Caveat', cursive",
+    accentColor: '#4338CA',
+    borderStyle: 'solid',
+    defaultTextColor: '#1E1B4B',
+    topDecoration: '✨ COSMIC JOURNEY • ASTROLOGY ✨',
+    bottomDecoration: 'Written In The Stars ♡ 🌌',
+    isSpecialArtwork: true,
+  },
+  {
+    id: 'vintage_daisy',
+    name: 'Vườn Cúc Họa Mi',
+    category: 'vintage',
+    description: 'Nét vẽ đồng nội mộc mạc: đóa hoa cúc họa mi nở rộ, nhánh lá dây leo & chậu hoa gốm nhỏ nhắn',
+    badgeText: 'COZY DAISY',
+    fontFamily: "'Caveat', cursive",
+    accentColor: '#B45309',
+    borderStyle: 'solid',
+    defaultTextColor: '#78350F',
+    topDecoration: '🌼 SPRING BREEZE • DAISY FIELD 🌼',
+    bottomDecoration: 'Where love and daisy bloom ♡',
+    isSpecialArtwork: true,
+  },
+  {
+    id: 'cozy_winter',
+    name: 'Đêm Đông Tuyết Rơi',
+    category: 'vintage',
+    description: 'Nét vẽ mùa đông ấm áp: quả cầu tuyết lấp lánh bên bếp lửa, cành thông phủ tuyết & dải bông tuyết rơi',
+    badgeText: 'COZY WINTER',
+    fontFamily: "'Quicksand', sans-serif",
+    accentColor: '#0891B2',
+    borderStyle: 'solid',
+    defaultTextColor: '#164E63',
+    topDecoration: '❄️ SNOWY COZY NIGHTS ❄️',
+    bottomDecoration: 'Warm hearts in the cold days ♡',
+    isSpecialArtwork: true,
+  },
+  {
+    id: 'minimal',
+    name: 'Tối Giản',
+    category: 'minimal',
+    description: 'Phong cách Seoul tối giản, đường nét tinh tế, hiện đại',
+    badgeText: 'SEOUL MINIMAL',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    accentColor: '#52525B',
+    borderStyle: 'solid',
+    defaultTextColor: '#27272A',
+    topDecoration: '• LIFE FOUR CUTS •',
+    bottomDecoration: 'PHOTOBOOTH MEMORY',
+    cornerDecoration: 'minimal',
+  },
+  {
+    id: 'cute',
+    name: 'Dễ Thương',
+    category: 'cute',
+    description: 'Họa tiết nơ pastel, trái tim, thỏ con và kẹo ngọt',
+    badgeText: 'CUTE & SWEET',
+    fontFamily: "'Quicksand', sans-serif",
+    accentColor: '#FB7185',
+    borderStyle: 'dashed',
+    defaultTextColor: '#BE123C',
+    topDecoration: '🐰 🎀 SWEET MOMENTS 🎀 🐰',
+    bottomDecoration: '♡ Always Together ♡',
+    sideDecorations: ['✨', '🌸', '💖', '⭐', '🍓', '🎀'],
+    cornerDecoration: 'bow',
+  },
+  {
+    id: 'vintage',
+    name: 'Vintage 90s',
+    category: 'vintage',
+    description: 'Phong cách cuộn phim hoài niệm thập niên 90s',
+    badgeText: 'RETRO 1998',
+    fontFamily: "'Caveat', cursive",
+    accentColor: '#92400E',
+    borderStyle: 'double',
+    defaultTextColor: '#78350F',
+    topDecoration: '🎞️ ISO 400 • VINTAGE FILM 🎞️',
+    bottomDecoration: 'Captured On 35mm Strip',
+    sideDecorations: ['🎞️', '🕰️', '📜', '✨'],
+    cornerDecoration: 'stamp',
+  },
+  {
+    id: 'party',
+    name: 'Tiệc Tùng',
+    category: 'party',
+    description: 'Rực rỡ pháo hoa kim tuyến, bóng bay và champagne',
+    badgeText: 'PARTY TIME',
+    fontFamily: "'Be Vietnam Pro', sans-serif",
+    accentColor: '#EAB308',
+    borderStyle: 'solid',
+    defaultTextColor: '#854D0E',
+    topDecoration: '🎉 🥂 CELEBRATE TODAY 🥂 🎉',
+    bottomDecoration: 'Good Vibes Only ★',
+    sideDecorations: ['✨', '🎊', '🎈', '🍾', '🌟', '🥳'],
+    cornerDecoration: 'sparkle',
+  },
+  {
+    id: 'korean',
+    name: 'Hàn Quốc',
+    category: 'korean',
+    description: 'Mộng mơ với mây hồng, trăng sao và nét chữ thanh lịch',
+    badgeText: 'K-ROMANCE',
+    fontFamily: "'Quicksand', sans-serif",
+    accentColor: '#818CF8',
+    borderStyle: 'solid',
+    defaultTextColor: '#3730A3',
+    topDecoration: '🌙 Our Precious Moment ☁️',
+    bottomDecoration: '내 소중한 순간들 • Photostudio',
+    sideDecorations: ['☁️', '🌙', '💫', '💜', '🌸'],
+    cornerDecoration: 'heart',
+  },
+  {
+    id: 'y2k',
+    name: 'Y2K Cyber',
+    category: 'y2k',
+    description: 'Ngôi sao 4 cánh, kim loại bạc và họa tiết pixel retro',
+    badgeText: 'CYBER 2000',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    accentColor: '#06B6D4',
+    borderStyle: 'solid',
+    defaultTextColor: '#0E7490',
+    topDecoration: '★ ✦ CYBER PHOTO ✦ ★',
+    bottomDecoration: 'VER 2.0 • DIGITAL ARCHIVE',
+    sideDecorations: ['✦', '★', '⚡', '🛸', '💿', '✧'],
+    cornerDecoration: 'star',
+  },
+];
+
+export const FRAME_COLORS: FrameColor[] = [
+  {
+    id: 'cream',
+    name: 'Trắng Kem (Vintage)',
+    hex: '#FAF5EE',
+    textColor: '#881337',
+    subtextColor: '#9F1239',
+    borderHex: '#F3E8DB',
+  },
+  {
+    id: 'pure_white',
+    name: 'Trắng Sữa',
+    hex: '#FAFAF9',
+    textColor: '#1C1917',
+    subtextColor: '#78716C',
+    borderHex: '#E7E5E4',
+  },
+  {
+    id: 'pink',
+    name: 'Hồng Pastel',
+    hex: '#FDE2E4',
+    textColor: '#831843',
+    subtextColor: '#9D174D',
+    borderHex: '#FBCFE8',
+  },
+  {
+    id: 'blue',
+    name: 'Xanh Lam',
+    hex: '#E0F2FE',
+    textColor: '#0C4A6E',
+    subtextColor: '#0369A1',
+    borderHex: '#BAE6FD',
+  },
+  {
+    id: 'black',
+    name: 'Đen Nhám',
+    hex: '#18181B',
+    textColor: '#FAFAFA',
+    subtextColor: '#A1A1AA',
+    borderHex: '#3F3F46',
+    isDark: true,
+  },
+  {
+    id: 'lavender',
+    name: 'Tím Nhạt',
+    hex: '#EDE9FE',
+    textColor: '#4C1D95',
+    subtextColor: '#6D28D9',
+    borderHex: '#DDD6FE',
+  },
+  {
+    id: 'matcha',
+    name: 'Xanh Matcha',
+    hex: '#DCFCE7',
+    textColor: '#14532D',
+    subtextColor: '#15803D',
+    borderHex: '#BBF7D0',
+  },
+  {
+    id: 'butter',
+    name: 'Vàng Bơ',
+    hex: '#FEF9C3',
+    textColor: '#713F12',
+    subtextColor: '#A16207',
+    borderHex: '#FEF08A',
+  },
+  {
+    id: 'burgundy',
+    name: 'Đỏ Burgundy',
+    hex: '#4C0519',
+    textColor: '#FFE4E6',
+    subtextColor: '#FDA4AF',
+    borderHex: '#881337',
+    isDark: true,
+  },
+];
+
+export const PHOTO_FILTERS: PhotoFilter[] = [
+  {
+    id: 'none',
+    name: 'Tự nhiên',
+    filterClass: '',
+    cssFilter: 'none',
+    description: 'Màu sắc nguyên bản chân thực',
+  },
+  {
+    id: 'kglow',
+    name: 'Hàn Quốc Trắng Mịn',
+    filterClass: 'brightness-110 contrast-105 saturate-95',
+    cssFilter: 'brightness(1.1) contrast(1.05) saturate(0.95)',
+    description: 'Tông sáng da tự nhiên, nhẹ nhàng',
+  },
+  {
+    id: 'tiktok_smooth',
+    name: 'TikTok Mịn Màng 🌸',
+    filterClass: 'brightness-[1.12] contrast-[0.93] saturate-[1.02]',
+    cssFilter: 'brightness(1.12) contrast(0.93) saturate(1.02)',
+    description: 'Nâng sáng da tự nhiên, giảm độ tương phản giúp da mịn màng sắc nét',
+  },
+  {
+    id: 'tiktok_pinky',
+    name: 'TikTok Má Hồng 🍑',
+    filterClass: 'brightness-[1.14] saturate-[1.08] hue-rotate-[-6deg] contrast-[0.93]',
+    cssFilter: 'brightness(1.14) saturate(1.08) hue-rotate(-6deg) contrast(0.93)',
+    description: 'Nâng tông hồng hào tự nhiên, má đào rạng rỡ và sắc sảo',
+  },
+  {
+    id: 'tiktok_moisture',
+    name: 'TikTok Trắng Sứ ✨',
+    filterClass: 'brightness-[1.16] contrast-[0.88] saturate-[0.90] hue-rotate-[3deg]',
+    cssFilter: 'brightness(1.16) contrast(0.88) saturate(0.90) hue-rotate(3deg)',
+    description: 'Tông trắng sứ trong veo, mắt môi sắc nét và che thâm tối đa',
+  },
+  {
+    id: 'bw',
+    name: 'Đen Trắng Cổ Điển',
+    filterClass: 'grayscale contrast-125',
+    cssFilter: 'grayscale(1) contrast(1.25)',
+    description: 'Đen trắng phong cách nghệ thuật',
+  },
+  {
+    id: 'warm',
+    name: 'Vintage Ấm',
+    filterClass: 'sepia-[0.35] brightness-105 contrast-105',
+    cssFilter: 'sepia(0.35) brightness(1.05) contrast(1.05)',
+    description: 'Sắc vàng ấm áp hoài niệm',
+  },
+  {
+    id: 'cool',
+    name: 'Film Lạnh (Cool)',
+    filterClass: 'hue-rotate-15 saturate-90 brightness-105',
+    cssFilter: 'hue-rotate(15deg) saturate(0.9) brightness(1.05)',
+    description: 'Tông lạnh hiện đại sang trọng',
+  },
+  {
+    id: 'rosy',
+    name: 'Hồng Đào Mơ Mộng',
+    filterClass: 'saturate-125 hue-rotate-[-10deg] brightness-105',
+    cssFilter: 'saturate(1.25) hue-rotate(-10deg) brightness(1.05)',
+    description: 'Má hồng rạng rỡ tươi tắn',
+  },
+];
+
+export interface StickerCategory {
+  id: string;
+  name: string;
+  icon: string;
+  stickers: string[];
+}
+
+export const STICKER_CATEGORIES: StickerCategory[] = [
+  {
+    id: 'love',
+    name: 'Nơ & Tình yêu',
+    icon: '🎀',
+    stickers: ['🎀', '💖', '💘', '💕', '🕊️', '💐', '💌', '💍', '🌸', '🌷'],
+  },
+  {
+    id: 'sweets',
+    name: 'Bánh & Kẹo ngọt',
+    icon: '🎂',
+    stickers: ['🎂', '🧁', '🍰', '🍓', '🍒', '🍑', '🍭', '🍬', '🍩', '🍪'],
+  },
+  {
+    id: 'cute_animals',
+    name: 'Thú cưng & Đáng yêu',
+    icon: '🐰',
+    stickers: ['🐰', '🐱', '🐶', '🧸', '🐥', '🐼', '🦊', '🐨', '🦄', '🐾'],
+  },
+  {
+    id: 'sparkle_stars',
+    name: 'Lấp lánh & Vũ trụ',
+    icon: '✨',
+    stickers: ['✨', '⭐', '💫', '🌟', '🌙', '☁️', '🌈', '🪐', '🪄', '⚡'],
+  },
+  {
+    id: 'poses_vibes',
+    name: 'Cảm xúc & Biểu tượng',
+    icon: '✌️',
+    stickers: ['✌️', '🫰', '👑', '🕶️', '📸', '🥳', '🎉', '🥂', '💿', '🌻'],
+  },
+];
+
+export const AVAILABLE_STICKERS = STICKER_CATEGORIES.flatMap((c) => c.stickers);
+
+
+export const POSE_SUGGESTIONS = [
+  'Tạo dáng tay chữ V (Peace Sign) ✌️',
+  'Tạo hình trái tim Hàn Quốc (Finger Heart) 🫰',
+  'Ôm má cười thật tươi phong cách idol 🌸',
+  'Nháy mắt tinh nghịch (Wink) 😉',
+  'Tạo dáng ngầu che nửa khuôn mặt 😎',
+  'Thổi nụ hôn gió ngọt ngào 💋',
+  'Tựa đầu vào nhau thật thân thiết 👭',
+  'Tung sticker / làm mặt mèo tinh nghịch 🐱',
+];
+
+// Sample placeholder pictures for instant preview (4 photos)
+export const SAMPLE_PHOTOS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&auto=format&fit=crop&q=80',
+];
+
