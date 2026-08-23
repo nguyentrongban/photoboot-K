@@ -2,6 +2,7 @@ import React from 'react';
 import { CapturedPhoto, PhotoboothSettings } from '../types';
 import { FRAME_THEMES, FRAME_COLORS, PHOTO_FILTERS, SAMPLE_PHOTOS, LAYOUT_OPTIONS } from '../data/themesAndColors';
 import { PhotoStrip } from './PhotoStrip';
+import { FrameThemeCard } from './FrameThemeCard';
 import { CameraFill, CheckLg } from 'react-bootstrap-icons';
 import { LottieIcon } from './LottieIcon';
 
@@ -108,8 +109,24 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
                   >
                     {/* Cute visual frame layout diagram */}
                     <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                      {layout.id === 'grid-4' ? (
+                      {layout.id === 'single-1' ? (
+                        <div className="flex items-center justify-center w-6 h-9 p-0.5 rounded-lg border-2 border-current">
+                          <div className="bg-current w-full h-full rounded-xs opacity-70" />
+                        </div>
+                      ) : layout.id === 'strip-2' ? (
+                        <div className="flex flex-row gap-1 w-9 h-6 p-0.5 rounded-lg border-2 border-current items-center justify-center">
+                          <div className="bg-current flex-1 h-full opacity-70" />
+                          <div className="bg-current flex-1 h-full opacity-70" />
+                        </div>
+                      ) : layout.id === 'grid-4' ? (
                         <div className="grid grid-cols-2 gap-1 w-8 h-8 p-1 rounded-lg border-2 border-current">
+                          <div className="bg-current rounded-xs opacity-70" />
+                          <div className="bg-current rounded-xs opacity-70" />
+                          <div className="bg-current rounded-xs opacity-70" />
+                          <div className="bg-current rounded-xs opacity-70" />
+                        </div>
+                      ) : layout.id === 'grid-4-rect' ? (
+                        <div className="grid grid-cols-2 gap-1 w-8 h-10 p-1 rounded-lg border-2 border-current">
                           <div className="bg-current rounded-xs opacity-70" />
                           <div className="bg-current rounded-xs opacity-70" />
                           <div className="bg-current rounded-xs opacity-70" />
@@ -163,22 +180,44 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div
+              className={`grid gap-3 sm:gap-4 items-start ${
+                settings.layoutType === 'grid-4'
+                  ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                  : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+              }`}
+            >
               {FRAME_THEMES.map((theme) => {
                 const isSelected = theme.id === settings.themeId;
-                const isWeddingSpecial = theme.id === 'wedding_cake';
-                const emoji = themeIcons[theme.id] || '✨';
 
                 return (
-                  <button
+                  <FrameThemeCard
                     key={theme.id}
-                    id={`theme-select-${theme.id}`}
-                    onClick={() => {
+                    theme={theme}
+                    isSelected={isSelected}
+                    layoutType={settings.layoutType}
+                    onSelect={() => {
                       onUpdateSettings({
                         themeId: theme.id,
-                        ...(isWeddingSpecial
+                        ...(theme.hasFixedColor
+                          ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                          : {}),
+                        ...(theme.id === 'airmail_postcard'
                           ? {
-                              colorId: 'cream',
+                              title: 'KATE & JACKSON',
+                              subtitle: 'got hitched!',
+                              customDate: '1.10.14',
+                            }
+                          : {}),
+                        ...(theme.id === 'teddy_cozy_check'
+                          ? {
+                              title: 'cozy moments',
+                              subtitle: 'love yourself ♡',
+                              customDate: '08. 23. 26',
+                            }
+                          : {}),
+                        ...(theme.id === 'wedding_cake'
+                          ? {
                               title: 'AMIRA & SPENCE',
                               subtitle: 'Our Wedding Day',
                               customDate: '08. 23. 25',
@@ -186,26 +225,7 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
                           : {}),
                       });
                     }}
-                    className={`relative p-3 rounded-2xl border-2 text-center transition-all duration-200 flex flex-col items-center justify-center cursor-pointer ${
-                      isSelected
-                        ? 'border-neutral-900 bg-neutral-900 text-white shadow-md scale-[1.02]'
-                        : isWeddingSpecial
-                        ? 'border-rose-300 bg-rose-50/50 text-neutral-900 hover:bg-rose-100/50'
-                        : 'border-rose-100/80 bg-white hover:bg-rose-50/30 text-neutral-700'
-                    }`}
-                  >
-                    <span className="text-2xl mb-1 drop-shadow-xs">
-                      {emoji}
-                    </span>
-                    <span className="font-bold text-xs leading-tight">
-                      {theme.name}
-                    </span>
-                    {isWeddingSpecial && !isSelected && (
-                      <span className="text-[9px] font-extrabold text-rose-600 mt-1 uppercase">
-                        Mẫu ảnh Hot 🔥
-                      </span>
-                    )}
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -227,39 +247,55 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-5 sm:grid-cols-9 gap-3 pt-1">
-              {FRAME_COLORS.map((col) => {
-                const isSelected = col.id === settings.colorId && !settings.customColorHex;
-                return (
-                  <button
-                    key={col.id}
-                    id={`color-select-${col.id}`}
-                    onClick={() => onUpdateSettings({ colorId: col.id, customColorHex: undefined })}
-                    className="flex flex-col items-center gap-1 group focus:outline-hidden cursor-pointer"
-                    title={col.name}
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 border-2 ${
-                        isSelected
-                          ? 'scale-110 ring-2 ring-neutral-900 ring-offset-2 border-white shadow-sm'
-                          : 'border-black/10 hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: col.hex }}
+            {selectedTheme.hasFixedColor ? (
+              <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-3.5 flex items-center gap-3 text-amber-900 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0 font-bold text-sm">
+                  🔒
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-xs font-bold font-['Quicksand'] flex items-center gap-1.5">
+                    <span>Màu sắc cố định theo chủ đề "{selectedTheme.name}"</span>
+                  </p>
+                  <p className="text-[11px] text-amber-700 font-medium">
+                    Khung thiết kế này được phối màu đặc biệt. Hãy chọn chủ đề khác nếu bạn muốn tự chọn màu nền nhé!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-5 sm:grid-cols-9 gap-3 pt-1">
+                {FRAME_COLORS.map((col) => {
+                  const isSelected = col.id === settings.colorId && !settings.customColorHex;
+                  return (
+                    <button
+                      key={col.id}
+                      id={`color-select-${col.id}`}
+                      onClick={() => onUpdateSettings({ colorId: col.id, customColorHex: undefined })}
+                      className="flex flex-col items-center gap-1 group focus:outline-hidden cursor-pointer"
+                      title={col.name}
                     >
-                      {isSelected && (
-                        <CheckLg
-                          className="w-4 h-4 font-black"
-                          style={{ color: col.textColor }}
-                        />
-                      )}
-                    </div>
-                    <span className="text-[10px] font-bold text-neutral-500 truncate max-w-[50px]">
-                      {col.name.split(' (')[0]}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 border-2 ${
+                          isSelected
+                            ? 'scale-110 ring-2 ring-neutral-900 ring-offset-2 border-white shadow-sm'
+                            : 'border-black/10 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: col.hex }}
+                      >
+                        {isSelected && (
+                          <CheckLg
+                            className="w-4 h-4 font-black"
+                            style={{ color: col.textColor }}
+                          />
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold text-neutral-500 truncate max-w-[50px]">
+                        {col.name.split(' (')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* 4. Photo Filter Preset */}

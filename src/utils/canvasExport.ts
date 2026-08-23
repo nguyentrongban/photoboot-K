@@ -9,7 +9,418 @@ export interface ExportOptions {
   scale?: number;
 }
 
-// Helper to load image safely into an Image element
+// --- COZY BEAR & VINTAGE SCRAPBOOK CANVAS DRAWING FUNCTIONS ---
+function drawCanvasGinghamBg(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+  ctx.save();
+  ctx.fillStyle = '#FAF6EF';
+  ctx.fillRect(x, y, width, height);
+
+  const tileSize = 32;
+  ctx.fillStyle = '#E0D5C1';
+  ctx.globalAlpha = 0.85;
+
+  for (let row = 0; row * tileSize < height; row++) {
+    for (let col = 0; col * tileSize < width; col++) {
+      if ((row + col) % 2 === 1) {
+        ctx.fillRect(x + col * tileSize, y + row * tileSize, tileSize, tileSize);
+      }
+    }
+  }
+
+  ctx.fillStyle = '#C8B89E';
+  ctx.globalAlpha = 0.45;
+  for (let row = 1; row * tileSize < height; row += 2) {
+    for (let col = 1; col * tileSize < width; col += 2) {
+      ctx.fillRect(x + col * tileSize, y + row * tileSize, tileSize, tileSize);
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawCanvasCozyBearBow(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = size / 70;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#CBB399';
+  ctx.strokeStyle = '#9E8268';
+  ctx.lineWidth = 1.5;
+
+  ctx.beginPath();
+  ctx.moveTo(35, 25);
+  ctx.bezierCurveTo(22, 10, 12, 28, 32, 28);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(35, 25);
+  ctx.bezierCurveTo(48, 10, 58, 28, 38, 28);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#BBA085';
+  ctx.beginPath();
+  ctx.moveTo(32, 28);
+  ctx.bezierCurveTo(28, 38, 22, 52, 20, 60);
+  ctx.bezierCurveTo(25, 58, 30, 55, 33, 30);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(38, 28);
+  ctx.bezierCurveTo(42, 38, 48, 52, 50, 60);
+  ctx.bezierCurveTo(45, 58, 40, 55, 37, 30);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#5A4332';
+  ctx.strokeStyle = '#3A281A';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(35, 27, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#4B3626';
+  ctx.beginPath();
+  ctx.arc(35, 27, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#D2C2B2';
+  ctx.beginPath();
+  ctx.arc(33, 25, 0.9, 0, Math.PI * 2);
+  ctx.arc(37, 25, 0.9, 0, Math.PI * 2);
+  ctx.arc(33, 29, 0.9, 0, Math.PI * 2);
+  ctx.arc(37, 29, 0.9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCanvasCozyBearCookie(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = size / 70;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#CFA06E';
+  ctx.strokeStyle = '#8C613A';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.arc(20, 22, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#E8B896';
+  ctx.beginPath();
+  ctx.arc(20, 22, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#CFA06E';
+  ctx.beginPath();
+  ctx.arc(50, 22, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#E8B896';
+  ctx.beginPath();
+  ctx.arc(50, 22, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#D9A873';
+  ctx.beginPath();
+  ctx.arc(35, 38, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#FFF5EA';
+  ctx.strokeStyle = '#B88A58';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(35, 42, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#5A3A22';
+  ctx.beginPath();
+  ctx.ellipse(35, 39, 3.5, 2.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#5A3A22';
+  ctx.beginPath();
+  ctx.arc(25, 34, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#E8A0B0';
+  ctx.globalAlpha = 0.8;
+  ctx.beginPath();
+  ctx.ellipse(21, 40, 3.5, 2, 0, 0, Math.PI * 2);
+  ctx.ellipse(49, 40, 3.5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCanvasCozyPlushTeddy(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = size / 100;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#A47E5B';
+  ctx.strokeStyle = '#6E5035';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.arc(34, 28, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#C5A586';
+  ctx.beginPath();
+  ctx.arc(34, 28, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#A47E5B';
+  ctx.beginPath();
+  ctx.arc(66, 28, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#C5A586';
+  ctx.beginPath();
+  ctx.arc(66, 28, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#A47E5B';
+  ctx.beginPath();
+  ctx.arc(50, 42, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#E2C9B1';
+  ctx.beginPath();
+  ctx.ellipse(50, 47, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#3D2919';
+  ctx.beginPath();
+  ctx.ellipse(50, 44, 3.5, 2.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(40, 39, 2, 0, Math.PI * 2);
+  ctx.arc(60, 39, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#A47E5B';
+  ctx.beginPath();
+  ctx.ellipse(50, 72, 18, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#C5A586';
+  ctx.beginPath();
+  ctx.ellipse(50, 72, 10, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCanvasCozyLetterBCookie(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = size / 60;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#CFA06E';
+  ctx.strokeStyle = '#8C613A';
+  ctx.lineWidth = 2.5;
+
+  ctx.beginPath();
+  ctx.moveTo(15, 10);
+  ctx.lineTo(35, 10);
+  ctx.bezierCurveTo(46, 10, 46, 32, 35, 32);
+  ctx.bezierCurveTo(48, 32, 48, 58, 35, 58);
+  ctx.lineTo(15, 58);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#FAF6EF';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(23, 18);
+  ctx.lineTo(32, 18);
+  ctx.bezierCurveTo(38, 18, 38, 26, 32, 26);
+  ctx.lineTo(23, 26);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(23, 38);
+  ctx.lineTo(33, 38);
+  ctx.bezierCurveTo(40, 38, 40, 50, 33, 50);
+  ctx.lineTo(23, 50);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(17, 12);
+  ctx.lineTo(34, 12);
+  ctx.bezierCurveTo(43, 12, 43, 30, 34, 30);
+  ctx.lineTo(17, 30);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawCanvasCozyVintageCamera(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = size / 100;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#222222';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 2;
+  ctx.fillRect(10, 20, 80, 42);
+  ctx.strokeRect(10, 20, 80, 42);
+
+  ctx.fillStyle = '#D0D0D0';
+  ctx.strokeStyle = '#999999';
+  ctx.lineWidth = 1.5;
+  ctx.fillRect(10, 20, 80, 12);
+  ctx.strokeRect(10, 20, 80, 12);
+
+  ctx.fillStyle = '#1A1A1A';
+  ctx.strokeStyle = '#C0C0C0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(50, 41, 18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#0D1B2A';
+  ctx.beginPath();
+  ctx.arc(50, 41, 13, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.globalAlpha = 0.6;
+  ctx.beginPath();
+  ctx.arc(47, 38, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCanvasCozyKraftTape(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  ctx.fillStyle = '#C5A880';
+  ctx.strokeStyle = '#A88B65';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, width, height, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#2C2016';
+  ctx.font = `bold ${Math.round(height * 0.45)}px "Courier New", monospace`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('love yourself', 10, height / 2);
+
+  ctx.restore();
+}
+
+function drawCanvasCozyScrapbookFooter(ctx: CanvasRenderingContext2D, startX: number, footerY: number, width: number) {
+  ctx.save();
+
+  // 1. Quote tapes
+  ctx.save();
+  ctx.fillStyle = '#D5C7B0';
+  ctx.strokeStyle = 'rgba(194, 178, 153, 0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(startX + 15, footerY + 10, 130, 22, 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#3D2C1E';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText("i'd be a fool", startX + 80, footerY + 21);
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = '#C5B499';
+  ctx.strokeStyle = 'rgba(176, 159, 133, 0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(startX + 15, footerY + 36, 145, 22, 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#2C1F15';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('not to love you', startX + 87, footerY + 47);
+  ctx.restore();
+
+  // Subtitle handwritten string
+  ctx.font = 'italic 13px Georgia, serif';
+  ctx.fillStyle = '#8C6D58';
+  ctx.textAlign = 'left';
+  ctx.fillText('- your eyes tell a story', startX + 20, footerY + 74);
+
+  // CUTiE magazine badge in center
+  ctx.save();
+  const cutieX = startX + width / 2 - 40;
+  const cutieY = footerY + 70;
+  ctx.fillStyle = 'rgba(20, 20, 20, 0.9)';
+  ctx.beginPath();
+  ctx.roundRect(cutieX, cutieY, 80, 28, 4);
+  ctx.fill();
+
+  const letters = [
+    { text: 'C', bg: '#000000', fg: '#FFFFFF' },
+    { text: 'U', bg: '#FFFFFF', fg: '#000000' },
+    { text: 'T', bg: '#000000', fg: '#FFFFFF' },
+    { text: '!', bg: '#FFFFFF', fg: '#000000' },
+    { text: 'E', bg: '#000000', fg: '#FFFFFF' },
+  ];
+
+  let lX = cutieX + 6;
+  letters.forEach((l) => {
+    ctx.fillStyle = l.bg;
+    ctx.fillRect(lX, cutieY + 4, 13, 20);
+    ctx.fillStyle = l.fg;
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(l.text, lX + 6.5, cutieY + 14);
+    lX += 14;
+  });
+  ctx.restore();
+
+  // Date at bottom right
+  ctx.font = 'bold 15px "Courier New", monospace';
+  ctx.fillStyle = '#5A4332';
+  ctx.textAlign = 'right';
+  ctx.fillText('08. 23. 2026', startX + width - 20, footerY + 88);
+
+  ctx.restore();
+}
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -246,6 +657,114 @@ function drawCanvasHeartCake(ctx: CanvasRenderingContext2D, cx: number, cy: numb
     ctx.bezierCurveTo(cxPos - 2, 11, cxPos + 2, 17, cxPos, 23);
     ctx.fill();
   });
+
+  ctx.restore();
+}
+
+// Draw Dong Son Drum on Canvas
+function drawCanvasDongSonDrum(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, color: string) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.18, 0, Math.PI * 2);
+  ctx.globalAlpha = 0.25;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  for (let i = 0; i < 12; i++) {
+    const angle = (i * 30 * Math.PI) / 180;
+    const r1 = radius * 0.18;
+    const r2 = radius * 0.36;
+    ctx.beginPath();
+    ctx.moveTo(r1 * Math.cos(angle), r1 * Math.sin(angle));
+    ctx.lineTo(r2 * Math.cos(angle), r2 * Math.sin(angle));
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.45, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.65, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.85, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  for (let i = 0; i < 24; i++) {
+    const angle = (i * 15 * Math.PI) / 180;
+    const r1 = radius * 0.68;
+    const r2 = radius * 0.82;
+    ctx.beginPath();
+    ctx.moveTo(r1 * Math.cos(angle), r1 * Math.sin(angle));
+    ctx.lineTo(r2 * Math.cos(angle), r2 * Math.sin(angle));
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// Draw Vietnam Map on Canvas
+function drawCanvasVietnamMap(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, color: string, showLabels = true) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = height / 130;
+  ctx.scale(scale, scale);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  ctx.beginPath();
+  ctx.moveTo(42, 10);
+  ctx.bezierCurveTo(48, 10, 58, 12, 60, 20);
+  ctx.bezierCurveTo(62, 26, 50, 30, 45, 38);
+  ctx.bezierCurveTo(40, 46, 55, 52, 52, 62);
+  ctx.bezierCurveTo(48, 72, 32, 75, 28, 85);
+  ctx.bezierCurveTo(25, 92, 38, 96, 35, 102);
+  ctx.bezierCurveTo(32, 108, 24, 106, 18, 112);
+  ctx.bezierCurveTo(14, 116, 12, 110, 16, 104);
+  ctx.bezierCurveTo(20, 98, 16, 92, 22, 86);
+  ctx.bezierCurveTo(26, 82, 34, 74, 38, 66);
+  ctx.bezierCurveTo(42, 58, 32, 50, 36, 40);
+  ctx.bezierCurveTo(40, 32, 50, 22, 42, 10);
+  ctx.closePath();
+
+  ctx.globalAlpha = 0.3;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(78, 45, 2.5, 0, Math.PI * 2);
+  ctx.arc(83, 42, 2, 0, Math.PI * 2);
+  ctx.arc(81, 48, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(75, 88, 2.5, 0, Math.PI * 2);
+  ctx.arc(82, 85, 2, 0, Math.PI * 2);
+  ctx.arc(78, 93, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (showLabels) {
+    ctx.font = 'bold 6px "Plus Jakarta Sans", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('HOÀNG SA', 65, 36);
+    ctx.fillText('TRƯỜNG SA', 63, 105);
+  }
 
   ctx.restore();
 }
@@ -1003,6 +1522,18 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     // 2x2 Square / Instagram Photocard layout
     totalWidth = 900;
     totalHeight = 1100;
+  } else if (layout === 'grid-4-rect') {
+    // 2x2 Tall Rectangular layout (3:4 portrait photo slots)
+    totalWidth = 900;
+    totalHeight = 1280;
+  } else if (layout === 'single-1') {
+    // 1-cut special poster frame
+    totalWidth = 600;
+    totalHeight = 800;
+  } else if (layout === 'strip-2') {
+    // 2-cut horizontal layout (left to right 2 photos)
+    totalWidth = 900;
+    totalHeight = 620;
   } else if (layout === 'strip-4') {
     // 4-cut vertical strip
     totalWidth = settings.isDoubleStrip ? 1240 : 600;
@@ -1066,8 +1597,8 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     }
   };
 
-  // 1. RENDER 2x2 SQUARE GRID LAYOUT
-  if (layout === 'grid-4') {
+  // 1. RENDER 2x2 GRID LAYOUTS (Square or Tall Rectangle)
+  if (layout === 'grid-4' || layout === 'grid-4-rect') {
     // Background
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, totalWidth, totalHeight);
@@ -1122,25 +1653,33 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
         ctx.fillText(settings.subtitle, totalWidth / 2, 105);
       }
     } else {
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      if (theme.topDecoration) {
-        ctx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
-        ctx.fillStyle = textColor;
-        ctx.fillText(theme.topDecoration, totalWidth / 2, 50);
-      }
-      ctx.font = '800 36px "Plus Jakarta Sans", "Be Vietnam Pro", sans-serif';
+      // May Photobooth Top Header
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = '900 32px "Playfair Display", Georgia, serif';
       ctx.fillStyle = textColor;
-      ctx.fillText((settings.title || 'PHOTOBOOTH MEMORY').toUpperCase(), totalWidth / 2, 90);
+      ctx.fillText(settings.title || 'may', 32, 16);
+
+      ctx.font = '600 13px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = subtextColor;
+      ctx.fillText('PHOTOBOOTH', 32, 50);
+
+      if (settings.subtitle) {
+        ctx.textAlign = 'right';
+        ctx.font = '500 15px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(settings.subtitle, totalWidth - 32, 22);
+      }
+      ctx.restore();
     }
 
     // 2x2 Photos Grid
-    const padX = 70;
-    const gridStartY = 135;
-    const gap = 20;
-    const photoWidth = (totalWidth - padX * 2 - gap) / 2; // ~370px
-    const photoHeight = Math.round(photoWidth * 0.75); // 4:3 ratio (~277px)
-    const borderRadius = 14;
+    const padX = 32;
+    const gridStartY = 55;
+    const gap = 10;
+    const photoWidth = (totalWidth - padX * 2 - gap) / 2; // ~413px
+    const photoHeight = 413;
+    const borderRadius = 0;
 
     const gridPositions = [
       { x: padX, y: gridStartY },
@@ -1279,16 +1818,343 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     return canvas;
   }
 
-  // 2. RENDER VERTICAL STRIP (3-Cut or 4-Cut)
+  // 2. RENDER 2-CUT HORIZONTAL LAYOUT (Left to Right)
+  if (layout === 'strip-2') {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+    // Outer subtle border
+    ctx.strokeStyle = color.borderHex || 'rgba(0,0,0,0.08)';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, totalWidth - 8, totalHeight - 8);
+
+    // Side Vines for Special Themes
+    if (isSpecialArtwork) {
+      if (theme.id === 'wedding_cake') {
+        drawCanvasSideVine(ctx, 25, 110, 380, true, artworkColor);
+        drawCanvasSideVine(ctx, totalWidth - 25, 110, 380, false, artworkColor);
+      } else if (theme.id === 'astrology') {
+        drawCanvasAstroConstellation(ctx, 25, 110, 380, true, artworkColor);
+        drawCanvasAstroConstellation(ctx, totalWidth - 25, 110, 380, false, artworkColor);
+      } else if (theme.id === 'vintage_daisy') {
+        drawCanvasDaisySideVine(ctx, 25, 110, 380, true, artworkColor);
+        drawCanvasDaisySideVine(ctx, totalWidth - 25, 110, 380, false, artworkColor);
+      } else if (theme.id === 'cozy_winter') {
+        drawCanvasWinterSideSnow(ctx, 25, 110, 380, true, artworkColor);
+        drawCanvasWinterSideSnow(ctx, totalWidth - 25, 110, 380, false, artworkColor);
+      }
+    }
+
+    // Header Area
+    if (isSpecialArtwork) {
+      if (theme.id === 'wedding_cake') {
+        drawCanvasDove(ctx, 50, 35, 50, artworkColor);
+        drawCanvasHeartArrow(ctx, totalWidth - 100, 35, 50, artworkColor);
+      } else if (theme.id === 'astrology') {
+        drawCanvasAstroMoon(ctx, 50, 25, 50, artworkColor);
+        drawCanvasAstroStar(ctx, totalWidth - 100, 25, 50, artworkColor);
+      } else if (theme.id === 'vintage_daisy') {
+        drawCanvasDaisyHeaderLeft(ctx, 50, 25, 50, artworkColor);
+        drawCanvasDaisyHeaderRight(ctx, totalWidth - 100, 25, 50, artworkColor);
+      } else if (theme.id === 'cozy_winter') {
+        drawCanvasWinterHeaderLeft(ctx, 50, 25, 50, artworkColor);
+        drawCanvasWinterHeaderRight(ctx, totalWidth - 100, 25, 50, artworkColor);
+      }
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold 32px "${theme.fontFamily || 'Playfair Display'}"`;
+      ctx.fillStyle = textColor;
+      ctx.fillText((settings.title || (theme.id === 'wedding_cake' ? 'AMIRA & SPENCE' : theme.id === 'astrology' ? 'COSMIC MEMORY' : theme.id === 'vintage_daisy' ? 'DAISY MEMORY' : 'WINTER CHILL')).toUpperCase(), totalWidth / 2, 55);
+
+      if (settings.subtitle) {
+        ctx.font = `italic 18px "${theme.fontFamily || 'Plus Jakarta Sans'}", sans-serif`;
+        ctx.fillStyle = subtextColor;
+        ctx.fillText(settings.subtitle, totalWidth / 2, 88);
+      }
+    } else {
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = '900 28px "Playfair Display", Georgia, serif';
+      ctx.fillStyle = textColor;
+      ctx.fillText(settings.title || 'may', 32, 14);
+
+      ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = subtextColor;
+      ctx.fillText('PHOTOBOOTH', 32, 44);
+
+      if (settings.subtitle) {
+        ctx.textAlign = 'right';
+        ctx.font = '500 14px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(settings.subtitle, totalWidth - 32, 18);
+      }
+      ctx.restore();
+    }
+
+    // 2 Photos Side by Side (Left to Right)
+    const padX = 32;
+    const photoW = (totalWidth - padX * 2 - 10) / 2; // ~413px
+    const photoH = 440;
+    const startY = 48;
+    const positions = [
+      { x: padX, y: startY },
+      { x: padX + photoW + 10, y: startY },
+    ];
+
+    for (let i = 0; i < 2; i++) {
+      const pos = positions[i];
+      const img = loadedImages[i];
+
+      // White card background behind photo
+      ctx.save();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(pos.x, pos.y, photoW, photoH);
+      ctx.restore();
+
+      // Clip & Draw Photo (Sharp square 0 border radius)
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(pos.x, pos.y, photoW, photoH);
+      ctx.clip();
+
+      if (img) {
+        const imgAspect = img.width / img.height;
+        const targetAspect = photoW / photoH;
+        let drawW, drawH, drawX, drawY;
+
+        if (imgAspect > targetAspect) {
+          drawH = photoH;
+          drawW = photoH * imgAspect;
+          drawX = pos.x - (drawW - photoW) / 2;
+          drawY = pos.y;
+        } else {
+          drawW = photoW;
+          drawH = photoW / imgAspect;
+          drawX = pos.x;
+          drawY = pos.y - (drawH - photoH) / 2;
+        }
+
+        drawPhotoWithFilters(img, drawX, drawY, drawW, drawH);
+      } else {
+        ctx.fillStyle = '#F3F4F6';
+        ctx.fillRect(pos.x, pos.y, photoW, photoH);
+        ctx.fillStyle = '#9CA3AF';
+        ctx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Khung ${i + 1}`, pos.x + photoW / 2, pos.y + photoH / 2);
+      }
+      ctx.restore();
+
+      // Sharp border stroke
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pos.x, pos.y, photoW, photoH);
+      ctx.restore();
+    }
+
+    // Footer Area
+    const footerY = startY + photoH + 10;
+    ctx.save();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
+    if (settings.showDate) {
+      ctx.font = '600 18px "Plus Jakarta Sans", monospace, sans-serif';
+      ctx.fillStyle = textColor;
+      ctx.fillText(settings.customDate || '08. 23. 26', 32, footerY + 24);
+    }
+
+    if (theme.bottomDecoration) {
+      ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = subtextColor;
+      ctx.fillText(`• ${theme.bottomDecoration}`, 155, footerY + 24);
+    }
+    ctx.restore();
+
+    // Draw Stickers
+    if (settings.stickers && settings.stickers.length > 0) {
+      settings.stickers.forEach((st) => {
+        ctx.save();
+        const posX = (st.x / 100) * totalWidth;
+        const posY = (st.y / 100) * totalHeight;
+        ctx.translate(posX, posY);
+        ctx.rotate((st.rotation * Math.PI) / 180);
+        ctx.font = `${st.size * 2}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(st.emoji, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    return canvas;
+  }
+
+  // AIRMAIL POSTCARD CANVAS DRAWING HELPERS
+  function drawCanvasAirmailBg(ctx: CanvasRenderingContext2D, startX: number, y: number, width: number, height: number) {
+    ctx.save();
+    const stripeBorderWidth = 16;
+    ctx.fillStyle = '#E5D5BC';
+    ctx.fillRect(startX, y, width, height);
+
+    // Draw red and blue airmail stripes along the outer border ring only
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(startX, y, width, height);
+    ctx.rect(startX + stripeBorderWidth, y + stripeBorderWidth, width - stripeBorderWidth * 2, height - stripeBorderWidth * 2);
+    ctx.clip('evenodd');
+
+    const numStripes = Math.ceil((width + height) / 15);
+    for (let i = -numStripes; i < numStripes; i++) {
+      const xPos = startX + i * 36;
+      ctx.fillStyle = '#C82A2A';
+      ctx.beginPath();
+      ctx.moveTo(xPos, y);
+      ctx.lineTo(xPos + 14, y);
+      ctx.lineTo(xPos + 14 - height, y + height);
+      ctx.lineTo(xPos - height, y + height);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#1D3E6E';
+      ctx.beginPath();
+      ctx.moveTo(xPos + 18, y);
+      ctx.lineTo(xPos + 32, y);
+      ctx.lineTo(xPos + 32 - height, y + height);
+      ctx.lineTo(xPos + 18 - height, y + height);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = '#C8B59B';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(startX + stripeBorderWidth, y + stripeBorderWidth, width - stripeBorderWidth * 2, height - stripeBorderWidth * 2);
+
+    ctx.restore();
+  }
+
+  function drawCanvasAirmailPerforatedFrame(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+    ctx.save();
+    const pad = 12;
+    ctx.fillStyle = '#FAF6EF';
+    ctx.fillRect(x - pad, y - pad, width + pad * 2, height + pad * 2);
+
+    ctx.strokeStyle = '#CBB599';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([8, 6]);
+    ctx.strokeRect(x - pad + 2, y - pad + 2, width + pad * 2 - 4, height + pad * 2 - 4);
+    ctx.restore();
+  }
+
+  function drawCanvasAirmailFooter(ctx: CanvasRenderingContext2D, startX: number, footerY: number, width: number, settings: PhotoboothSettings) {
+    ctx.save();
+    ctx.translate(startX + 36, footerY + 10);
+
+    const titleParts = (settings.title || 'KATE & JACKSON').split('&');
+    const name1 = titleParts[0]?.trim() || 'KATE';
+    const name2 = titleParts[1]?.trim() || 'JACKSON';
+
+    // Name 1
+    ctx.fillStyle = '#1D3E6E';
+    ctx.font = '900 46px "Playfair Display", Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(name1, 0, 0);
+
+    const name1Width = ctx.measureText(name1).width;
+
+    // &
+    ctx.fillStyle = '#C82A2A';
+    ctx.font = 'italic bold 38px "Caveat", "Playfair Display", Georgia, serif';
+    ctx.fillText('&', name1Width + 12, 2);
+
+    // Name 2
+    ctx.fillStyle = '#1D3E6E';
+    ctx.font = '900 46px "Playfair Display", Georgia, serif';
+    ctx.fillText(name2, 0, 52);
+
+    // Subtitle
+    ctx.fillStyle = '#1D3E6E';
+    ctx.font = 'italic bold 30px "Caveat", "Playfair Display", cursive, serif';
+    ctx.fillText(settings.subtitle || 'got hitched!', 0, 108);
+
+    // Date
+    if (settings.showDate) {
+      ctx.font = 'bold 24px "Courier New", monospace';
+      ctx.fillText(settings.customDate || '1.10.14', 0, 146);
+    }
+
+    // Cancellation Rubber Stamp
+    ctx.save();
+    ctx.translate(width - 230, 25);
+    ctx.rotate((-12 * Math.PI) / 180);
+
+    ctx.strokeStyle = '#1D3E6E';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(60, 60, 52, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(60, 60, 44, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(60, 60, 22, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillStyle = '#1D3E6E';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('★', 60, 60);
+
+    ctx.font = '900 10px sans-serif';
+    ctx.fillText('LUCKY IN LOVE', 60, 24);
+    ctx.fillText('LUCKY IN LOVE', 60, 96);
+
+    ctx.restore();
+
+    // Wavy Cancellation Lines
+    ctx.save();
+    ctx.strokeStyle = '#1D3E6E';
+    ctx.lineWidth = 2.8;
+    ctx.lineCap = 'round';
+    const waveStartX = width - 130;
+    for (let i = 0; i < 4; i++) {
+      const wy = 38 + i * 18;
+      ctx.beginPath();
+      ctx.moveTo(waveStartX, wy);
+      ctx.quadraticCurveTo(waveStartX + 20, wy - 8, waveStartX + 40, wy);
+      ctx.quadraticCurveTo(waveStartX + 60, wy + 8, waveStartX + 80, wy);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  // 3. RENDER VERTICAL STRIP (Single-1, Strip-3, or Strip-4)
   const singleWidth = 600;
   const isDouble = settings.isDoubleStrip;
-  const photoCount = layout === 'strip-4' ? 4 : 3;
+  const photoCount = layout === 'single-1' ? 1 : layout === 'strip-4' ? 4 : 3;
 
   const renderSingleStrip = (startX: number) => {
     // 1. Background
     ctx.save();
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(startX, 0, singleWidth, totalHeight);
+    if (theme.id === 'airmail_postcard') {
+      drawCanvasAirmailBg(ctx, startX, 0, singleWidth, totalHeight);
+    } else if (theme.id === 'teddy_cozy_check') {
+      drawCanvasGinghamBg(ctx, startX, 0, singleWidth, totalHeight);
+    } else {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(startX, 0, singleWidth, totalHeight);
+    }
 
     // Outer border
     ctx.strokeStyle = color.borderHex || 'rgba(0,0,0,0.08)';
@@ -1296,7 +2162,7 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     ctx.strokeRect(startX + 2, 2, singleWidth - 4, totalHeight - 4);
 
     // Side Vines / Borders for Special Themes
-    if (isSpecialArtwork) {
+    if (isSpecialArtwork && theme.id !== 'teddy_cozy_check') {
       if (theme.id === 'wedding_cake') {
         drawCanvasSideVine(ctx, startX + 22, 140, totalHeight - 420, true, artworkColor);
         drawCanvasSideVine(ctx, startX + singleWidth - 22, 140, totalHeight - 420, false, artworkColor);
@@ -1313,7 +2179,31 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     }
 
     // 2. Header Area
-    if (isSpecialArtwork) {
+    if (theme.id === 'airmail_postcard') {
+      ctx.save();
+      ctx.fillStyle = '#1D3E6E';
+      ctx.fillRect(startX + 30, 20, 110, 26);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✈️ AIR MAIL', startX + 85, 33);
+
+      ctx.font = 'bold 14px "Courier New", monospace';
+      ctx.fillStyle = '#1D3E6E';
+      ctx.textAlign = 'right';
+      ctx.fillText('PAR AVION', startX + singleWidth - 35, 33);
+      ctx.restore();
+    } else if (theme.id === 'teddy_cozy_check') {
+      drawCanvasCozyBearBow(ctx, startX + 20, 15, 55);
+      drawCanvasCozyBearCookie(ctx, startX + singleWidth - 75, 15, 55);
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold 28px "${theme.fontFamily || 'Plus Jakarta Sans'}"`;
+      ctx.fillStyle = textColor;
+      ctx.fillText((settings.title || 'COZY MOMENTS').toUpperCase(), startX + singleWidth / 2, 45);
+    } else if (isSpecialArtwork) {
       if (theme.id === 'wedding_cake') {
         drawCanvasDove(ctx, startX + 25, 30, 50, artworkColor);
         drawCanvasHeartArrow(ctx, startX + singleWidth - 75, 30, 50, artworkColor);
@@ -1340,45 +2230,52 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
         ctx.fillText(settings.subtitle, startX + singleWidth / 2, 80);
       }
     } else {
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      if (theme.topDecoration) {
-        ctx.font = `bold 20px ${theme.fontFamily}`;
-        ctx.fillStyle = textColor;
-        ctx.fillText(theme.topDecoration, startX + singleWidth / 2, 50);
-      }
-      ctx.font = `800 28px ${theme.fontFamily}`;
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = '900 28px "Playfair Display", Georgia, serif';
       ctx.fillStyle = textColor;
-      ctx.fillText((settings.title || 'PHOTOBOOTH MEMORY').toUpperCase(), startX + singleWidth / 2, 90);
+      ctx.fillText(settings.title || 'may', startX + 25, 14);
+
+      ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = subtextColor;
+      ctx.fillText('PHOTOBOOTH', startX + 25, 44);
+
       if (settings.subtitle) {
-        ctx.font = `600 16px ${theme.fontFamily}`;
-        ctx.fillStyle = subtextColor;
-        ctx.fillText(settings.subtitle, startX + singleWidth / 2, 122);
+        ctx.textAlign = 'right';
+        ctx.font = '500 14px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(settings.subtitle, startX + singleWidth - 25, 18);
       }
+      ctx.restore();
     }
 
     // 3. Photo Frames
-    const framePaddingX = 45;
-    const photoWidth = singleWidth - framePaddingX * 2; // 510px
-    const photoHeight = photoCount === 4 ? 340 : 380;
-    const startY = isSpecialArtwork ? 105 : 150;
-    const gap = photoCount === 4 ? 20 : 28;
-    const borderRadius = 12;
+    const framePaddingX = 25;
+    const photoWidth = singleWidth - framePaddingX * 2; // 550px
+    const photoHeight = layout === 'single-1' ? 670 : 380;
+    const startY = 65;
+    const gap = 10;
+    const borderRadius = 0;
 
     for (let i = 0; i < photoCount; i++) {
       const currentY = startY + i * (photoHeight + gap);
       const img = loadedImages[i];
 
-      // Draw photo container shadow / background
-      ctx.save();
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
-      ctx.shadowBlur = 10;
-      ctx.shadowOffsetY = 3;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.roundRect(startX + framePaddingX, currentY, photoWidth, photoHeight, borderRadius);
-      ctx.fill();
-      ctx.restore();
+      // Draw Airmail Perforated Stamp Frame
+      if (theme.id === 'airmail_postcard') {
+        drawCanvasAirmailPerforatedFrame(ctx, startX + framePaddingX, currentY, photoWidth, photoHeight);
+      } else {
+        // Draw photo container shadow / background
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 3;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(startX + framePaddingX, currentY, photoWidth, photoHeight, borderRadius);
+        ctx.fill();
+        ctx.restore();
+      }
 
       // Clip for image
       ctx.save();
@@ -1435,10 +2332,27 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
       }
     }
 
+    // Middle Scrapbook Overlays for Teddy Cozy Theme (between frames)
+    if (theme.id === 'teddy_cozy_check' && photoCount >= 4) {
+      // Over Frame 1 & 2 Gap
+      const gap1Y = startY + photoHeight;
+      drawCanvasCozyPlushTeddy(ctx, startX + 10, gap1Y - 25, 130);
+      drawCanvasCozyLetterBCookie(ctx, startX + singleWidth - 95, gap1Y - 20, 75);
+
+      // Over Frame 2 & 3 Gap
+      const gap2Y = startY + 2 * (photoHeight + gap);
+      drawCanvasCozyVintageCamera(ctx, startX + 10, gap2Y - 25, 130);
+      drawCanvasCozyKraftTape(ctx, startX + singleWidth - 270, gap2Y - 18, 250, 42);
+    }
+
     // 4. Footer Area
     const footerY = startY + photoCount * (photoHeight + gap) + 10;
 
-    if (isSpecialArtwork) {
+    if (theme.id === 'airmail_postcard') {
+      drawCanvasAirmailFooter(ctx, startX, footerY, singleWidth, settings);
+    } else if (theme.id === 'teddy_cozy_check') {
+      drawCanvasCozyScrapbookFooter(ctx, startX, footerY, singleWidth);
+    } else if (isSpecialArtwork) {
       if (theme.id === 'wedding_cake') {
         drawCanvasRibbonBow(ctx, startX + singleWidth / 2, footerY + 5, 80, artworkColor);
         drawCanvasHeartCake(ctx, startX + singleWidth / 2, footerY + 50, 110, artworkColor);
@@ -1462,35 +2376,21 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
         ctx.fillText(theme.bottomDecoration, startX + singleWidth / 2, footerY + 215);
       }
     } else {
-      if (settings.showDate && settings.customDate) {
-        ctx.font = `600 20px ${theme.fontFamily}`;
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      if (settings.showDate) {
+        ctx.font = '600 18px "Plus Jakarta Sans", monospace, sans-serif';
         ctx.fillStyle = textColor;
-        ctx.fillText(settings.customDate, startX + singleWidth / 2, footerY + 15);
+        ctx.fillText(settings.customDate || '08. 23. 26', startX + 25, footerY + 24);
       }
 
       if (theme.bottomDecoration) {
-        ctx.font = `bold 18px ${theme.fontFamily}`;
+        ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
         ctx.fillStyle = subtextColor;
-        ctx.fillText(theme.bottomDecoration, startX + singleWidth / 2, footerY + 48);
+        ctx.fillText(`• ${theme.bottomDecoration}`, startX + 145, footerY + 24);
       }
-
-      ctx.font = `bold 14px ${theme.fontFamily}`;
-      ctx.fillStyle = subtextColor;
-      ctx.fillText('LIFE FOUR CUTS • PHOTOBOOTH KOREA', startX + singleWidth / 2, footerY + 80);
-
-      // Barcode
-      ctx.save();
-      ctx.fillStyle = textColor;
-      const barcodeY = footerY + 105;
-      const barWidths = [3, 1, 4, 2, 1, 3, 2, 5, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 5, 2, 1, 4, 3];
-      let barX = startX + singleWidth / 2 - 53;
-      for (const w of barWidths) {
-        ctx.fillRect(barX, barcodeY, w, 22);
-        barX += w + 2;
-      }
-      ctx.font = '11px monospace';
-      ctx.fillStyle = subtextColor;
-      ctx.fillText('NO. 2026-KR-8821', startX + singleWidth / 2, barcodeY + 36);
       ctx.restore();
     }
 

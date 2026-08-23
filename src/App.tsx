@@ -10,14 +10,14 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState<Step>(1);
 
   const [settings, setSettings] = useState<PhotoboothSettings>({
-    layoutType: 'grid-4',
-    themeId: 'wedding_cake',
-    colorId: 'cream',
+    layoutType: 'strip-3',
+    themeId: 'airmail_postcard',
+    colorId: 'airmail_kraft',
     filterId: 'none',
-    title: 'AMIRA & SPENCE',
-    subtitle: 'Our Wedding Day',
+    title: 'KATE & JACKSON',
+    subtitle: 'got hitched!',
     showDate: true,
-    customDate: '08. 23. 25',
+    customDate: '1.10.14',
     showQrCode: true,
     showFilmHoles: false,
     isDoubleStrip: false,

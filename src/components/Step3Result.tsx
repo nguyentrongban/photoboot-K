@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CapturedPhoto, PhotoboothSettings, PlacedSticker } from '../types';
 import { FRAME_THEMES, FRAME_COLORS, PHOTO_FILTERS, STICKER_CATEGORIES, LAYOUT_OPTIONS } from '../data/themesAndColors';
 import { PhotoStrip } from './PhotoStrip';
+import { FrameThemeCard } from './FrameThemeCard';
 import { downloadPhotoStrip, copyPhotoToClipboard } from '../utils/canvasExport';
 import {
   Download,
@@ -487,19 +488,43 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
             {/* Tab 3: Theme Switcher */}
             {activeTab === 'theme' && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div
+                className={`grid gap-3 sm:gap-4 items-start ${
+                  settings.layoutType === 'grid-4'
+                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                    : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+                }`}
+              >
                 {FRAME_THEMES.map((theme) => {
                   const isSelected = theme.id === settings.themeId;
-                  const isWedding = theme.id === 'wedding_cake';
                   return (
-                    <button
+                    <FrameThemeCard
                       key={theme.id}
-                      onClick={() =>
+                      theme={theme}
+                      isSelected={isSelected}
+                      layoutType={settings.layoutType}
+                      onSelect={() =>
                         onUpdateSettings({
                           themeId: theme.id,
-                          ...(isWedding
+                          ...(theme.hasFixedColor
+                            ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                            : {}),
+                          ...(theme.id === 'airmail_postcard'
                             ? {
-                                colorId: 'cream',
+                                title: 'KATE & JACKSON',
+                                subtitle: 'got hitched!',
+                                customDate: '1.10.14',
+                              }
+                            : {}),
+                          ...(theme.id === 'teddy_cozy_check'
+                            ? {
+                                title: 'cozy moments',
+                                subtitle: 'love yourself ♡',
+                                customDate: '08. 23. 26',
+                              }
+                            : {}),
+                          ...(theme.id === 'wedding_cake'
+                            ? {
                                 title: 'AMIRA & SPENCE',
                                 subtitle: 'Our Wedding Day',
                                 customDate: '08. 23. 25',
@@ -507,16 +532,7 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
                             : {}),
                         })
                       }
-                      className={`p-3 rounded-2xl border-2 text-center transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-neutral-900 bg-neutral-900 text-white shadow-xs'
-                          : isWedding
-                          ? 'border-rose-300 bg-rose-50 text-neutral-900'
-                          : 'border-rose-100 bg-white hover:bg-rose-50 text-neutral-700'
-                      }`}
-                    >
-                      <p className="text-xs font-bold leading-tight">{theme.name}</p>
-                    </button>
+                    />
                   );
                 })}
               </div>
@@ -524,32 +540,50 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
             {/* Tab 4: Color Swatches */}
             {activeTab === 'color' && (
-              <div className="grid grid-cols-5 sm:grid-cols-9 gap-2.5 pt-1">
-                {FRAME_COLORS.map((col) => {
-                  const isSelected = col.id === settings.colorId && !settings.customColorHex;
-                  return (
-                    <button
-                      key={col.id}
-                      onClick={() => onUpdateSettings({ colorId: col.id, customColorHex: undefined })}
-                      className="flex flex-col items-center gap-1 group cursor-pointer"
-                    >
-                      <div
-                        className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
-                          isSelected
-                            ? 'ring-2 ring-neutral-900 ring-offset-2 border-white scale-105 shadow-sm'
-                            : 'border-black/10 hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: col.hex }}
-                      >
-                        {isSelected && <CheckLg className="w-3.5 h-3.5 font-black" style={{ color: col.textColor }} />}
-                      </div>
-                      <span className="text-[9px] font-bold text-neutral-500 truncate max-w-[45px]">
-                        {col.name.split(' (')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <>
+                {selectedTheme.hasFixedColor ? (
+                  <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-3 flex items-center gap-2.5 text-amber-900 shadow-2xs">
+                    <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0 font-bold text-xs">
+                      🔒
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-bold font-['Quicksand'] flex items-center gap-1.5">
+                        <span>Màu sắc cố định theo chủ đề "{selectedTheme.name}"</span>
+                      </p>
+                      <p className="text-[10px] text-amber-700 font-medium">
+                        Khung thiết kế này sử dụng màu phối độc quyền. Chọn chủ đề khác nếu bạn muốn thay đổi màu nền nhé!
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-5 sm:grid-cols-9 gap-2.5 pt-1">
+                    {FRAME_COLORS.map((col) => {
+                      const isSelected = col.id === settings.colorId && !settings.customColorHex;
+                      return (
+                        <button
+                          key={col.id}
+                          onClick={() => onUpdateSettings({ colorId: col.id, customColorHex: undefined })}
+                          className="flex flex-col items-center gap-1 group cursor-pointer"
+                        >
+                          <div
+                            className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isSelected
+                                ? 'ring-2 ring-neutral-900 ring-offset-2 border-white scale-105 shadow-sm'
+                                : 'border-black/10 hover:scale-105'
+                            }`}
+                            style={{ backgroundColor: col.hex }}
+                          >
+                            {isSelected && <CheckLg className="w-3.5 h-3.5 font-black" style={{ color: col.textColor }} />}
+                          </div>
+                          <span className="text-[9px] font-bold text-neutral-500 truncate max-w-[45px]">
+                            {col.name.split(' (')[0]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
 
             {/* Tab 5: Filter Switcher */}

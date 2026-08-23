@@ -1,6 +1,6 @@
 export type Step = 1 | 2 | 3;
 
-export type LayoutType = 'strip-3' | 'strip-4' | 'grid-4';
+export type LayoutType = 'strip-3' | 'strip-4' | 'grid-4' | 'grid-4-rect' | 'strip-2' | 'single-1';
 
 export interface FrameTheme {
   id: string;
@@ -17,6 +17,8 @@ export interface FrameTheme {
   cornerDecoration?: string;
   defaultTextColor: string;
   isSpecialArtwork?: boolean;
+  hasFixedColor?: boolean;
+  fixedColorId?: string;
 }
 
 export interface FrameColor {

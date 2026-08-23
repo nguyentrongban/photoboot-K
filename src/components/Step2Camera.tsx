@@ -13,6 +13,9 @@ import {
   ArrowRight,
   LightningFill,
   Lightning,
+  SunFill,
+  Sun,
+  LightbulbFill,
 } from 'react-bootstrap-icons';
 import { LottieIcon } from './LottieIcon';
 import confetti from 'canvas-confetti';
@@ -43,6 +46,12 @@ export const Step2Camera: React.FC<Step2CameraProps> = ({
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
   const [timerDuration, setTimerDuration] = useState<number>(3); // 3s or 5s
   const [flashEnabled, setFlashEnabled] = useState<boolean>(true);
+
+  // Soft Fill Light States (Đèn rọi sáng khuôn mặt dịu nhẹ)
+  const [fillLightEnabled, setFillLightEnabled] = useState<boolean>(false);
+  const [fillLightIntensity, setFillLightIntensity] = useState<'soft' | 'medium' | 'bright'>('medium');
+  const [fillLightTone, setFillLightTone] = useState<'warm' | 'white' | 'rosy'>('warm');
+  const [showLightSettings, setShowLightSettings] = useState<boolean>(false);
 
   // Auto shooting sequence states
   const [isShooting, setIsShooting] = useState<boolean>(false);
@@ -262,10 +271,23 @@ export const Step2Camera: React.FC<Step2CameraProps> = ({
         {/* Left Column: Camera Viewport & Controls */}
         <div className="lg:col-span-8 flex flex-col items-center">
           {/* Viewport Frame */}
-          <div className="relative w-full aspect-[4/3] max-w-2xl rounded-3xl overflow-hidden bg-neutral-950 shadow-xl border-4 border-white flex items-center justify-center">
+          <div className={`relative w-full aspect-[4/3] max-w-2xl rounded-3xl overflow-hidden bg-neutral-950 shadow-xl border-4 border-white flex items-center justify-center transition-all duration-300 ${
+            fillLightEnabled
+              ? fillLightTone === 'warm'
+                ? 'ring-8 sm:ring-[14px] ring-amber-200/90 shadow-[0_0_90px_rgba(254,243,199,0.9)]'
+                : fillLightTone === 'rosy'
+                ? 'ring-8 sm:ring-[14px] ring-rose-200/90 shadow-[0_0_90px_rgba(254,226,226,0.9)]'
+                : 'ring-8 sm:ring-[14px] ring-white shadow-[0_0_90px_rgba(255,255,255,0.9)]'
+              : ''
+          }`}>
             {/* Flash Overlay */}
             {isFlashing && (
               <div className="absolute inset-0 z-40 bg-white opacity-95 transition-opacity duration-150 pointer-events-none" />
+            )}
+
+            {/* Soft Fill Light Subtle Frame Outline */}
+            {fillLightEnabled && (
+              <div className="absolute inset-0 z-15 pointer-events-none transition-all duration-300 border-4 sm:border-8 border-amber-200/30 rounded-3xl" />
             )}
 
             {/* Video Element */}
@@ -304,6 +326,38 @@ export const Step2Camera: React.FC<Step2CameraProps> = ({
 
               {/* Quick Settings Bar */}
               <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md p-1 rounded-full border border-white/20 text-white">
+                {/* Soft Fill Light Toggle Button */}
+                <button
+                  id="btn-toggle-fill-light"
+                  onClick={() => {
+                    const nextState = !fillLightEnabled;
+                    setFillLightEnabled(nextState);
+                    if (nextState) setShowLightSettings(true);
+                  }}
+                  className={`w-8 h-8 sm:w-auto sm:px-2.5 rounded-full flex items-center justify-center gap-1 transition-all text-xs font-bold cursor-pointer ${
+                    fillLightEnabled
+                      ? 'bg-gradient-to-r from-amber-300 to-amber-400 text-neutral-900 shadow-[0_0_12px_rgba(251,191,36,0.8)] scale-105'
+                      : 'text-amber-200 hover:bg-white/20'
+                  }`}
+                  title="Bật/Tắt ánh sáng rọi dịu khuôn mặt (Fill Light)"
+                >
+                  <SunFill className={`w-3.5 h-3.5 ${fillLightEnabled ? 'text-amber-950 animate-spin-slow' : 'text-amber-300'}`} />
+                  <span className="text-[11px] hidden sm:inline">
+                    {fillLightEnabled ? 'Đèn Mặt ON' : 'Đèn Mặt'}
+                  </span>
+                </button>
+
+                {/* Option gear to show/hide tuning bar */}
+                {fillLightEnabled && (
+                  <button
+                    onClick={() => setShowLightSettings(!showLightSettings)}
+                    className="w-7 h-7 rounded-full flex items-center justify-center bg-white/20 text-amber-200 hover:bg-white/30 text-xs transition-all cursor-pointer"
+                    title="Tùy chỉnh tông màu & độ sáng đèn"
+                  >
+                    ⚙️
+                  </button>
+                )}
+
                 {/* Timer Toggle */}
                 <button
                   id="btn-toggle-timer"
@@ -386,6 +440,69 @@ export const Step2Camera: React.FC<Step2CameraProps> = ({
               </div>
             )}
           </div>
+
+          {/* Light Tuning Control Bar OUTSIDE the camera viewport (Never blocks camera view) */}
+          {fillLightEnabled && showLightSettings && (
+            <div className="w-full max-w-2xl mt-3 bg-amber-50/95 backdrop-blur-md p-3 rounded-2xl border border-amber-200/80 text-amber-950 flex flex-wrap items-center justify-between gap-2 shadow-sm animate-in fade-in duration-200">
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <SunFill className="w-4 h-4 text-amber-500" />
+                <span>Đèn Rọi Sáng Mặt:</span>
+              </div>
+
+              {/* Intensity selector */}
+              <div className="flex items-center gap-1 bg-white/80 p-1 rounded-xl text-[11px] border border-amber-200/60">
+                {(['soft', 'medium', 'bright'] as const).map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setFillLightIntensity(lvl)}
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                      fillLightIntensity === lvl
+                        ? 'bg-amber-400 text-neutral-950 shadow-xs'
+                        : 'text-neutral-600 hover:text-neutral-900'
+                    }`}
+                  >
+                    {lvl === 'soft' ? 'Dịu 30%' : lvl === 'medium' ? 'Vừa 60%' : 'Sáng 90%'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tone selector */}
+              <div className="flex items-center gap-1 bg-white/80 p-1 rounded-xl text-[11px] border border-amber-200/60">
+                <button
+                  onClick={() => setFillLightTone('warm')}
+                  className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                    fillLightTone === 'warm' ? 'bg-amber-300 text-amber-950 shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  ☀️ Nắng Ấm
+                </button>
+                <button
+                  onClick={() => setFillLightTone('rosy')}
+                  className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                    fillLightTone === 'rosy' ? 'bg-rose-300 text-rose-950 shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  🌸 Hồng Mịn
+                </button>
+                <button
+                  onClick={() => setFillLightTone('white')}
+                  className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                    fillLightTone === 'white' ? 'bg-neutral-900 text-white shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  ❄️ Trắng Sáng
+                </button>
+              </div>
+
+              {/* Hide settings panel button */}
+              <button
+                onClick={() => setShowLightSettings(false)}
+                className="text-amber-800 hover:text-amber-950 text-xs font-bold px-2.5 py-1 rounded-lg hover:bg-amber-100 transition-all cursor-pointer border border-amber-200"
+              >
+                ✕ Thu gọn
+              </button>
+            </div>
+          )}
 
           {/* Cute Camera Shutter & Slot Selector Controls */}
           <div className="w-full max-w-2xl mt-5 bg-white/95 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-rose-100/80 shadow-[0_4px_20px_rgba(244,114,182,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">

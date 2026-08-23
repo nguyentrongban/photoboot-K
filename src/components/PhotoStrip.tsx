@@ -16,6 +16,8 @@ interface PhotoStripProps {
   onRemoveSticker?: (id: string) => void;
   onDropSticker?: (emoji: string, xPercent: number, yPercent: number) => void;
   highlightSlot?: number | null;
+  className?: string;
+  isMiniPreview?: boolean;
 }
 
 // Dedicated Hand-Drawn SVG Artworks for the Romantic Wedding / Ribbon Cake Theme
@@ -292,6 +294,191 @@ const WinterSnowglobe: React.FC<{ color: string; className?: string }> = ({ colo
   </svg>
 );
 
+// --- COZY BEAR & VINTAGE SCRAPBOOK THEME SVG ARTWORKS ---
+const CozyBearBowHeader: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 70 70" className={className || "w-10 h-10"} fill="none">
+    <path d="M 35 25 C 22 10 12 28 32 28 Z" fill="#CBB399" stroke="#9E8268" strokeWidth="1.5" />
+    <path d="M 35 25 C 48 10 58 28 38 28 Z" fill="#CBB399" stroke="#9E8268" strokeWidth="1.5" />
+    <path d="M 32 28 C 28 38 22 52 20 60 C 25 58 30 55 33 30 Z" fill="#BBA085" stroke="#9E8268" strokeWidth="1" />
+    <path d="M 38 28 C 42 38 48 52 50 60 C 45 58 40 55 37 30 Z" fill="#BBA085" stroke="#9E8268" strokeWidth="1" />
+    <circle cx="35" cy="27" r="7" fill="#5A4332" stroke="#3A281A" strokeWidth="1.5" />
+    <circle cx="35" cy="27" r="5" fill="#4B3626" />
+    <circle cx="33" cy="25" r="0.9" fill="#D2C2B2" />
+    <circle cx="37" cy="25" r="0.9" fill="#D2C2B2" />
+    <circle cx="33" cy="29" r="0.9" fill="#D2C2B2" />
+    <circle cx="37" cy="29" r="0.9" fill="#D2C2B2" />
+    <line x1="33" y1="25" x2="37" y2="29" stroke="#D2C2B2" strokeWidth="0.8" />
+    <line x1="37" y1="25" x2="33" y2="29" stroke="#D2C2B2" strokeWidth="0.8" />
+  </svg>
+);
+
+const CozyBearCookieHeader: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 70 70" className={className || "w-10 h-10"} fill="none">
+    <circle cx="20" cy="22" r="11" fill="#CFA06E" stroke="#8C613A" strokeWidth="2" />
+    <circle cx="20" cy="22" r="6" fill="#E8B896" />
+    <circle cx="50" cy="22" r="11" fill="#CFA06E" stroke="#8C613A" strokeWidth="2" />
+    <circle cx="50" cy="22" r="6" fill="#E8B896" />
+    <circle cx="35" cy="38" r="22" fill="#D9A873" stroke="#8C613A" strokeWidth="2" />
+    <ellipse cx="35" cy="42" rx="9" ry="7" fill="#FFF5EA" stroke="#B88A58" strokeWidth="1" />
+    <ellipse cx="35" cy="39" rx="3.5" ry="2.5" fill="#5A3A22" />
+    <path d="M 35 41.5 L 35 44 C 33 46 32 46 31 45 M 35 44 C 37 46 38 46 39 45" stroke="#5A3A22" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="25" cy="34" r="2.2" fill="#5A3A22" />
+    <path d="M 42 32 L 47 35 L 42 38" stroke="#5A3A22" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="21" cy="40" rx="3.5" ry="2" fill="#E8A0B0" opacity="0.8" />
+    <ellipse cx="49" cy="40" rx="3.5" ry="2" fill="#E8A0B0" opacity="0.8" />
+  </svg>
+);
+
+const CozyPlushTeddy: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className || "w-12 h-12"} fill="none">
+    <g transform="rotate(-15 50 50)">
+      <rect x="10" y="42" width="80" height="20" fill="#DCD0BD" stroke="#C5B5A0" strokeWidth="1" rx="2" />
+      <line x1="10" y1="48" x2="90" y2="48" stroke="#C5B5A0" strokeWidth="0.8" strokeDasharray="3 3" />
+      <line x1="10" y1="56" x2="90" y2="56" stroke="#C5B5A0" strokeWidth="0.8" strokeDasharray="3 3" />
+    </g>
+    <circle cx="34" cy="28" r="10" fill="#A47E5B" stroke="#6E5035" strokeWidth="1.5" />
+    <circle cx="34" cy="28" r="5" fill="#C5A586" />
+    <circle cx="66" cy="28" r="10" fill="#A47E5B" stroke="#6E5035" strokeWidth="1.5" />
+    <circle cx="66" cy="28" r="5" fill="#C5A586" />
+    <circle cx="50" cy="42" r="22" fill="#A47E5B" stroke="#6E5035" strokeWidth="2" />
+    <ellipse cx="50" cy="47" rx="9" ry="7" fill="#E2C9B1" />
+    <ellipse cx="50" cy="44" rx="3.5" ry="2.5" fill="#3D2919" />
+    <path d="M 50 46.5 L 50 49.5 C 48 51.5 46 51.5 45 50.5 M 50 49.5 C 52 51.5 54 51.5 55 50.5" stroke="#3D2919" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="40" cy="39" r="2" fill="#3D2919" />
+    <circle cx="60" cy="39" r="2" fill="#3D2919" />
+    <path d="M 33 22 C 27 16 23 26 31 25 Z" fill="#E8A0B0" stroke="#C57588" strokeWidth="1" />
+    <path d="M 33 22 C 39 16 43 26 35 25 Z" fill="#E8A0B0" stroke="#C57588" strokeWidth="1" />
+    <circle cx="33" cy="23.5" r="2" fill="#D88296" />
+    <ellipse cx="50" cy="72" rx="18" ry="16" fill="#A47E5B" stroke="#6E5035" strokeWidth="2" />
+    <ellipse cx="50" cy="72" rx="10" ry="9" fill="#C5A586" />
+    <ellipse cx="32" cy="68" rx="7" ry="10" fill="#A47E5B" stroke="#6E5035" strokeWidth="1.5" transform="rotate(20 32 68)" />
+    <ellipse cx="68" cy="68" rx="7" ry="10" fill="#A47E5B" stroke="#6E5035" strokeWidth="1.5" transform="rotate(-20 68 68)" />
+  </svg>
+);
+
+const CozyLetterBCookie: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 60 70" className={className || "w-10 h-10"} fill="none">
+    <path d="M 15 10 H 35 C 46 10 46 32 35 32 C 48 32 48 58 35 58 H 15 Z" fill="#CFA06E" stroke="#8C613A" strokeWidth="2.5" strokeLinejoin="round" />
+    <path d="M 23 18 H 32 C 38 18 38 26 32 26 H 23 Z" fill="#FAF6EF" stroke="#8C613A" strokeWidth="1.5" />
+    <path d="M 23 38 H 33 C 40 38 40 50 33 50 H 23 Z" fill="#FAF6EF" stroke="#8C613A" strokeWidth="1.5" />
+    <path d="M 17 12 H 34 C 43 12 43 30 34 30 H 17" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M 17 34 H 34 C 44 34 44 56 34 56 H 17" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" fill="none" />
+  </svg>
+);
+
+const CozyVintageCamera: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 70" className={className || "w-12 h-9"} fill="none">
+    <rect x="10" y="20" width="80" height="42" rx="4" fill="#222222" stroke="#111111" strokeWidth="2" />
+    <rect x="10" y="20" width="80" height="12" fill="#D0D0D0" stroke="#999999" strokeWidth="1.5" />
+    <rect x="22" y="14" width="8" height="6" fill="#B0B0B0" stroke="#777777" strokeWidth="1" />
+    <rect x="70" y="15" width="10" height="5" rx="1" fill="#B0B0B0" stroke="#777777" strokeWidth="1" />
+    <rect x="20" y="23" width="12" height="6" fill="#444444" stroke="#222222" strokeWidth="1" />
+    <rect x="72" y="23" width="8" height="6" rx="1" fill="#FFFAEE" stroke="#B0B0B0" strokeWidth="1" />
+    <circle cx="50" cy="41" r="18" fill="#1A1A1A" stroke="#C0C0C0" strokeWidth="3" />
+    <circle cx="50" cy="41" r="13" fill="#0D1B2A" stroke="#444444" strokeWidth="2" />
+    <circle cx="50" cy="41" r="8" fill="#1B263B" />
+    <circle cx="47" cy="38" r="3" fill="#FFFFFF" opacity="0.6" />
+    <circle cx="36" cy="26" r="2" fill="#C0392B" />
+  </svg>
+);
+
+const CozyKraftTapeLabel: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 140 40" className={className || "w-24 h-7"} fill="none">
+    <rect x="5" y="6" width="110" height="26" fill="#C5A880" stroke="#A88B65" strokeWidth="1.5" rx="2" />
+    <text x="14" y="23" fill="#2C2016" fontSize="11" fontWeight="bold" fontFamily="Courier, monospace" letterSpacing="0.5">
+      love yourself
+    </text>
+    <circle cx="125" cy="19" r="9" fill="#5A4332" stroke="#3A281A" strokeWidth="1.5" />
+    <circle cx="125" cy="19" r="6.5" fill="#4B3626" />
+    <circle cx="122.5" cy="16.5" r="1" fill="#D2C2B2" />
+    <circle cx="127.5" cy="16.5" r="1" fill="#D2C2B2" />
+    <circle cx="122.5" cy="21.5" r="1" fill="#D2C2B2" />
+    <circle cx="127.5" cy="21.5" r="1" fill="#D2C2B2" />
+    <line x1="122.5" y1="16.5" x2="127.5" y2="21.5" stroke="#D2C2B2" strokeWidth="1" />
+    <line x1="127.5" y1="16.5" x2="122.5" y2="21.5" stroke="#D2C2B2" strokeWidth="1" />
+  </svg>
+);
+
+const CozyScrapbookFooterDecor: React.FC<{ className?: string; isMini?: boolean }> = ({ className, isMini = false }) => (
+  <div className={`w-full h-full relative overflow-hidden flex flex-col justify-between px-1.5 py-1 ${className || ''}`}>
+    <div className="flex flex-col gap-0.5 items-start z-10 pl-0.5 pt-0.5">
+      <div className="bg-[#D5C7B0] text-[#3D2C1E] px-1.5 py-0.2 rounded-xs font-mono font-bold text-[7px] sm:text-[9px] shadow-2xs border border-[#C2B299]/60 transform -rotate-1">
+        i'd be a fool
+      </div>
+      <div className="bg-[#C5B499] text-[#2C1F15] px-1.5 py-0.2 rounded-xs font-mono font-bold text-[7px] sm:text-[9px] shadow-2xs border border-[#B09F85]/60 transform rotate-1">
+        not to love you
+      </div>
+      <div className="text-[#8C6D58] font-serif italic text-[6px] sm:text-[8px] font-semibold mt-0.5 pl-0.5">
+        - your eyes tell a story
+      </div>
+    </div>
+
+    <div className="flex items-end justify-between w-full z-10 pb-0.5 px-0.5">
+      <div className="flex items-end -space-x-1">
+        <svg viewBox="0 0 30 30" className={isMini ? "w-2.5 h-2.5" : "w-4 h-4 sm:w-5 sm:h-5"} fill="#FAF3E0" stroke="#D5C5AC" strokeWidth="1">
+          <path d="M 15 2 L 18 10 L 26 10 L 20 16 L 22 24 L 15 19 L 8 24 L 10 16 L 4 10 L 12 10 Z" />
+        </svg>
+        <svg viewBox="0 0 30 30" className={isMini ? "w-2 h-2" : "w-3.5 h-3.5 sm:w-4 sm:h-4"} fill="#C87A5B" stroke="#9A563C" strokeWidth="1">
+          <path d="M 15 2 L 18 10 L 26 10 L 20 16 L 22 24 L 15 19 L 8 24 L 10 16 L 4 10 L 12 10 Z" />
+        </svg>
+      </div>
+
+      <div className="flex items-center gap-0.5 bg-neutral-900/90 px-1 py-0.5 rounded-xs shadow-xs">
+        <span className="bg-black text-white px-0.8 py-0.2 text-[7px] sm:text-[9px] font-black font-mono">C</span>
+        <span className="bg-white text-black px-0.8 py-0.2 text-[7px] sm:text-[9px] font-black font-mono">U</span>
+        <span className="bg-black text-white px-0.8 py-0.2 text-[7px] sm:text-[9px] font-black font-mono">T</span>
+        <span className="bg-white text-black px-0.5 py-0.2 text-[7px] sm:text-[9px] font-black font-mono">!</span>
+        <span className="bg-black text-white px-0.8 py-0.2 text-[7px] sm:text-[9px] font-black font-mono">E</span>
+      </div>
+
+      <div className="relative">
+        <svg viewBox="0 0 40 36" className={isMini ? "w-3 h-3" : "w-6 h-5 sm:w-7 sm:h-6"} fill="#FAF3E8" stroke="#D9C5B0" strokeWidth="1.2">
+          <path d="M 20 2 C 8 2 2 14 6 28 L 34 28 C 38 14 32 2 20 2 Z" />
+          <line x1="20" y1="2" x2="20" y2="28" />
+          <line x1="20" y1="2" x2="12" y2="28" />
+          <line x1="20" y1="2" x2="28" y2="28" />
+          <line x1="20" y1="2" x2="6" y2="24" />
+          <line x1="20" y1="2" x2="34" y2="24" />
+        </svg>
+        <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2">
+          <svg viewBox="0 0 20 12" className="w-3 h-2" fill="#E89CAE" stroke="#C87084" strokeWidth="0.8">
+            <path d="M 10 6 C 5 2 2 10 9 8 Z" />
+            <path d="M 10 6 C 15 2 18 10 11 8 Z" />
+            <circle cx="10" cy="6.5" r="1.2" fill="#D8728A" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// --- AIRMAIL POSTCARD THEME SVG ARTWORKS ---
+const AirmailPostalCancelStamp: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 170 85" className={className || "w-32 h-16"} fill="none">
+    {/* Circular cancellation mark */}
+    <g transform="rotate(-12 45 42)" opacity="0.9">
+      <circle cx="45" cy="42" r="34" stroke="#1D3E6E" strokeWidth="2.2" strokeDasharray="4 1.5" />
+      <circle cx="45" cy="42" r="29" stroke="#1D3E6E" strokeWidth="1.8" />
+      <path id="circlePathAirmail" d="M 18 42 A 27 27 0 1 1 72 42 A 27 27 0 1 1 18 42" fill="none" />
+      <text fill="#1D3E6E" fontSize="5.8" fontWeight="900" fontFamily="sans-serif" letterSpacing="1.2">
+        <textPath href="#circlePathAirmail" startOffset="50%" textAnchor="middle">
+          LUCKY IN LOVE • LUCKY IN LOVE •
+        </textPath>
+      </text>
+      <circle cx="45" cy="42" r="14" stroke="#1D3E6E" strokeWidth="1.2" />
+      <polygon points="45,34 47.5,39 53,39.5 49,43 50.5,48 45,45 39.5,48 41,43 37,39.5 42.5,39" fill="#1D3E6E" />
+    </g>
+
+    {/* Wavy cancellation lines */}
+    <g stroke="#1D3E6E" strokeWidth="2" strokeLinecap="round" opacity="0.85">
+      <path d="M 82 22 Q 102 14 122 22 T 165 22" />
+      <path d="M 82 34 Q 102 26 122 34 T 165 34" />
+      <path d="M 82 46 Q 102 38 122 46 T 165 46" />
+      <path d="M 82 58 Q 102 50 122 58 T 165 58" />
+    </g>
+  </svg>
+);
+
 export const PhotoStrip: React.FC<PhotoStripProps> = ({
   photos,
   settings,
@@ -305,6 +492,8 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
   onRemoveSticker,
   onDropSticker,
   highlightSlot = null,
+  className,
+  isMiniPreview = false,
 }) => {
   const stripRef = useRef<HTMLDivElement | null>(null);
   const bgColor = settings.customColorHex || color.hex;
@@ -314,7 +503,14 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
   const artworkColor = isSpecialArtwork ? color.textColor : theme.accentColor;
 
   // Determine photo count based on layout
-  const photoIndices = layout === 'strip-3' ? [0, 1, 2] : [0, 1, 2, 3];
+  const photoIndices =
+    layout === 'single-1'
+      ? [0]
+      : layout === 'strip-2'
+      ? [0, 1]
+      : layout === 'strip-3'
+      ? [0, 1, 2]
+      : [0, 1, 2, 3];
 
   // Handle Drag & Drop of stickers from tray
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -369,13 +565,18 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
     };
 
     return (
-      <div
-        key={`frame-${index}`}
-        id={`photo-slot-${index}`}
-        className={`w-full h-full relative rounded-xl overflow-hidden bg-neutral-200/80 shadow-xs border transition-all duration-300 ${
-          isTarget ? 'ring-4 ring-rose-400 ring-offset-2 scale-[1.02]' : 'border-black/5'
-        }`}
-      >
+      <div className="relative w-full h-full">
+        {/* Airmail Postage Stamp Perforated Frame Backing */}
+        {theme.id === 'airmail_postcard' && (
+          <div className="absolute -inset-1 sm:-inset-1.5 bg-[#FAF6EF] shadow-2xs border-2 border-dashed border-[#CBB599] rounded-xs -z-1" />
+        )}
+        <div
+          key={`frame-${index}`}
+          id={`photo-slot-${index}`}
+          className={`w-full h-full relative rounded-none overflow-hidden bg-neutral-200/80 shadow-xs border transition-all duration-300 ${
+            isTarget ? 'ring-4 ring-rose-400 ring-offset-2 scale-[1.02]' : 'border-black/5'
+          }`}
+        >
         {photo ? (
           <div className="w-full h-full relative overflow-hidden">
             {/* Base sharp photo */}
@@ -409,43 +610,68 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
           </div>
         )}
 
-        {/* Small corner theme decoration if not special artwork */}
-        {!isSpecialArtwork && theme.sideDecorations && theme.sideDecorations.length > 0 && (
-          <>
-            <span className="absolute -left-1 top-1/2 -translate-y-1/2 text-xs drop-shadow-sm select-none pointer-events-none">
-              {theme.sideDecorations[index % theme.sideDecorations.length]}
-            </span>
-            <span className="absolute -right-1 top-1/2 -translate-y-1/2 text-xs drop-shadow-sm select-none pointer-events-none">
-              {theme.sideDecorations[(index + 1) % theme.sideDecorations.length]}
-            </span>
-          </>
-        )}
+        {/* Slot placeholder index */}
+      </div>
       </div>
     );
   };
 
   const renderHeader = () => {
+    if (theme.id === 'airmail_postcard') {
+      return (
+        <div className={`w-full h-full flex items-center justify-between z-10 ${isMiniPreview ? 'px-1' : 'px-2.5 sm:px-3'}`}>
+          <div className="flex items-center gap-1 bg-[#1D3E6E] text-white px-1.5 py-0.5 rounded-xs font-black text-[6px] sm:text-[8px] tracking-wider uppercase shadow-2xs">
+            <span>✈️ AIR MAIL</span>
+          </div>
+          <span className={`font-mono font-bold tracking-widest text-[#1D3E6E] ${isMiniPreview ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'}`}>
+            PAR AVION
+          </span>
+        </div>
+      );
+    }
+
+    if (theme.id === 'teddy_cozy_check') {
+      return (
+        <div className={`w-full h-full flex items-center justify-between z-10 ${isMiniPreview ? 'px-1' : 'px-2 sm:px-3'}`}>
+          <div className="flex-shrink-0 z-10">
+            <CozyBearBowHeader className={isMiniPreview ? "w-4 h-4" : "w-6 h-6 sm:w-8 sm:h-8"} />
+          </div>
+          <div className="text-center px-1 flex-1 min-w-0 z-10">
+            <h2
+              className={`font-black tracking-widest uppercase truncate ${isMiniPreview ? 'text-[6px]' : 'text-[9px] sm:text-xs'}`}
+              style={{ color: color.textColor, fontFamily: theme.fontFamily }}
+            >
+              {settings.title || 'cozy moments'}
+            </h2>
+          </div>
+          <div className="flex-shrink-0 z-10">
+            <CozyBearCookieHeader className={isMiniPreview ? "w-4 h-4" : "w-6 h-6 sm:w-8 sm:h-8"} />
+          </div>
+        </div>
+      );
+    }
+
     if (isSpecialArtwork) {
       return (
-        <div className="w-full h-full flex items-center justify-between px-4">
+        <div className={`w-full h-full flex items-center justify-between ${isMiniPreview ? 'px-1.5' : 'px-3 sm:px-4'}`}>
           {/* Top-left artwork */}
           <div className="flex-shrink-0">
-            {theme.id === 'wedding_cake' && <DoveArtwork color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'astrology' && <CrescentMoonArtwork color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'vintage_daisy' && <DaisyHeaderLeft color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'cozy_winter' && <WinterHeaderLeft color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
+            {theme.id === 'wedding_cake' && <DoveArtwork color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'astrology' && <CrescentMoonArtwork color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'vintage_daisy' && <DaisyHeaderLeft color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'cozy_winter' && <WinterHeaderLeft color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
           </div>
 
           {/* Center Titles */}
           <div className="text-center px-1 flex-1 min-w-0">
             <h2
-              className="text-xs sm:text-sm font-black tracking-widest uppercase truncate"
-              style={{ color: color.textColor, fontFamily: theme.fontFamily, letterSpacing: '0.1em' }}
+              className={`font-black tracking-widest uppercase truncate ${isMiniPreview ? 'text-[6px]' : 'text-[10px] sm:text-xs'}`}
+              style={{ color: color.textColor, fontFamily: theme.fontFamily, letterSpacing: '0.08em' }}
             >
               {settings.title || (theme.id === 'wedding_cake' ? 'AMIRA & SPENCE' : theme.id === 'astrology' ? 'COSMIC MEMORY' : theme.id === 'vintage_daisy' ? 'DAISY MEMORY' : 'WINTER CHILL')}
             </h2>
-            {settings.subtitle && (
-              <p className="text-[8px] sm:text-[10px] font-semibold tracking-wide italic mt-0.5 truncate" style={{ color: color.subtextColor }}>
+            {settings.subtitle && !isMiniPreview && (
+              <p className="text-[7px] sm:text-[9px] font-semibold tracking-wide italic truncate" style={{ color: color.subtextColor }}>
                 {settings.subtitle}
               </p>
             )}
@@ -453,61 +679,117 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
 
           {/* Top-right artwork */}
           <div className="flex-shrink-0">
-            {theme.id === 'wedding_cake' && <HeartArrowArtwork color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'astrology' && <AstroStarArtwork color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'vintage_daisy' && <DaisyHeaderRight color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
-            {theme.id === 'cozy_winter' && <WinterHeaderRight color={artworkColor} className="w-6 h-6 sm:w-8 sm:h-8" />}
+            {theme.id === 'wedding_cake' && <HeartArrowArtwork color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'astrology' && <AstroStarArtwork color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'vintage_daisy' && <DaisyHeaderRight color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
+            {theme.id === 'cozy_winter' && <WinterHeaderRight color={artworkColor} className={isMiniPreview ? "w-3 h-3" : "w-5 h-5 sm:w-6 sm:h-6"} />}
           </div>
         </div>
       );
     }
 
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center px-4">
-        {theme.topDecoration && (
-          <p className="text-[9px] sm:text-xs font-bold tracking-wider opacity-90 truncate w-full text-center">
-            {theme.topDecoration}
-          </p>
-        )}
-        <h2 className="text-xs sm:text-sm font-black tracking-widest uppercase mt-0.5 truncate w-full text-center" style={{ color: color.textColor }}>
-          {settings.title || 'PHOTOBOOTH MEMORY'}
-        </h2>
+      <div className={`w-full h-full flex items-center justify-between ${isMiniPreview ? 'px-2' : 'px-3 sm:px-4'}`}>
+        <div className="flex flex-col text-left justify-center">
+          <span
+            className={`font-serif font-black tracking-tight leading-none ${isMiniPreview ? 'text-[9px]' : 'text-xs sm:text-sm md:text-base'}`}
+            style={{ color: color.textColor, fontFamily: theme.fontFamily }}
+          >
+            {settings.title ? settings.title : 'may'}
+          </span>
+          <span
+            className={`font-sans font-semibold tracking-widest uppercase opacity-75 mt-0.5 ${isMiniPreview ? 'text-[4px]' : 'text-[6px] sm:text-[8px]'}`}
+            style={{ color: color.subtextColor }}
+          >
+            PHOTOBOOTH
+          </span>
+        </div>
         {settings.subtitle && (
-          <p className="text-[8px] sm:text-[10px] font-semibold tracking-wide truncate w-full text-center" style={{ color: color.subtextColor }}>
+          <span className={`font-medium opacity-75 truncate max-w-[50%] text-right ${isMiniPreview ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'}`} style={{ color: color.subtextColor }}>
             {settings.subtitle}
-          </p>
+          </span>
         )}
       </div>
     );
   };
 
   const renderFooter = () => {
+    if (theme.id === 'airmail_postcard') {
+      const titleParts = (settings.title || 'KATE & JACKSON').split('&');
+      const name1 = titleParts[0]?.trim() || 'KATE';
+      const name2 = titleParts[1]?.trim() || 'JACKSON';
+
+      return (
+        <div className="w-full h-full relative flex flex-col justify-between px-2.5 sm:px-3 py-1 overflow-hidden select-none">
+          <div className="flex flex-col items-start z-10">
+            {/* KATE & JACKSON in Vintage Bold Serif */}
+            <div className="flex items-baseline gap-1 font-black leading-none text-[#1D3E6E]">
+              <span className={`tracking-wider ${isMiniPreview ? 'text-[9px]' : 'text-base sm:text-2xl'}`} style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                {name1}
+              </span>
+              <span className={`font-serif italic text-rose-700 font-bold ${isMiniPreview ? 'text-[8px]' : 'text-sm sm:text-xl'}`}>
+                &
+              </span>
+            </div>
+            <div className={`font-black tracking-widest leading-none text-[#1D3E6E] mt-0.5 ${isMiniPreview ? 'text-[8px]' : 'text-sm sm:text-xl'}`} style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              {name2}
+            </div>
+
+            {/* got hitched! in cursive */}
+            <p className={`font-serif italic font-bold text-[#1D3E6E] opacity-95 mt-0.5 ${isMiniPreview ? 'text-[5px]' : 'text-[10px] sm:text-sm'}`} style={{ fontFamily: "'Caveat', cursive" }}>
+              {settings.subtitle || 'got hitched!'}
+            </p>
+
+            {/* Date stamp 1.10.14 */}
+            {settings.showDate && (
+              <p className={`font-mono font-bold tracking-widest text-[#1D3E6E] mt-0.5 ${isMiniPreview ? 'text-[5px]' : 'text-[9px] sm:text-xs'}`}>
+                {settings.customDate || '1.10.14'}
+              </p>
+            )}
+          </div>
+
+          {/* Lucky in Love Postal Rubber Stamp & Cancellation Waves */}
+          <div className="absolute bottom-[-10%] right-[-8%] z-20 pointer-events-none opacity-90">
+            <AirmailPostalCancelStamp className={isMiniPreview ? "w-16 h-8" : "w-32 h-16 sm:w-44 sm:h-22"} />
+          </div>
+        </div>
+      );
+    }
+
+    if (theme.id === 'teddy_cozy_check') {
+      return (
+        <div className="w-full h-full relative overflow-hidden">
+          <CozyScrapbookFooterDecor isMini={isMiniPreview} />
+        </div>
+      );
+    }
+
     if (isSpecialArtwork) {
       return (
-        <div className="w-full h-full flex flex-col justify-center items-center px-4">
+        <div className={`w-full h-full flex flex-col justify-center items-center ${isMiniPreview ? 'px-1' : 'px-4'}`}>
           <div className="flex items-center justify-center gap-1 opacity-90">
-            {theme.id === 'wedding_cake' && <RibbonBowArtwork color={artworkColor} className="w-8 h-5 sm:w-12 sm:h-7" />}
+            {theme.id === 'wedding_cake' && <RibbonBowArtwork color={artworkColor} className={isMiniPreview ? "w-4 h-2.5" : "w-7 h-4 sm:w-9 sm:h-5"} />}
           </div>
 
           <div className="mt-0.5 opacity-95">
-            {theme.id === 'wedding_cake' && <HeartCakeArtwork color={artworkColor} className="w-12 h-10 sm:w-20 sm:h-18" />}
-            {theme.id === 'astrology' && <AstroGlobeArtwork color={artworkColor} className="w-12 h-10 sm:w-20 sm:h-18" />}
-            {theme.id === 'vintage_daisy' && <DaisyFooterPot color={artworkColor} className="w-12 h-10 sm:w-20 sm:h-18" />}
-            {theme.id === 'cozy_winter' && <WinterSnowglobe color={artworkColor} className="w-12 h-10 sm:w-20 sm:h-18" />}
+            {theme.id === 'wedding_cake' && <HeartCakeArtwork color={artworkColor} className={isMiniPreview ? "w-6 h-4" : "w-8 h-6 sm:w-12 sm:h-8"} />}
+            {theme.id === 'astrology' && <AstroGlobeArtwork color={artworkColor} className={isMiniPreview ? "w-6 h-4" : "w-8 h-6 sm:w-12 sm:h-8"} />}
+            {theme.id === 'vintage_daisy' && <DaisyFooterPot color={artworkColor} className={isMiniPreview ? "w-6 h-4" : "w-8 h-6 sm:w-12 sm:h-8"} />}
+            {theme.id === 'cozy_winter' && <WinterSnowglobe color={artworkColor} className={isMiniPreview ? "w-6 h-4" : "w-8 h-6 sm:w-12 sm:h-8"} />}
           </div>
 
           {/* Date String */}
           {settings.showDate && (
             <p
-              className="text-[8px] sm:text-xs font-bold tracking-widest mt-0.5"
+              className={`font-bold tracking-widest mt-0.5 ${isMiniPreview ? 'text-[5px]' : 'text-[7px] sm:text-[9px]'}`}
               style={{ color: color.textColor, fontFamily: theme.fontFamily }}
             >
-              {settings.customDate || '08. 23. 25'}
+              {settings.customDate || '08. 23. 26'}
             </p>
           )}
 
-          {theme.bottomDecoration && (
-            <p className="text-[7px] sm:text-[9px] font-semibold italic opacity-90 mt-0.5" style={{ color: color.subtextColor }}>
+          {theme.bottomDecoration && !isMiniPreview && (
+            <p className="text-[6px] sm:text-[8px] font-semibold italic opacity-90 truncate max-w-full" style={{ color: color.subtextColor }}>
               {theme.bottomDecoration}
             </p>
           )}
@@ -516,41 +798,33 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
     }
 
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center px-4">
-        {settings.showDate && settings.customDate && (
-          <p className="text-[9px] sm:text-xs font-bold tracking-wider" style={{ color: color.textColor }}>
-            {settings.customDate}
-          </p>
-        )}
-
-        {theme.bottomDecoration && (
-          <p className="text-[8px] sm:text-xs font-bold italic tracking-wide truncate w-full text-center" style={{ color: color.subtextColor }}>
-            {theme.bottomDecoration}
-          </p>
-        )}
-
-        <div className="flex items-center justify-center gap-1 text-[7px] sm:text-[9px] tracking-widest font-mono uppercase mt-0.5 opacity-75" style={{ color: color.subtextColor }}>
-          <Stars className="w-2.5 h-2.5 text-amber-500 inline" />
-          <span>LIFE FOUR CUTS • SEOUL</span>
+      <div className={`w-full h-full flex items-center justify-between ${isMiniPreview ? 'px-2' : 'px-3 sm:px-4'}`}>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {settings.showDate && (
+            <p className={`font-mono font-bold tracking-widest opacity-85 whitespace-nowrap ${isMiniPreview ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'}`} style={{ color: color.textColor }}>
+              {settings.customDate || '08. 23. 26'}
+            </p>
+          )}
+          {theme.bottomDecoration && !isMiniPreview && (
+            <span className="text-[7px] sm:text-[9px] font-medium italic opacity-75 truncate" style={{ color: color.subtextColor }}>
+              • {theme.bottomDecoration}
+            </span>
+          )}
         </div>
 
-        {/* Barcode graphic */}
-        <div className="flex items-center justify-center gap-0.5 mt-0.5 opacity-60">
-          {[4, 2, 6, 3, 2, 5, 2, 6, 2, 4, 3, 5, 2, 4, 2].map((h, i) => (
+        {/* Minimal Barcode / dots */}
+        <div className="flex items-center gap-0.5 opacity-60 flex-shrink-0">
+          {[3, 2, 5, 2, 4, 2, 5, 2].map((h, i) => (
             <div
               key={i}
-              className="rounded-xs"
               style={{
-                width: `${(i % 3) + 1.2}px`,
-                height: '10px',
+                width: isMiniPreview ? '1px' : '1.5px',
+                height: isMiniPreview ? '5px' : '8px',
                 backgroundColor: color.textColor,
               }}
             />
           ))}
         </div>
-        <span className="text-[7px] sm:text-[8px] font-mono tracking-tighter opacity-50" style={{ color: color.textColor }}>
-          KR-2026-BOOTH
-        </span>
       </div>
     );
   };
@@ -564,58 +838,93 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
     let rightVineStyle: React.CSSProperties | null = null;
 
     if (layout === 'grid-4') {
-      headerStyle = { top: '0%', left: '0%', width: '100%', height: '12.27%', position: 'absolute' };
-      footerStyle = { top: '67.18%', left: '0%', width: '100%', height: '32.82%', position: 'absolute' };
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.5%', position: 'absolute' };
+      footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
       slotsConfig = [
-        { left: '7.78%', top: '12.27%', width: '41.11%', height: '25.18%' },
-        { left: '51.11%', top: '12.27%', width: '41.11%', height: '25.18%' },
-        { left: '7.78%', top: '39.27%', width: '41.11%', height: '25.18%' },
-        { left: '51.11%', top: '39.27%', width: '41.11%', height: '25.18%' },
+        { left: '3.5%', top: '5.5%', width: '46.0%', height: '43.5%' },
+        { left: '50.5%', top: '5.5%', width: '46.0%', height: '43.5%' },
+        { left: '3.5%', top: '50.0%', width: '46.0%', height: '43.5%' },
+        { left: '50.5%', top: '50.0%', width: '46.0%', height: '43.5%' },
       ];
       if (isSpecialArtwork) {
-        leftVineStyle = { left: '1.5%', top: '14.55%', width: '4.5%', height: '58.18%', position: 'absolute' };
-        rightVineStyle = { right: '1.5%', top: '14.55%', width: '4.5%', height: '58.18%', position: 'absolute' };
+        leftVineStyle = { left: '1.2%', top: '6.0%', width: '4.0%', height: '87.0%', position: 'absolute' };
+        rightVineStyle = { right: '1.2%', top: '6.0%', width: '4.0%', height: '87.0%', position: 'absolute' };
+      }
+    } else if (layout === 'grid-4-rect') {
+      // 2x2 layout with 3:4 portrait rectangular photo slots
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.5%', position: 'absolute' };
+      footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
+      slotsConfig = [
+        { left: '3.5%', top: '5.5%', width: '46.0%', height: '43.5%' },
+        { left: '50.5%', top: '5.5%', width: '46.0%', height: '43.5%' },
+        { left: '3.5%', top: '50.0%', width: '46.0%', height: '43.5%' },
+        { left: '50.5%', top: '50.0%', width: '46.0%', height: '43.5%' },
+      ];
+      if (isSpecialArtwork) {
+        leftVineStyle = { left: '1.2%', top: '6.0%', width: '4.0%', height: '87.0%', position: 'absolute' };
+        rightVineStyle = { right: '1.2%', top: '6.0%', width: '4.0%', height: '87.0%', position: 'absolute' };
+      }
+    } else if (layout === 'strip-2') {
+      // 2-cut horizontal layout (left to right)
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '7.0%', position: 'absolute' };
+      footerStyle = { top: '90.5%', left: '0%', width: '100%', height: '9.5%', position: 'absolute' };
+      slotsConfig = [
+        { left: '3.5%', top: '7.0%', width: '46.0%', height: '82.5%' },
+        { left: '50.5%', top: '7.0%', width: '46.0%', height: '82.5%' },
+      ];
+      if (isSpecialArtwork) {
+        leftVineStyle = { left: '1.0%', top: '7.0%', width: '4.0%', height: '82.5%', position: 'absolute' };
+        rightVineStyle = { right: '1.0%', top: '7.0%', width: '4.0%', height: '82.5%', position: 'absolute' };
+      }
+    } else if (layout === 'single-1') {
+      // 1-cut special poster layout
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.5%', position: 'absolute' };
+      footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
+      slotsConfig = [{ left: '3.5%', top: '5.5%', width: '93.0%', height: '87.0%' }];
+      if (isSpecialArtwork) {
+        leftVineStyle = { left: '1.2%', top: '6.0%', width: '4.0%', height: '86.0%', position: 'absolute' };
+        rightVineStyle = { right: '1.2%', top: '6.0%', width: '4.0%', height: '86.0%', position: 'absolute' };
       }
     } else if (layout === 'strip-3') {
       if (isSpecialArtwork) {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.83%', position: 'absolute' };
-        footerStyle = { top: '73.83%', left: '0%', width: '100%', height: '26.17%', position: 'absolute' };
+        headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
+        footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
         slotsConfig = [
-          { left: '7.5%', top: '5.83%', width: '85.0%', height: '21.11%' },
-          { left: '7.5%', top: '28.5%', width: '85.0%', height: '21.11%' },
-          { left: '7.5%', top: '51.17%', width: '85.0%', height: '21.11%' },
+          { left: '4.5%', top: '5.0%', width: '91.0%', height: '28.8%' },
+          { left: '4.5%', top: '34.8%', width: '91.0%', height: '28.8%' },
+          { left: '4.5%', top: '64.6%', width: '91.0%', height: '28.8%' },
         ];
-        leftVineStyle = { left: '1.5%', top: '7.78%', width: '4.5%', height: '76.67%', position: 'absolute' };
-        rightVineStyle = { right: '1.5%', top: '7.78%', width: '4.5%', height: '76.67%', position: 'absolute' };
+        leftVineStyle = { left: '1.2%', top: '5.0%', width: '4.0%', height: '88.0%', position: 'absolute' };
+        rightVineStyle = { right: '1.2%', top: '5.0%', width: '4.0%', height: '88.0%', position: 'absolute' };
       } else {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '8.33%', position: 'absolute' };
-        footerStyle = { top: '76.33%', left: '0%', width: '100%', height: '23.67%', position: 'absolute' };
+        headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
+        footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
         slotsConfig = [
-          { left: '7.5%', top: '8.33%', width: '85.0%', height: '21.11%' },
-          { left: '7.5%', top: '31.0%', width: '85.0%', height: '21.11%' },
-          { left: '7.5%', top: '53.67%', width: '85.0%', height: '21.11%' },
+          { left: '4.5%', top: '5.0%', width: '91.0%', height: '28.8%' },
+          { left: '4.5%', top: '34.8%', width: '91.0%', height: '28.8%' },
+          { left: '4.5%', top: '64.6%', width: '91.0%', height: '28.8%' },
         ];
       }
     } else { // strip-4
       if (isSpecialArtwork) {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.77%', position: 'absolute' };
-        footerStyle = { top: '70.21%', left: '0%', width: '100%', height: '29.79%', position: 'absolute' };
+        headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.5%', position: 'absolute' };
+        footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
         slotsConfig = [
-          { left: '7.5%', top: '4.77%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '21.13%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '37.49%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '53.85%', width: '85.0%', height: '15.45%' },
+          { left: '4.5%', top: '4.5%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '26.9%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '49.3%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '71.7%', width: '91.0%', height: '21.6%' },
         ];
-        leftVineStyle = { left: '1.5%', top: '6.36%', width: '4.5%', height: '76.36%', position: 'absolute' };
-        rightVineStyle = { right: '1.5%', top: '6.36%', width: '4.5%', height: '76.36%', position: 'absolute' };
+        leftVineStyle = { left: '1.2%', top: '4.5%', width: '4.0%', height: '89.0%', position: 'absolute' };
+        rightVineStyle = { right: '1.2%', top: '4.5%', width: '4.0%', height: '89.0%', position: 'absolute' };
       } else {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '6.82%', position: 'absolute' };
-        footerStyle = { top: '72.26%', left: '0%', width: '100%', height: '27.74%', position: 'absolute' };
+        headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.5%', position: 'absolute' };
+        footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
         slotsConfig = [
-          { left: '7.5%', top: '6.82%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '23.18%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '39.54%', width: '85.0%', height: '15.45%' },
-          { left: '7.5%', top: '55.90%', width: '85.0%', height: '15.45%' },
+          { left: '4.5%', top: '4.5%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '26.9%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '49.3%', width: '91.0%', height: '21.6%' },
+          { left: '4.5%', top: '71.7%', width: '91.0%', height: '21.6%' },
         ];
       }
     }
@@ -628,15 +937,63 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
         onClick={handleContainerClick}
         className="relative w-full rounded-2xl select-none shadow-xl transition-all duration-300 border overflow-hidden"
         style={{
-          backgroundColor: bgColor,
+          backgroundColor: theme.id === 'airmail_postcard' ? '#E5D5BC' : theme.id === 'teddy_cozy_check' ? '#FAF6EF' : bgColor,
           borderColor: color.borderHex || 'rgba(0,0,0,0.08)',
           color: color.textColor,
           fontFamily: theme.fontFamily,
-          aspectRatio: layout === 'grid-4' ? '9 / 11' : layout === 'strip-3' ? '1 / 3' : '3 / 11',
+          aspectRatio:
+            layout === 'grid-4'
+              ? '9 / 11'
+              : layout === 'grid-4-rect'
+              ? '3 / 4.2'
+              : layout === 'single-1'
+              ? '3 / 4'
+              : layout === 'strip-2'
+              ? '11 / 7.5'
+              : layout === 'strip-3'
+              ? '1 / 3'
+              : '3 / 11',
         }}
       >
+        {/* Airmail Outer Stripe Border */}
+        {theme.id === 'airmail_postcard' && (
+          <div
+            className="absolute inset-0 pointer-events-none opacity-95"
+            style={{
+              background: `repeating-linear-gradient(
+                -45deg,
+                #C82A2A 0px,
+                #C82A2A 10px,
+                #FAF6EF 10px 14px,
+                #1D3E6E 14px 24px,
+                #FAF6EF 24px 28px
+              )`,
+              padding: isMiniPreview ? '6px' : '10px sm:12px',
+            }}
+          >
+            <div className="w-full h-full bg-[#E5D5BC] border border-[#C8B59B] rounded-2xs" />
+          </div>
+        )}
+
+        {theme.id === 'teddy_cozy_check' && (
+          <div
+            className="absolute inset-0 pointer-events-none opacity-90"
+            style={{
+              backgroundImage: `
+                linear-gradient(45deg, #E0D5C1 25%, transparent 25%), 
+                linear-gradient(-45deg, #E0D5C1 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #E0D5C1 75%), 
+                linear-gradient(-45deg, transparent 75%, #E0D5C1 75%)
+              `,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 0 12px, 12px -12px, -12px 0px',
+              backgroundColor: '#FAF6EF',
+            }}
+          />
+        )}
+
         {/* Left & Right Side Vine Border for Special Themes */}
-        {isSpecialArtwork && leftVineStyle && rightVineStyle && (
+        {isSpecialArtwork && leftVineStyle && rightVineStyle && theme.id !== 'teddy_cozy_check' && (
           <>
             <div className="pointer-events-none" style={leftVineStyle}>
               {theme.id === 'wedding_cake' && <SideVineArtwork color={artworkColor} isLeft={true} />}
@@ -670,6 +1027,28 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
           {renderFooter()}
         </div>
 
+        {/* Middle Scrapbook Sticker Overlays for Teddy Cozy Check Theme */}
+        {theme.id === 'teddy_cozy_check' && (
+          <div className="absolute inset-0 pointer-events-none z-20">
+            {/* Over Frame 1 & 2 Gap - Left: Plush Teddy */}
+            <div className="absolute top-[23.0%] left-[-2%] w-[25%] sm:w-[26%] z-30 drop-shadow-xs">
+              <CozyPlushTeddy className="w-full h-auto" />
+            </div>
+            {/* Over Frame 1 & 2 Gap - Right: Letter B Cookie */}
+            <div className="absolute top-[24.0%] right-[3%] w-[13%] sm:w-[14%] z-30 drop-shadow-xs">
+              <CozyLetterBCookie className="w-full h-auto" />
+            </div>
+            {/* Over Frame 2 & 3 Gap - Left: Vintage Film Camera */}
+            <div className="absolute top-[46.0%] left-[-2%] w-[24%] sm:w-[25%] z-30 drop-shadow-xs">
+              <CozyVintageCamera className="w-full h-auto" />
+            </div>
+            {/* Over Frame 2 & 3 Gap - Right: Kraft Tape Label */}
+            <div className="absolute top-[47.2%] right-[1%] w-[46%] sm:w-[48%] z-30 drop-shadow-xs">
+              <CozyKraftTapeLabel className="w-full h-auto" />
+            </div>
+          </div>
+        )}
+
         {/* Placed Stickers overlay */}
         {settings.stickers && settings.stickers.length > 0 && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -691,18 +1070,18 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
     );
   };
 
-  // Set explicit width instead of only max-width to prevent collapsing in flex containers
-  const containerWidthClass = layout === 'grid-4' 
-    ? 'w-[280px] sm:w-[390px]' 
-    : 'w-[200px] sm:w-[300px]';
+  // Set explicit width or allow custom className override for grid fitting
+  const isGridOrPoster = layout === 'grid-4' || layout === 'grid-4-rect' || layout === 'single-1' || layout === 'strip-2';
+  const containerWidthClass =
+    className || (isGridOrPoster ? 'w-[280px] sm:w-[390px]' : 'w-[200px] sm:w-[300px]');
 
   return (
-    <div id="photobooth-strip-container" className="flex items-center justify-center gap-3 max-w-full">
+    <div id="photobooth-strip-container" className={`flex items-center justify-center gap-3 max-w-full ${className ? 'w-full' : ''}`}>
       <div className={`flex-shrink-0 ${containerWidthClass}`}>
         {renderSingleStripContent('strip-1')}
       </div>
 
-      {settings.isDoubleStrip && layout !== 'grid-4' && (
+      {settings.isDoubleStrip && !isGridOrPoster && (
         <>
           {/* Dotted Cut Line */}
           <div className="hidden sm:flex flex-col items-center justify-center gap-2 h-full py-6 text-neutral-400">
