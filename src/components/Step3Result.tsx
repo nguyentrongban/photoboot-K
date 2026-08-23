@@ -97,32 +97,50 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
     }
   };
 
-  // Direct Mobile Share Button
+  // Direct Mobile Share Button with Native iOS Sheet & Tab Fallback
   const handleDirectShare = async () => {
-    if (!savedBlob) return;
     const filename = `photobooth_${settings.layoutType || 'strip'}_${Date.now()}.png`;
-    const file = new File([savedBlob], filename, { type: 'image/png' });
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (savedBlob && typeof navigator !== 'undefined' && navigator.canShare) {
       try {
-        await navigator.share({
-          files: [file],
-          title: 'PicZo Photobooth',
-          text: 'Dải ảnh chụp Photobooth Hàn Quốc xinh xắn! 📸✨',
-        });
-      } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          console.warn('Share error', err);
+        const file = new File([savedBlob], filename, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'PicZo Photobooth',
+            text: 'Dải ảnh Photobooth Hàn Quốc cực xinh! 📸✨',
+          });
+          return;
         }
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        console.warn('Share error', err);
       }
-    } else {
-      // Fallback
-      const a = document.createElement('a');
-      a.href = savedDataUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    }
+
+    // Fallback: Open image in clean viewer tab for saving
+    if (savedDataUrl) {
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Lưu ảnh Photobooth</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+              <style>
+                body { margin: 0; padding: 20px; background: #0f172a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; box-sizing: border-box; }
+                .hint { background: rgba(244, 63, 94, 0.2); border: 1px solid #f43f5e; color: #fecdd3; padding: 10px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+                img { max-width: 92vw; max-height: 75vh; height: auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+              </style>
+            </head>
+            <body>
+              <div class="hint">👆 Nhấn giữ vào ảnh 1 giây ➔ Chọn "Lưu hình ảnh" (Save Image)</div>
+              <img src="${savedDataUrl}" alt="Photobooth Strip" />
+            </body>
+          </html>
+        `);
+      }
     }
   };
 
@@ -786,38 +804,67 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-4 sm:p-5 border-t border-rose-100 bg-white space-y-2">
-              <div className="flex items-center gap-2">
+            <div className="p-4 sm:p-5 border-t border-rose-100 bg-white space-y-2.5">
+              <div className="flex flex-col sm:flex-row items-center gap-2">
                 <button
                   onClick={handleDirectShare}
-                  className="flex-1 py-3 px-4 rounded-2xl bg-rose-500 hover:bg-rose-600 active:scale-98 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 active:scale-98 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>Lưu Vào Album Ảnh / Chia Sẻ</span>
+                  <span>Lưu Vào Album Ảnh (Photos)</span>
                 </button>
 
-                <button
-                  onClick={() => {
-                    const a = document.createElement('a');
-                    a.href = savedDataUrl;
-                    a.download = `photobooth_${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                  }}
-                  className="py-3 px-4 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  title="Tải lại file tệp"
-                >
-                  <FolderDown className="w-4 h-4" />
-                  <span className="hidden sm:inline">Tải Tệp</span>
-                </button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => {
+                      const w = window.open('', '_blank');
+                      if (w) {
+                        w.document.write(`
+                          <!DOCTYPE html>
+                          <html>
+                            <head>
+                              <title>Ảnh Photobooth HD</title>
+                              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                              <style>body{margin:0;padding:20px;background:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;} img{max-width:95vw;max-height:85vh;height:auto;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.8);}</style>
+                            </head>
+                            <body>
+                              <p style="color:#f43f5e;font-weight:bold;font-family:sans-serif;font-size:14px;margin-bottom:12px;">👆 Nhấn giữ vào ảnh để chọn "Lưu hình ảnh" vào Cuộn Camera</p>
+                              <img src="${savedDataUrl}" alt="Photobooth" />
+                            </body>
+                          </html>
+                        `);
+                      }
+                    }}
+                    className="flex-1 sm:flex-none py-3 px-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-rose-200"
+                    title="Mở tab riêng để xem và lưu ảnh gốc"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Mở Tab Riêng</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = savedDataUrl;
+                      a.download = `photobooth_${Date.now()}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }}
+                    className="py-3 px-3.5 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    title="Tải file tệp về máy"
+                  >
+                    <FolderDown className="w-4 h-4" />
+                    <span className="hidden sm:inline">Tải Tệp</span>
+                  </button>
+                </div>
               </div>
 
               <button
                 onClick={() => setSaveModalOpen(false)}
-                className="w-full py-2 text-center text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors"
+                className="w-full py-2 text-center text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
               >
-                Đóng
+                Hoàn tất & Đóng
               </button>
             </div>
           </div>
