@@ -7,6 +7,7 @@ import { Step2Camera } from './components/Step2Camera';
 import { Step3Result } from './components/Step3Result';
 import { SeoContentSection } from './components/SeoContentSection';
 import { DuoModal } from './components/DuoModal';
+import { PromoKitModal } from './components/PromoKitModal';
 import { DuoCameraScreen } from './components/DuoCameraScreen';
 import { useDuoSocket } from './utils/useDuoSocket';
 
@@ -32,6 +33,7 @@ export default function App() {
 
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [isDuoModalOpen, setIsDuoModalOpen] = useState<boolean>(false);
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState<boolean>(false);
   const [initialRoomCode, setInitialRoomCode] = useState<string>('');
   const [roomDeletedNotice, setRoomDeletedNotice] = useState<string | null>(null);
 
@@ -167,6 +169,7 @@ export default function App() {
         canGoToStep3={canGoToStep3}
         onResetAll={handleResetAll}
         onOpenDuoModal={() => setIsDuoModalOpen(true)}
+        onOpenPromoModal={() => setIsPromoModalOpen(true)}
         isDuoActive={isDuoActive}
       />
 
@@ -255,6 +258,12 @@ export default function App() {
           onClose={() => setIsDuoModalOpen(false)}
           onJoinRoom={handleJoinDuoRoom}
           initialRoomCode={initialRoomCode}
+        />
+
+        {/* Promo Marketing Kit Modal Dialog */}
+        <PromoKitModal
+          isOpen={isPromoModalOpen}
+          onClose={() => setIsPromoModalOpen(false)}
         />
 
         {/* SEO Article & FAQ Section for Google Search Engine Indexing */}

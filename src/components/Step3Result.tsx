@@ -12,8 +12,19 @@ import {
   CheckLg,
   LayoutSplit,
 } from 'react-bootstrap-icons';
+import {
+  X,
+  Share2,
+  Image as ImageIcon,
+  FolderDown,
+  Sparkles,
+  HelpCircle,
+  Smartphone,
+  ExternalLink,
+} from 'lucide-react';
 import { LottieIcon } from './LottieIcon';
 import confetti from 'canvas-confetti';
+import { playSuccessChime } from '../utils/audio';
 
 interface Step3ResultProps {
   photos: CapturedPhoto[];
@@ -41,6 +52,11 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   const [selectedStickerCat, setSelectedStickerCat] = useState<string>('love');
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
 
+  // Result Save Modal state for iOS & all devices
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [savedDataUrl, setSavedDataUrl] = useState<string>('');
+  const [savedBlob, setSavedBlob] = useState<Blob | null>(null);
+
   const selectedTheme = FRAME_THEMES.find((t) => t.id === settings.themeId) || FRAME_THEMES[0];
   const selectedColor = FRAME_COLORS.find((c) => c.id === settings.colorId) || FRAME_COLORS[0];
   const selectedFilter = PHOTO_FILTERS.find((f) => f.id === settings.filterId) || PHOTO_FILTERS[0];
@@ -52,7 +68,7 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   const handleDownload = async () => {
     try {
       setIsExporting(true);
-      await downloadPhotoStrip({
+      const result = await downloadPhotoStrip({
         photos,
         settings,
         theme: selectedTheme,
@@ -60,6 +76,13 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
         filter: selectedFilter,
         scale: exportScale,
       });
+
+      if (result.dataUrl) {
+        setSavedDataUrl(result.dataUrl);
+        setSavedBlob(result.blob);
+        setSaveModalOpen(true);
+        playSuccessChime();
+      }
 
       confetti({
         particleCount: 100,
@@ -71,6 +94,35 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
       alert('Không thể xuất ảnh. Vui lòng thử lại.');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  // Direct Mobile Share Button
+  const handleDirectShare = async () => {
+    if (!savedBlob) return;
+    const filename = `photobooth_${settings.layoutType || 'strip'}_${Date.now()}.png`;
+    const file = new File([savedBlob], filename, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'PicZo Photobooth',
+          text: 'Dải ảnh chụp Photobooth Hàn Quốc xinh xắn! 📸✨',
+        });
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.warn('Share error', err);
+        }
+      }
+    } else {
+      // Fallback
+      const a = document.createElement('a');
+      a.href = savedDataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   };
 
@@ -667,6 +719,110 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Save to Photos & Download Success Modal */}
+      {saveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-lg max-h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-rose-100 font-['Quicksand']">
+            {/* Header */}
+            <div className="p-4 sm:p-5 border-b border-rose-100 flex items-center justify-between bg-gradient-to-r from-rose-50/80 via-pink-50/50 to-white">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center shadow-xs">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base sm:text-lg text-neutral-900 leading-tight">
+                    Đã Xuất Ảnh Photobooth!
+                  </h3>
+                  <p className="text-xs text-neutral-500">
+                    Hướng dẫn lưu vào <strong className="text-rose-600">Album Ảnh (Photos)</strong>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSaveModalOpen(false)}
+                className="w-9 h-9 rounded-full bg-white hover:bg-rose-50 text-neutral-500 hover:text-neutral-900 border border-neutral-200 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-[#FAF8F5]">
+              {/* iPhone Instruction Banner */}
+              <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-3.5 space-y-2 text-xs text-amber-900 shadow-3xs">
+                <div className="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                  <Smartphone className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Cách lưu ảnh vào Album Ảnh trên iPhone / Safari:</span>
+                </div>
+                <div className="space-y-1 text-amber-800 text-[11px] leading-relaxed pl-6 list-decimal">
+                  <p>
+                    👉 <strong>Cách 1 (Nhanh nhất):</strong> Nhấn giữ vào dải ảnh bên dưới <strong>1 - 2 giây</strong> ➔ Chọn <strong className="underline text-amber-950">"Lưu hình ảnh" (Save Image)</strong>.
+                  </p>
+                  <p>
+                    👉 <strong>Cách 2:</strong> Bấm nút <strong>"Lưu Vào Cuộn Camera (iOS / Android)"</strong> bên dưới để mở menu lưu của máy.
+                  </p>
+                  <p className="text-[10px] text-amber-700/90 italic pt-0.5">
+                    💡 <em>Nếu bạn vừa bấm "Tải về" ở bảng hỏi Safari, ảnh đã được lưu vào ứng dụng <strong>Tệp (Files) ➔ Tải về</strong>.</em>
+                  </p>
+                </div>
+              </div>
+
+              {/* Rendered Image Preview with Long-press hint */}
+              <div className="flex flex-col items-center">
+                <div className="relative group max-h-[48vh] overflow-hidden rounded-2xl border-2 border-rose-200/80 shadow-md bg-white p-2 flex justify-center">
+                  <img
+                    src={savedDataUrl}
+                    alt="Photobooth Result"
+                    className="max-h-[44vh] w-auto object-contain rounded-xl select-auto"
+                    style={{ WebkitTouchCallout: 'default' }}
+                  />
+                  <div className="absolute bottom-3 bg-black/75 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full pointer-events-none flex items-center gap-1.5 shadow-sm">
+                    <span>👆 Nhấn giữ ảnh để Lưu vào Album</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="p-4 sm:p-5 border-t border-rose-100 bg-white space-y-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDirectShare}
+                  className="flex-1 py-3 px-4 rounded-2xl bg-rose-500 hover:bg-rose-600 active:scale-98 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Lưu Vào Album Ảnh / Chia Sẻ</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    const a = document.createElement('a');
+                    a.href = savedDataUrl;
+                    a.download = `photobooth_${Date.now()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  }}
+                  className="py-3 px-4 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  title="Tải lại file tệp"
+                >
+                  <FolderDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">Tải Tệp</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setSaveModalOpen(false)}
+                className="w-full py-2 text-center text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

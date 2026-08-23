@@ -2443,19 +2443,69 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
   return canvas;
 }
 
-export async function downloadPhotoStrip(options: ExportOptions) {
+export async function downloadPhotoStrip(options: ExportOptions): Promise<{ dataUrl: string; blob: Blob | null }> {
   const canvas = await generateStripCanvas(options);
-  const dataUrl = canvas.toDataURL('image/png', 1.0);
-
   const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
   const filename = `photobooth_${options.settings.layoutType || 'grid4'}_${timestamp}.png`;
 
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = dataUrl;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  return new Promise((resolve) => {
+    canvas.toBlob(async (blob) => {
+      let dataUrl = '';
+      try {
+        dataUrl = canvas.toDataURL('image/png', 1.0);
+      } catch {
+        // ignore if tainted
+      }
+
+      if (blob) {
+        // 1. Check if Web Share API is available with file support (Ideal for iOS Safari & Android mobile)
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const file = new File([blob], filename, { type: 'image/png' });
+
+        if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'PicZo Photobooth',
+              text: 'Ảnh chụp Photobooth Hàn Quốc cực xinh! 📸✨',
+            });
+            resolve({ dataUrl, blob });
+            return;
+          } catch (shareErr: any) {
+            // User cancelled share or fallback to anchor download
+            if (shareErr.name === 'AbortError') {
+              resolve({ dataUrl, blob });
+              return;
+            }
+          }
+        }
+
+        // 2. Blob URL Download (Standard, reliable on all modern browsers & custom domains)
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = blobUrl;
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+        }, 5000);
+      } else {
+        // Fallback to dataUrl
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      resolve({ dataUrl, blob });
+    }, 'image/png', 1.0);
+  });
 }
 
 export async function copyPhotoToClipboard(options: ExportOptions): Promise<boolean> {

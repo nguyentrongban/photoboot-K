@@ -4,7 +4,7 @@ import { VolumeUpFill, VolumeMuteFill, ArrowCounterclockwise } from 'react-boots
 import { getAudioMuted, setAudioMuted } from '../utils/audio';
 import { LottieIcon, LottieIconType } from './LottieIcon';
 import logoImg from '../assets/images/piczo_camera_logo_1787394527785.jpg';
-import { Heart, Users } from 'lucide-react';
+import { Heart, Users, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   currentStep: Step;
@@ -13,6 +13,7 @@ interface HeaderProps {
   canGoToStep3: boolean;
   onResetAll: () => void;
   onOpenDuoModal: () => void;
+  onOpenPromoModal?: () => void;
   isDuoActive?: boolean;
 }
 
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   canGoToStep3,
   onResetAll,
   onOpenDuoModal,
+  onOpenPromoModal,
   isDuoActive,
 }) => {
   const [muted, setMuted] = React.useState(getAudioMuted());
@@ -116,8 +118,21 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </div>
 
-        {/* Duo Booth Trigger & Tools (Audio & Reset) */}
+        {/* Duo Booth Trigger, Promo Kit & Tools (Audio & Reset) */}
         <div className="flex items-center gap-2">
+          {/* Promo Kit Button */}
+          {onOpenPromoModal && (
+            <button
+              id="btn-open-promo-kit"
+              onClick={onOpenPromoModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
+              title="Xem và tải trọn bộ 5 ảnh quảng cáo HD"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <span className="hidden sm:inline font-['Quicksand']">Ảnh Quảng Cáo</span>
+            </button>
+          )}
+
           {/* Duo Booth Button */}
           <button
             id="btn-open-duo-booth"
