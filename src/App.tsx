@@ -8,6 +8,7 @@ import { Step3Result } from './components/Step3Result';
 import { SeoContentSection } from './components/SeoContentSection';
 import { DuoModal } from './components/DuoModal';
 import { PromoKitModal } from './components/PromoKitModal';
+import { BetaNoticeModal } from './components/BetaNoticeModal';
 import { DuoCameraScreen } from './components/DuoCameraScreen';
 import { useDuoSocket } from './utils/useDuoSocket';
 
@@ -34,6 +35,7 @@ export default function App() {
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [isDuoModalOpen, setIsDuoModalOpen] = useState<boolean>(false);
   const [isPromoModalOpen, setIsPromoModalOpen] = useState<boolean>(false);
+  const [isBetaModalOpen, setIsBetaModalOpen] = useState<boolean>(false);
   const [initialRoomCode, setInitialRoomCode] = useState<string>('');
   const [roomDeletedNotice, setRoomDeletedNotice] = useState<string | null>(null);
 
@@ -68,13 +70,29 @@ export default function App() {
     },
   });
 
-  // Check URL parameters for ?room=CODE
+  // Check URL parameters and check Beta Notice localStorage on load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get('room');
     if (roomParam) {
       setInitialRoomCode(roomParam.toUpperCase());
       setIsDuoModalOpen(true);
+    } else {
+      // Check if user dismissed beta notice in the last 24 hours
+      try {
+        const stored = localStorage.getItem('piczo_beta_notice_v1');
+        if (stored) {
+          const { dismissedAt } = JSON.parse(stored);
+          const oneDay = 24 * 60 * 60 * 1000;
+          if (Date.now() - dismissedAt > oneDay) {
+            setTimeout(() => setIsBetaModalOpen(true), 400);
+          }
+        } else {
+          setTimeout(() => setIsBetaModalOpen(true), 400);
+        }
+      } catch {
+        setTimeout(() => setIsBetaModalOpen(true), 400);
+      }
     }
   }, []);
 
@@ -170,6 +188,7 @@ export default function App() {
         onResetAll={handleResetAll}
         onOpenDuoModal={() => setIsDuoModalOpen(true)}
         onOpenPromoModal={() => setIsPromoModalOpen(true)}
+        onOpenBetaModal={() => setIsBetaModalOpen(true)}
         isDuoActive={isDuoActive}
       />
 
@@ -266,6 +285,12 @@ export default function App() {
           onClose={() => setIsPromoModalOpen(false)}
         />
 
+        {/* Early Beta Notice Modal Dialog */}
+        <BetaNoticeModal
+          isOpen={isBetaModalOpen}
+          onClose={() => setIsBetaModalOpen(false)}
+        />
+
         {/* SEO Article & FAQ Section for Google Search Engine Indexing */}
         <SeoContentSection />
       </main>
@@ -274,9 +299,18 @@ export default function App() {
       <footer className="w-full py-6 border-t border-neutral-100 bg-white/80 backdrop-blur-md text-[11px] text-neutral-400 font-['Quicksand']">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:items-start gap-1 text-center sm:text-left">
-            <p className="font-bold text-neutral-700 text-xs tracking-wide">
-              🌸 PicZo Studio
-            </p>
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <p className="font-bold text-neutral-700 text-xs tracking-wide">
+                🌸 PicZo Studio
+              </p>
+              <button
+                onClick={() => setIsBetaModalOpen(true)}
+                className="px-2 py-0.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold border border-rose-200/60 transition-colors cursor-pointer"
+                title="Xem thông báo giai đoạn thử nghiệm"
+              >
+                Beta v1.0 • Đang phát triển ✨
+              </button>
+            </div>
             <p className="text-neutral-400">
               Chụp ảnh 4 ô vuông & dải dọc phong cách Hàn Quốc • Kết nối chụp đôi từ xa thời gian thực
             </p>

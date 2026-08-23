@@ -14,6 +14,7 @@ interface HeaderProps {
   onResetAll: () => void;
   onOpenDuoModal: () => void;
   onOpenPromoModal?: () => void;
+  onOpenBetaModal?: () => void;
   isDuoActive?: boolean;
 }
 
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onResetAll,
   onOpenDuoModal,
   onOpenPromoModal,
+  onOpenBetaModal,
   isDuoActive,
 }) => {
   const [muted, setMuted] = React.useState(getAudioMuted());
@@ -120,6 +122,19 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Duo Booth Trigger, Promo Kit & Tools (Audio & Reset) */}
         <div className="flex items-center gap-2">
+          {/* Beta Notice Button */}
+          {onOpenBetaModal && (
+            <button
+              id="btn-open-beta-notice"
+              onClick={onOpenBetaModal}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200/70 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              title="Thông báo giai đoạn thử nghiệm (Beta)"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping hidden xs:inline" />
+              <span className="font-['Quicksand']">Beta</span>
+            </button>
+          )}
+
           {/* Promo Kit Button */}
           {onOpenPromoModal && (
             <button
