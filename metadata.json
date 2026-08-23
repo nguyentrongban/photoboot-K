@@ -1,6 +1,6 @@
 {
   "name": "PicZo",
-  "description": "Ứng dụng chụp ảnh Photobooth với bố cục 4 tấm vuông thời thượng, dải 3-4 ảnh dọc, mẫu viền nơ bánh kem vintage và xuất ảnh chất lượng cao.",
-  "requestFramePermissions": ["camera"],
+  "description": "Ứng dụng chụp ảnh Photobooth với bố cục 4 tấm vuông thời thượng, dải 3-4 ảnh dọc, mẫu viền nơ bánh kem vintage và tính năng Chụp Đôi Từ Xa (Duo Booth) theo thời gian thực.",
+  "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

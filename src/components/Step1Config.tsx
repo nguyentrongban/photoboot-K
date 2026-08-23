@@ -5,17 +5,20 @@ import { PhotoStrip } from './PhotoStrip';
 import { FrameThemeCard } from './FrameThemeCard';
 import { CameraFill, CheckLg } from 'react-bootstrap-icons';
 import { LottieIcon } from './LottieIcon';
+import { Heart } from 'lucide-react';
 
 interface Step1ConfigProps {
   settings: PhotoboothSettings;
   onUpdateSettings: (updater: Partial<PhotoboothSettings>) => void;
   onStartCapture: () => void;
+  onOpenDuoModal?: () => void;
 }
 
 export const Step1Config: React.FC<Step1ConfigProps> = ({
   settings,
   onUpdateSettings,
   onStartCapture,
+  onOpenDuoModal,
 }) => {
   const selectedTheme = FRAME_THEMES.find((t) => t.id === settings.themeId) || FRAME_THEMES[0];
   const selectedColor = FRAME_COLORS.find((c) => c.id === settings.colorId) || FRAME_COLORS[0];
@@ -45,7 +48,7 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      {/* Friendly Header Title */}
+      {/* Friendly Header Title & Duo Callout */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight flex items-center gap-2 font-['Quicksand']">
@@ -59,12 +62,25 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
           </p>
         </div>
 
-        {/* Quick layout status pill */}
-        <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full border border-rose-100 text-xs font-bold text-neutral-700 shadow-2xs">
-          <span>{currentLayout.name.split(' (')[0]}</span>
-          <span className="text-rose-400">•</span>
-          <span className="text-rose-600">{selectedTheme.name}</span>
-        </div>
+        {/* Duo Booth Quick Trigger Badge */}
+        {onOpenDuoModal && (
+          <button
+            id="btn-open-duo-banner"
+            onClick={onOpenDuoModal}
+            className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold shadow-md shadow-pink-200 transition-all hover:scale-105 active:scale-95 cursor-pointer text-left font-['Quicksand']"
+          >
+            <div className="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center">
+              <Heart className="w-4 h-4 fill-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1 font-black">
+                <span>Chụp Đôi Yêu Xa 💕</span>
+                <span className="text-[9px] bg-white text-rose-600 px-1.5 py-0.5 rounded-full uppercase">Realtime</span>
+              </div>
+              <p className="text-[10px] text-white/90 font-medium">Kết nối 2 máy chụp chung thời gian thực</p>
+            </div>
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">

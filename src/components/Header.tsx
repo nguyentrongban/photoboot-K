@@ -4,6 +4,7 @@ import { VolumeUpFill, VolumeMuteFill, ArrowCounterclockwise } from 'react-boots
 import { getAudioMuted, setAudioMuted } from '../utils/audio';
 import { LottieIcon, LottieIconType } from './LottieIcon';
 import logoImg from '../assets/images/piczo_camera_logo_1787394527785.jpg';
+import { Heart, Users } from 'lucide-react';
 
 interface HeaderProps {
   currentStep: Step;
@@ -11,6 +12,8 @@ interface HeaderProps {
   canGoToStep2: boolean;
   canGoToStep3: boolean;
   onResetAll: () => void;
+  onOpenDuoModal: () => void;
+  isDuoActive?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +22,8 @@ export const Header: React.FC<HeaderProps> = ({
   canGoToStep2,
   canGoToStep3,
   onResetAll,
+  onOpenDuoModal,
+  isDuoActive,
 }) => {
   const [muted, setMuted] = React.useState(getAudioMuted());
 
@@ -111,8 +116,25 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </div>
 
-        {/* Tools (Audio & Reset) */}
-        <div className="flex items-center gap-1.5">
+        {/* Duo Booth Trigger & Tools (Audio & Reset) */}
+        <div className="flex items-center gap-2">
+          {/* Duo Booth Button */}
+          <button
+            id="btn-open-duo-booth"
+            onClick={onOpenDuoModal}
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+              isDuoActive
+                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white animate-pulse'
+                : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 hover:scale-105 active:scale-95'
+            }`}
+            title="Mời người yêu hoặc bạn thân chụp ảnh chung từ xa"
+          >
+            <Heart className={`w-3.5 h-3.5 ${isDuoActive ? 'fill-white text-white' : 'fill-rose-500 text-rose-500'}`} />
+            <span className="hidden xs:inline font-['Quicksand']">
+              {isDuoActive ? 'Đang Chụp Đôi' : 'Chụp Đôi Từ Xa'}
+            </span>
+          </button>
+
           <button
             id="btn-toggle-audio"
             onClick={toggleAudio}
@@ -141,3 +163,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

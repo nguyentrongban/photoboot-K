@@ -20,6 +20,9 @@ interface Step3ResultProps {
   settings: PhotoboothSettings;
   onUpdateSettings: (updater: Partial<PhotoboothSettings>) => void;
   onRetake: () => void;
+  isDuoActive?: boolean;
+  partnerName?: string;
+  onSyncStickers?: (stickers: PlacedSticker[]) => void;
 }
 
 export const Step3Result: React.FC<Step3ResultProps> = ({
@@ -27,6 +30,9 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   settings,
   onUpdateSettings,
   onRetake,
+  isDuoActive,
+  partnerName,
+  onSyncStickers,
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -105,16 +111,16 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
       rotation: randomRotation,
     };
 
-    onUpdateSettings({
-      stickers: [...(settings.stickers || []), newSticker],
-    });
+    const updatedStickers = [...(settings.stickers || []), newSticker];
+    onUpdateSettings({ stickers: updatedStickers });
+    if (onSyncStickers) onSyncStickers(updatedStickers);
     setSelectedStickerId(newSticker.id);
   };
 
   const handleUpdateSticker = (updatedSticker: PlacedSticker) => {
-    onUpdateSettings({
-      stickers: (settings.stickers || []).map((s) => (s.id === updatedSticker.id ? updatedSticker : s)),
-    });
+    const updatedStickers = (settings.stickers || []).map((s) => (s.id === updatedSticker.id ? updatedSticker : s));
+    onUpdateSettings({ stickers: updatedStickers });
+    if (onSyncStickers) onSyncStickers(updatedStickers);
   };
 
   const handleDropSticker = (emoji: string, xPercent: number, yPercent: number) => {
@@ -128,9 +134,9 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
       rotation: randomRotation,
     };
 
-    onUpdateSettings({
-      stickers: [...(settings.stickers || []), newSticker],
-    });
+    const updatedStickers = [...(settings.stickers || []), newSticker];
+    onUpdateSettings({ stickers: updatedStickers });
+    if (onSyncStickers) onSyncStickers(updatedStickers);
     setSelectedStickerId(newSticker.id);
   };
 
@@ -138,48 +144,62 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
     if (selectedStickerId === id) {
       setSelectedStickerId(null);
     }
-    onUpdateSettings({
-      stickers: (settings.stickers || []).filter((s) => s.id !== id),
-    });
+    const updatedStickers = (settings.stickers || []).filter((s) => s.id !== id);
+    onUpdateSettings({ stickers: updatedStickers });
+    if (onSyncStickers) onSyncStickers(updatedStickers);
   };
 
   const handleClearAllStickers = () => {
     setSelectedStickerId(null);
     onUpdateSettings({ stickers: [] });
+    if (onSyncStickers) onSyncStickers([]);
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6">
-      {/* Friendly Header Title */}
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 font-['Quicksand']">
+      {/* Friendly Header Title & Duo Sync Pill */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight flex items-center gap-2 font-['Quicksand']">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight flex items-center gap-2">
             <span>Dán Sticker & Lưu Ảnh</span>
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
               Hoàn thành 💖
             </span>
           </h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-1 font-medium">
-            Chạm vào sticker bạn thích để dán lên ảnh, sau đó bấm tải ảnh về máy nhé! ✨
+            Tự do thêm sticker, đổi màu khung và tải ảnh chất lượng cao 300 DPI nhé! ✨
           </p>
         </div>
 
-        {/* Double strip toggle if not grid */}
-        {settings.layoutType !== 'grid-4' && (
-          <button
-            id="btn-toggle-double-strip"
-            onClick={() => onUpdateSettings({ isDoubleStrip: !settings.isDoubleStrip })}
-            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
-              settings.isDoubleStrip
-                ? 'bg-neutral-900 text-white border-neutral-900'
-                : 'bg-white text-neutral-700 border-rose-200 hover:bg-rose-50'
-            }`}
-          >
-            <LayoutSplit className="w-3.5 h-3.5" />
-            <span>{settings.isDoubleStrip ? 'In 2 Dải Ảnh Cặp' : '1 Dải Ảnh'}</span>
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Duo Partner Co-editing status */}
+          {isDuoActive && (
+            <div className="flex items-center gap-2 bg-pink-50 border border-pink-200 text-pink-900 px-3.5 py-1.5 rounded-2xl shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              <span className="text-xs font-bold">
+                💞 Cùng {partnerName || 'người ấy'} đồng trang trí!
+              </span>
+            </div>
+          )}
+
+          {/* Double strip toggle if not grid */}
+          {settings.layoutType !== 'grid-4' && (
+            <button
+              id="btn-toggle-double-strip"
+              onClick={() => onUpdateSettings({ isDoubleStrip: !settings.isDoubleStrip })}
+              className={`text-xs font-bold px-4 py-2 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                settings.isDoubleStrip
+                  ? 'bg-neutral-900 text-white border-neutral-900'
+                  : 'bg-white text-neutral-700 border-rose-200 hover:bg-rose-50'
+              }`}
+            >
+              <LayoutSplit className="w-3.5 h-3.5" />
+              <span>{settings.isDoubleStrip ? 'In 2 Dải Ảnh Cặp' : '1 Dải Ảnh'}</span>
+            </button>
+          )}
+        </div>
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Left Column: Interactive Photo Strip */}

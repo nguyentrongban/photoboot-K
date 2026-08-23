@@ -70,5 +70,48 @@ export interface PhotoboothSettings {
   isDoubleStrip: boolean;
   stickers: PlacedSticker[];
   skinSmooth?: number;
+  duoMode?: DuoMode;
+}
+
+export type DuoMode = 'split-heart' | 'side-by-side' | 'alternating' | 'cutout';
+
+export interface DuoMember {
+  id: string;
+  name: string;
+  role: 'host' | 'guest';
+  isReady: boolean;
+  avatarSeed: string;
+}
+
+export interface DuoRoomState {
+  code: string;
+  createdAt: number;
+  members: Record<string, DuoMember>;
+  duoMode: DuoMode;
+  settings: PhotoboothSettings;
+  photos: {
+    host: CapturedPhoto[];
+    guest: CapturedPhoto[];
+    merged: CapturedPhoto[];
+  };
+  currentSlot: number | null;
+  countdownStart: number | null;
+  timerDuration: number;
+  step: Step;
+  stickers: PlacedSticker[];
+}
+
+export interface DuoReaction {
+  id: string;
+  senderId?: string;
+  senderName?: string;
+  emoji: string;
+}
+
+export interface DuoChatMessage {
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: number;
 }
 
