@@ -10,8 +10,9 @@ interface UseDuoSocketProps {
 }
 
 export function useDuoSocket(props: UseDuoSocketProps = {}) {
+  const wsRef = useRef<WebSocket | null>(null);
   const sseRef = useRef<EventSource | null>(null);
-  const pollTimerRef = useRef<any>(null);
+  const heartbeatTimerRef = useRef<any>(null);
 
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
@@ -43,74 +44,91 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     propsRef.current = props;
   }, [props]);
 
-  // Fetch room state directly via REST API as a continuous real-time source of truth
-  const syncRoomViaHttp = useCallback(async (code: string) => {
-    if (!code) return null;
-    try {
-      const res = await fetch(`/api/rooms/${code}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.room) {
-          setRoomState(data.room);
-
-          // Auto-heal membership if current user is missing from server room.members
-          const currUser = currentUserRef.current;
-          if (currUser && data.room.members && !data.room.members[currUser.id]) {
-            fetch(`/api/rooms/${code}/action`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'join_room',
-                userName: currUser.name,
-                userId: currUser.id,
-                isHost: currUser.role === 'host',
-              }),
-            })
-              .then((r) => r.json())
-              .then((healData) => {
-                if (healData.success && healData.room) {
-                  setRoomState(healData.room);
-                }
-              })
-              .catch(() => {});
-          }
-
-          return data.room;
-        }
-      }
-    } catch (e) {
-      // ignore network glitch
+  // Central Broadcast Sender over WebSocket + REST Fallback
+  const broadcastMsg = useCallback((msgObj: any) => {
+    const raw = JSON.stringify(msgObj);
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(raw);
+      } catch (e) {}
     }
-    return null;
+
+    // Also send via REST as a fallback if room code exists
+    const code = roomCodeRef.current;
+    if (code) {
+      fetch(`/api/rooms/${code}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: raw,
+      }).catch(() => {});
+    }
   }, []);
 
-  const initWebRTC = useCallback(async (_localStream: MediaStream, _isInitiator: boolean) => {
-    // WebRTC P2P disabled in favor of server-authoritative SSE & HTTP live frame streaming
-  }, []);
-
-  // Central Event Dispatcher for SSE and REST
-  const handleServerEvent = useCallback((data: any) => {
+  // Central Event Processor (Handles WebSocket & SSE & REST events)
+  const processServerEvent = useCallback((data: any) => {
     if (!data) return;
+
+    const currUser = currentUserRef.current;
+    const currRoom = roomStateRef.current;
+
     switch (data.type) {
-      case 'room_joined':
-        setIsConnecting(false);
-        setIsConnected(true);
-        if (data.room) setRoomState(data.room);
-        if (data.userId && data.role) {
-          setCurrentUser({
-            id: data.userId,
-            role: data.role,
-            name: userNameRef.current,
+      case 'presence_ping':
+        // When someone pings, if I am the host or I have members, make sure they are in members
+        if (data.userId && data.userName && data.role) {
+          setRoomState((prev) => {
+            if (!prev) return prev;
+            const existingMember = prev.members?.[data.userId];
+            if (existingMember) return prev;
+
+            const updatedMembers = {
+              ...prev.members,
+              [data.userId]: {
+                id: data.userId,
+                name: data.userName,
+                role: data.role,
+                isReady: false,
+                avatarSeed: data.role,
+              },
+            };
+            const nextState = { ...prev, members: updatedMembers };
+
+            // If I am host, broadcast the updated state to everyone
+            if (currUser?.role === 'host') {
+              setTimeout(() => {
+                broadcastMsg({ type: 'room_update', room: nextState });
+              }, 50);
+            }
+            return nextState;
           });
         }
         break;
 
+      case 'request_sync':
+        // If guest asks for state sync and I am host, send my roomState
+        if (currUser?.role === 'host' && currRoom) {
+          broadcastMsg({ type: 'room_update', room: currRoom });
+        }
+        break;
+
+      case 'room_joined':
       case 'room_update':
-        if (data.room) setRoomState(data.room);
+        if (data.room) {
+          setRoomState((prev) => {
+            // Merge member records so nobody is erased
+            const mergedMembers = { ...prev?.members, ...data.room.members };
+            const updatedRoom = {
+              ...data.room,
+              members: mergedMembers,
+              liveFrames: { ...prev?.liveFrames, ...data.room.liveFrames },
+            };
+            return updatedRoom;
+          });
+        }
         setIsConnecting(false);
         setIsConnected(true);
         break;
 
+      case 'live_frame':
       case 'live_frame_received':
         if (data.role && data.dataUrl) {
           setRoomState((prev) => {
@@ -118,7 +136,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
             return {
               ...prev,
               liveFrames: {
-                ...(prev as any).liveFrames,
+                ...(prev.liveFrames || {}),
                 [data.role]: data.dataUrl,
               },
             } as DuoRoomState;
@@ -126,29 +144,45 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         }
         break;
 
+      case 'start_countdown':
       case 'countdown_started':
         setIncomingCountdown({
           slot: data.slot,
-          duration: data.duration,
-          startTime: data.startTime,
+          duration: data.duration || 3,
+          startTime: data.startTime || Date.now(),
         });
         if (propsRef.current.onCountdownStarted) {
-          propsRef.current.onCountdownStarted(data.slot, data.duration, data.startTime);
+          propsRef.current.onCountdownStarted(data.slot, data.duration || 3, data.startTime || Date.now());
         }
         break;
 
+      case 'upload_user_photo':
       case 'photo_received':
-        if (data.room) setRoomState(data.room);
-        if (propsRef.current.onPhotoReceived) {
-          propsRef.current.onPhotoReceived(data.role, data.slotIndex);
+        if (data.role && typeof data.slotIndex === 'number' && data.dataUrl) {
+          setRoomState((prev) => {
+            if (!prev) return prev;
+            const updatedPhotos = { ...prev.photos };
+            const roleList = [...(updatedPhotos[data.role as 'host' | 'guest'] || [])];
+            roleList[data.slotIndex] = data.dataUrl;
+            updatedPhotos[data.role as 'host' | 'guest'] = roleList;
+
+            return {
+              ...prev,
+              photos: updatedPhotos,
+            };
+          });
+          if (propsRef.current.onPhotoReceived) {
+            propsRef.current.onPhotoReceived(data.role, data.slotIndex);
+          }
         }
         break;
 
+      case 'send_reaction':
       case 'reaction_received': {
         const rx: DuoReaction = {
           id: data.id || `${Date.now()}-${Math.random()}`,
-          senderId: data.senderId,
-          senderName: data.senderName,
+          senderId: data.senderId || data.userId,
+          senderName: data.senderName || data.userName,
           emoji: data.emoji,
         };
         setActiveReactions((prev) => [...prev.slice(-10), rx]);
@@ -158,12 +192,13 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         break;
       }
 
+      case 'send_chat':
       case 'chat_received': {
         const chat: DuoChatMessage = {
-          senderId: data.senderId,
-          senderName: data.senderName,
+          senderId: data.senderId || data.userId,
+          senderName: data.senderName || data.userName,
           text: data.text,
-          timestamp: data.timestamp,
+          timestamp: data.timestamp || Date.now(),
         };
         setChatMessages((prev) => [...prev.slice(-20), chat]);
         if (propsRef.current.onChatReceived) {
@@ -172,9 +207,54 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         break;
       }
 
+      case 'update_stickers':
       case 'stickers_updated':
         if (data.stickers) {
           setRoomState((prev) => (prev ? { ...prev, stickers: data.stickers } : null));
+        }
+        break;
+
+      case 'update_settings':
+        if (data.settings) {
+          setRoomState((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  settings: { ...prev.settings, ...data.settings },
+                }
+              : null
+          );
+        }
+        break;
+
+      case 'update_mode':
+        if (data.duoMode) {
+          setRoomState((prev) => (prev ? { ...prev, duoMode: data.duoMode } : null));
+        }
+        break;
+
+      case 'change_step':
+        if (data.step) {
+          setRoomState((prev) => (prev ? { ...prev, step: data.step } : null));
+        }
+        break;
+
+      case 'toggle_ready':
+        if (data.userId) {
+          setRoomState((prev) => {
+            if (!prev || !prev.members || !prev.members[data.userId]) return prev;
+            const target = prev.members[data.userId];
+            return {
+              ...prev,
+              members: {
+                ...prev.members,
+                [data.userId]: {
+                  ...target,
+                  isReady: !target.isReady,
+                },
+              },
+            };
+          });
         }
         break;
 
@@ -188,16 +268,16 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         }
         break;
     }
-  }, []);
+  }, [broadcastMsg]);
 
-  // Main Connection Function (Server-Authoritative SSE + REST + Fallback Polling)
+  // Main Connection Function (Serverless WebSocket PubSub Cluster + SSE/REST Fallback)
   const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string, isHost?: boolean) => {
     const cleanCode = roomCode.trim().toUpperCase();
     if (!cleanCode) return;
 
     roomCodeRef.current = cleanCode;
     userNameRef.current = userName;
-    
+
     let uid = initialUserId || userIdRef.current;
     if (!uid) {
       if (isHost === false) {
@@ -213,42 +293,29 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
     const role: 'host' | 'guest' = isHost === false ? 'guest' : 'host';
 
-    // 1. Synchronously set local user & room state so Duo Studio screen opens INSTANTLY
-    setCurrentUser({
+    // 1. Instantly set local user & initial room state
+    const meObj: DuoMember = {
       id: uid,
-      role,
       name: userName,
-    });
+      role,
+      isReady: false,
+      avatarSeed: role,
+    };
+
+    setCurrentUser({ id: uid, role, name: userName });
 
     setRoomState((prev) => {
       if (prev && prev.code === cleanCode) {
         return {
           ...prev,
-          members: {
-            ...prev.members,
-            [uid]: {
-              id: uid,
-              name: userName,
-              role,
-              isReady: false,
-              avatarSeed: role,
-            },
-          },
+          members: { ...prev.members, [uid]: meObj },
         };
       }
       return {
         code: cleanCode,
         createdAt: Date.now(),
         lastActivity: Date.now(),
-        members: {
-          [uid]: {
-            id: uid,
-            name: userName,
-            role,
-            isReady: false,
-            avatarSeed: role,
-          },
-        },
+        members: { [uid]: meObj },
         duoMode: 'split-heart',
         settings: {
           layoutType: 'strip-3',
@@ -276,35 +343,81 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     setIsConnecting(false);
     setIsConnected(true);
 
-    // 2. Perform background REST join
-    fetch(`/api/rooms/${cleanCode}/action`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'join_room',
-        userName,
-        userId: uid,
-        isHost: role === 'host',
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && data.room) {
-          setRoomState(data.room);
-          if (data.userId && data.role) {
-            setCurrentUser({
-              id: data.userId,
-              role: data.role,
-              name: userName,
-            });
-          }
-        }
-      })
-      .catch((err) => {
-        console.warn('REST Join warning:', err);
-      });
+    // 2. CONNECT WEBSOCKET PUBSUB CHANNEL
+    if (wsRef.current) {
+      try { wsRef.current.close(); } catch (e) {}
+    }
 
-    // 3. Connect SSE Stream for real-time updates
+    try {
+      // Use free public PieSocket WebSocket cluster for instant cross-device pubsub
+      const pieSocketUrl = `wss://free.piesocket.com/v3/piczo_duo_${cleanCode}?api_key=pcskey_demo&notify_self=1`;
+      const ws = new WebSocket(pieSocketUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setIsConnected(true);
+        setIsConnecting(false);
+
+        // Ping presence to everyone in the room
+        ws.send(JSON.stringify({
+          type: 'presence_ping',
+          userId: uid,
+          userName,
+          role,
+        }));
+
+        // Request state sync if guest
+        if (role === 'guest') {
+          ws.send(JSON.stringify({ type: 'request_sync', userId: uid }));
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          processServerEvent(data);
+        } catch (e) {}
+      };
+
+      ws.onerror = (err) => {
+        console.warn('WebSocket warning:', err);
+      };
+
+      ws.onclose = () => {
+        setIsConnected(false);
+      };
+    } catch (e) {
+      console.warn('WebSocket init exception:', e);
+    }
+
+    // 3. Setup Heartbeat Timer (pings presence & requests sync every 2.5s)
+    if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+    heartbeatTimerRef.current = setInterval(() => {
+      const pingPayload = {
+        type: 'presence_ping',
+        userId: uid,
+        userName,
+        role,
+      };
+
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify(pingPayload));
+        } catch (e) {}
+      }
+
+      // Also try REST polling sync if code exists
+      fetch(`/api/rooms/${cleanCode}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.success && data.room) {
+            processServerEvent({ type: 'room_update', room: data.room });
+          }
+        })
+        .catch(() => {});
+    }, 2500);
+
+    // 4. Connect SSE Stream as supplementary fallback
     if (sseRef.current) {
       try { sseRef.current.close(); } catch (e) {}
     }
@@ -316,125 +429,101 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       sse.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          handleServerEvent(data);
+          processServerEvent(data);
         } catch (e) {}
-      };
-
-      sse.onerror = () => {
-        // SSE network fallback handled by polling
       };
     } catch (e) {}
 
-    // 4. Start background polling (1.0s)
-    if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-    pollTimerRef.current = setInterval(() => {
-      if (roomCodeRef.current) {
-        syncRoomViaHttp(roomCodeRef.current);
-      }
-    }, 1000);
+  }, [processServerEvent]);
 
-  }, [syncRoomViaHttp, handleServerEvent]);
-
-  const sendEvent = useCallback((type: string, payload: any = {}) => {
-    const currentCode = roomCodeRef.current || roomStateRef.current?.code;
-    const uid = userIdRef.current;
-    const uname = userNameRef.current;
-
-    // Dispatch REST action to server
-    if (currentCode) {
-      fetch(`/api/rooms/${currentCode}/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type,
-          userId: uid,
-          userName: uname,
-          ...payload,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && data.room) {
-            setRoomState(data.room);
-          }
-        })
-        .catch((e) => {
-          console.warn('REST action warning:', e);
-        });
-    }
-  }, []);
-
+  // Handler functions
   const triggerCountdown = useCallback((slot: number, duration: number = 3) => {
-    sendEvent('start_countdown', { slot, duration });
-  }, [sendEvent]);
+    broadcastMsg({ type: 'start_countdown', slot, duration, startTime: Date.now() });
+  }, [broadcastMsg]);
 
   const uploadPhoto = useCallback((slotIndex: number, dataUrl: string) => {
     if (!currentUser) return;
-    sendEvent('upload_user_photo', {
+    broadcastMsg({
+      type: 'upload_user_photo',
       slotIndex,
       dataUrl,
       role: currentUser.role,
     });
-  }, [currentUser, sendEvent]);
+  }, [currentUser, broadcastMsg]);
 
   const updateSettings = useCallback((settings: Partial<PhotoboothSettings>) => {
-    sendEvent('update_settings', { settings });
-  }, [sendEvent]);
+    broadcastMsg({ type: 'update_settings', settings });
+  }, [broadcastMsg]);
 
   const updateMode = useCallback((duoMode: DuoMode) => {
-    sendEvent('update_mode', { duoMode });
-  }, [sendEvent]);
+    broadcastMsg({ type: 'update_mode', duoMode });
+  }, [broadcastMsg]);
 
   const updateStickers = useCallback((stickers: PlacedSticker[]) => {
-    sendEvent('update_stickers', { stickers });
-  }, [sendEvent]);
+    broadcastMsg({ type: 'update_stickers', stickers });
+  }, [broadcastMsg]);
 
   const sendReaction = useCallback((emoji: string) => {
-    sendEvent('send_reaction', { emoji });
-  }, [sendEvent]);
+    if (!currentUser) return;
+    broadcastMsg({
+      type: 'send_reaction',
+      emoji,
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+    });
+  }, [currentUser, broadcastMsg]);
 
   const sendChat = useCallback((text: string) => {
-    if (!text.trim()) return;
-    sendEvent('send_chat', { text: text.trim() });
-  }, [sendEvent]);
+    if (!text.trim() || !currentUser) return;
+    broadcastMsg({
+      type: 'send_chat',
+      text: text.trim(),
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+      timestamp: Date.now(),
+    });
+  }, [currentUser, broadcastMsg]);
 
   const changeStep = useCallback((step: 1 | 2 | 3) => {
-    sendEvent('change_step', { step });
-  }, [sendEvent]);
+    broadcastMsg({ type: 'change_step', step });
+  }, [broadcastMsg]);
 
   const toggleReady = useCallback(() => {
-    sendEvent('toggle_ready');
-  }, [sendEvent]);
+    if (!currentUser) return;
+    broadcastMsg({ type: 'toggle_ready', userId: currentUser.id });
+  }, [currentUser, broadcastMsg]);
 
   const leaveRoom = useCallback(() => {
-    const currentCode = roomCodeRef.current || roomState?.code;
+    if (wsRef.current) {
+      try { wsRef.current.close(); } catch (e) {}
+      wsRef.current = null;
+    }
     if (sseRef.current) {
       try { sseRef.current.close(); } catch (e) {}
       sseRef.current = null;
     }
-    if (pollTimerRef.current) {
-      clearInterval(pollTimerRef.current);
-      pollTimerRef.current = null;
-    }
-
-    if (currentCode) {
-      fetch(`/api/rooms/${currentCode}`, { method: 'DELETE' }).catch(() => {});
+    if (heartbeatTimerRef.current) {
+      clearInterval(heartbeatTimerRef.current);
+      heartbeatTimerRef.current = null;
     }
 
     roomCodeRef.current = null;
     setIsConnecting(false);
     setRoomState(null);
     setCurrentUser(null);
-  }, [roomState?.code]);
+  }, []);
 
   // Clean up on unmount
   useEffect(() => {
     return () => {
-      if (sseRef.current) {
-        sseRef.current.close();
+      if (wsRef.current) {
+        try { wsRef.current.close(); } catch (e) {}
       }
-      if (pollTimerRef.current) {
-        clearInterval(pollTimerRef.current);
+      if (sseRef.current) {
+        try { sseRef.current.close(); } catch (e) {}
+      }
+      if (heartbeatTimerRef.current) {
+        clearInterval(heartbeatTimerRef.current);
       }
     };
   }, []);
@@ -449,7 +538,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     chatMessages,
     incomingCountdown,
     connectToWs,
-    initWebRTC,
+    initWebRTC: async () => {},
     triggerCountdown,
     uploadPhoto,
     updateSettings,
