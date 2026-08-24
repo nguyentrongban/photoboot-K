@@ -196,7 +196,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     }
   }, [initWebRTC]);
 
-  // PeerJS P2P Signaling Engine (For Vercel Serverless environment)
+  // PeerJS P2P Signaling Engine (For Vercel / P2P fallback environment)
   const connectPeerJS = useCallback((cleanCode: string, userName: string, uid: string, isHostInput?: boolean) => {
     console.log('[PeerJS] Starting PeerJS P2P transport. Room:', cleanCode, '| IsHost:', isHostInput);
     isPeerJSMode.current = true;
@@ -274,6 +274,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
         const sendStateToGuest = () => {
           if (roomStateRef.current) {
+            console.log('[PeerJS Host] Sending current room state to guest:', conn.peer);
             conn.send({
               type: 'room_joined',
               room: roomStateRef.current,
@@ -283,11 +284,15 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
           }
         };
 
+        if (conn.open) {
+          sendStateToGuest();
+        }
         conn.on('open', () => {
           sendStateToGuest();
         });
 
         conn.on('data', (data: any) => {
+          console.log('[PeerJS Host] Received data from guest:', data?.type);
           handlePeerJSDataAsHost(data, conn, uid);
         });
       });
@@ -307,6 +312,54 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
     const setupAsGuest = () => {
       console.log('[PeerJS] Connecting as GUEST to host:', hostPeerId);
+      
+      // Initialize guest room state immediately so Guest is NEVER stuck spinning on loading screen
+      const fallbackRoom: DuoRoomState = {
+        code: cleanCode,
+        createdAt: Date.now(),
+        members: {
+          [uid]: {
+            id: uid,
+            role: 'guest',
+            name: userName,
+            isReady: false,
+            avatarSeed: userName || 'Guest',
+          },
+        },
+        duoMode: 'side-by-side',
+        settings: {
+          layoutType: 'grid-4',
+          themeId: 'pink_lattice_hearts',
+          colorId: 'pink_lattice_pastel',
+          filterId: 'none',
+          title: 'DUO PHOTOBOOTH',
+          subtitle: '',
+          showDate: true,
+          customDate: new Date().toLocaleDateString('vi-VN'),
+          showQrCode: true,
+          showFilmHoles: false,
+          isDoubleStrip: false,
+          stickers: [],
+        },
+        photos: { host: [], guest: [], merged: [] },
+        currentSlot: null,
+        countdownStart: null,
+        timerDuration: 3,
+        userPhotos: { host: [], guest: [] },
+        stickers: [],
+      } as any;
+
+      if (!roomStateRef.current) {
+        setRoomState(fallbackRoom);
+      }
+      setCurrentUser({ id: uid, role: 'guest', name: userName });
+
+      // Safety timer: clear connecting state after 800ms so screen renders DuoCameraScreen
+      setTimeout(() => {
+        setIsConnecting(false);
+        setIsConnected(true);
+      }, 800);
+
       const guestPeer = new Peer(guestPeerId, peerOptions);
       peerRef.current = guestPeer;
 
@@ -322,31 +375,37 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
           const conn = guestPeer.connect(hostPeerId, { reliable: true });
           connRef.current = conn;
 
-          conn.on('open', () => {
-            console.log('[PeerJS Guest] Data connection open. Sending join_room...');
+          const sendJoinMsg = () => {
+            console.log('[PeerJS Guest] Connection open. Sending join_room to Host...');
             conn.send({
               type: 'join_room',
               roomCode: cleanCode,
               userName,
               userId: uid,
             });
+          };
 
-            // Fallback retry join_room after 800ms if no response yet
-            setTimeout(() => {
-              if (!joined && conn.open) {
-                conn.send({
-                  type: 'join_room',
-                  roomCode: cleanCode,
-                  userName,
-                  userId: uid,
-                });
-              }
-            }, 800);
+          if (conn.open) {
+            sendJoinMsg();
+          }
+          conn.on('open', () => {
+            sendJoinMsg();
           });
 
+          // Periodic re-send until response received
+          const retryTimer = setInterval(() => {
+            if (joined || !conn.open) {
+              clearInterval(retryTimer);
+              return;
+            }
+            sendJoinMsg();
+          }, 1000);
+
           conn.on('data', (data: any) => {
+            console.log('[PeerJS Guest] Received data from host:', data?.type);
             if (data?.type === 'room_joined' || data?.type === 'room_update') {
               joined = true;
+              if (retryTimer) clearInterval(retryTimer);
               setIsConnecting(false);
               setIsConnected(true);
             }
@@ -355,17 +414,15 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
           conn.on('error', (err) => {
             console.warn('[PeerJS Guest Conn Error]', err);
-            if (!joined && attemptCount < 6) {
-              setTimeout(tryConnect, 1200);
-            } else {
-              setIsConnecting(false);
+            if (!joined && attemptCount < 5) {
+              setTimeout(tryConnect, 1000);
             }
           });
         };
 
         tryConnect();
 
-        // Call Host with video
+        // Call Host with video if available
         if (localStreamRef.current) {
           try {
             const call = guestPeer.call(hostPeerId, localStreamRef.current);
@@ -770,6 +827,13 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
                 setRoomState((prev) => (prev ? { ...prev, stickers: data.stickers } : null));
               }
               break;
+
+            case 'error': {
+              console.log('[WebSocket Room Error] Server reported room error, switching to PeerJS P2P:', data.message);
+              try { ws.close(); } catch (e) {}
+              connectPeerJS(cleanCode, userNameRef.current, userIdRef.current, isHost);
+              break;
+            }
 
             case 'room_deleted': {
               setRoomState(null);
