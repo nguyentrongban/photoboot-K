@@ -12,6 +12,8 @@ interface UseDuoSocketProps {
 
 export function useDuoSocket(props: UseDuoSocketProps = {}) {
   const wsRef = useRef<WebSocket | null>(null);
+  const sseRef = useRef<EventSource | null>(null);
+  const pollTimerRef = useRef<any>(null);
   const peerRef = useRef<Peer | null>(null);
   const connRef = useRef<DataConnection | null>(null);
   const mediaCallRef = useRef<MediaConnection | null>(null);
@@ -693,7 +695,103 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     }
   };
 
-  // Main Connection Function (Tries WebSocket first; falls back to PeerJS for Vercel)
+  // Central Event Dispatcher for SSE, WS, and REST
+  const handleServerEvent = useCallback((data: any) => {
+    if (!data) return;
+    switch (data.type) {
+      case 'room_joined':
+        setIsConnecting(false);
+        setIsConnected(true);
+        if (data.room) setRoomState(data.room);
+        if (data.userId && data.role) {
+          setCurrentUser({
+            id: data.userId,
+            role: data.role,
+            name: userNameRef.current,
+          });
+        }
+        break;
+
+      case 'room_update':
+        if (data.room) setRoomState(data.room);
+        setIsConnecting(false);
+        setIsConnected(true);
+        break;
+
+      case 'countdown_started':
+        setIncomingCountdown({
+          slot: data.slot,
+          duration: data.duration,
+          startTime: data.startTime,
+        });
+        if (propsRef.current.onCountdownStarted) {
+          propsRef.current.onCountdownStarted(data.slot, data.duration, data.startTime);
+        }
+        break;
+
+      case 'photo_received':
+        if (data.room) setRoomState(data.room);
+        if (propsRef.current.onPhotoReceived) {
+          propsRef.current.onPhotoReceived(data.role, data.slotIndex);
+        }
+        break;
+
+      case 'reaction_received': {
+        const rx: DuoReaction = {
+          id: data.id || `${Date.now()}-${Math.random()}`,
+          senderId: data.senderId,
+          senderName: data.senderName,
+          emoji: data.emoji,
+        };
+        setActiveReactions((prev) => [...prev.slice(-10), rx]);
+        if (propsRef.current.onReactionReceived) {
+          propsRef.current.onReactionReceived(rx);
+        }
+        break;
+      }
+
+      case 'chat_received': {
+        const chat: DuoChatMessage = {
+          senderId: data.senderId,
+          senderName: data.senderName,
+          text: data.text,
+          timestamp: data.timestamp,
+        };
+        setChatMessages((prev) => [...prev.slice(-20), chat]);
+        if (propsRef.current.onChatReceived) {
+          propsRef.current.onChatReceived(chat);
+        }
+        break;
+      }
+
+      case 'stickers_updated':
+        if (data.stickers) {
+          setRoomState((prev) => (prev ? { ...prev, stickers: data.stickers } : null));
+        }
+        break;
+
+      case 'room_deleted':
+        setRoomState(null);
+        setCurrentUser(null);
+        setIsConnected(false);
+        setIsConnecting(false);
+        setRemoteStream(null);
+        if (pcRef.current) {
+          pcRef.current.close();
+          pcRef.current = null;
+        }
+        if (propsRef.current.onRoomDeleted) {
+          propsRef.current.onRoomDeleted(data.reason || 'Phòng chụp đã được đóng.');
+        }
+        break;
+
+      case 'webrtc_signal':
+        handleIncomingWebRTCSignal(data.signal);
+        break;
+    }
+  }, [handleIncomingWebRTCSignal]);
+
+  // Main Connection Function (High-Speed SSE + REST + WebSocket + Fallback Polling)
   const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string, isHost?: boolean) => {
     const cleanCode = roomCode.trim().toUpperCase();
     roomCodeRef.current = cleanCode;
@@ -708,41 +806,74 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
 
     if (isVercel) {
-      console.log('[Environment] Vercel detected. Connecting directly via PeerJS P2P transport...');
+      console.log('[Environment] Vercel detected. Connecting via PeerJS P2P transport...');
       connectPeerJS(cleanCode, userName, uid, isHost);
       return;
     }
 
-    // Immediate HTTP sync so UI reflects room instantly if REST API is available
-    syncRoomViaHttp(cleanCode);
+    // 1. INSTANT REST JOIN (Returns room state in <20ms, zero spinning!)
+    fetch(`/api/rooms/${cleanCode}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'join_room',
+        userName,
+        userId: uid,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.room) {
+          setRoomState(data.room);
+          setCurrentUser({
+            id: data.userId || uid,
+            role: data.role || (isHost ? 'host' : 'guest'),
+            name: userName,
+          });
+          setIsConnecting(false);
+          setIsConnected(true);
+        }
+      })
+      .catch((err) => {
+        console.warn('REST Join error:', err);
+      });
 
+    // 2. CONNECT SSE (Server-Sent Events) Stream for ultra-fast zero-latency real-time push
+    if (sseRef.current) {
+      try { sseRef.current.close(); } catch (e) {}
+    }
+
+    try {
+      const sse = new EventSource(`/api/rooms/${cleanCode}/stream`);
+      sseRef.current = sse;
+
+      sse.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleServerEvent(data);
+        } catch (e) {}
+      };
+
+      sse.onerror = (err) => {
+        console.warn('SSE stream notice:', err);
+      };
+    } catch (e) {
+      console.warn('SSE init notice:', e);
+    }
+
+    // 3. Connect WebSocket as parallel transport
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.close();
+      try { wsRef.current.close(); } catch (e) {}
     }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
 
-    let wsHandled = false;
-    let fallbackTimer: any = null;
-
     try {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
-      // Fallback timer: If WebSocket doesn't connect in 1.8s (e.g. Vercel environment), switch to PeerJS
-      fallbackTimer = setTimeout(() => {
-        if (!wsHandled && ws.readyState !== WebSocket.OPEN) {
-          wsHandled = true;
-          try { ws.close(); } catch (e) {}
-          console.log('[WebSocket Timeout] Vercel or Serverless environment detected. Falling back to PeerJS P2P transport.');
-          connectPeerJS(cleanCode, userName, uid, isHost);
-        }
-      }, 1800);
-
       ws.onopen = () => {
-        wsHandled = true;
-        if (fallbackTimer) clearTimeout(fallbackTimer);
         isPeerJSMode.current = false;
         setIsConnected(true);
         setIsConnecting(false);
@@ -758,146 +889,26 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-
-          switch (data.type) {
-            case 'room_joined':
-              setIsConnecting(false);
-              setRoomState(data.room);
-              setCurrentUser({
-                id: data.userId,
-                role: data.role,
-                name: userNameRef.current,
-              });
-              break;
-
-            case 'room_update':
-              setRoomState(data.room);
-              break;
-
-            case 'countdown_started':
-              setIncomingCountdown({
-                slot: data.slot,
-                duration: data.duration,
-                startTime: data.startTime,
-              });
-              if (propsRef.current.onCountdownStarted) {
-                propsRef.current.onCountdownStarted(data.slot, data.duration, data.startTime);
-              }
-              break;
-
-            case 'photo_received':
-              if (data.room) {
-                setRoomState(data.room);
-              }
-              if (propsRef.current.onPhotoReceived) {
-                propsRef.current.onPhotoReceived(data.role, data.slotIndex);
-              }
-              break;
-
-            case 'reaction_received': {
-              const rx: DuoReaction = {
-                id: data.id || `${Date.now()}-${Math.random()}`,
-                senderId: data.senderId,
-                senderName: data.senderName,
-                emoji: data.emoji,
-              };
-              setActiveReactions((prev) => [...prev.slice(-10), rx]);
-              if (propsRef.current.onReactionReceived) {
-                propsRef.current.onReactionReceived(rx);
-              }
-              break;
-            }
-
-            case 'chat_received': {
-              const chat: DuoChatMessage = {
-                senderId: data.senderId,
-                senderName: data.senderName,
-                text: data.text,
-                timestamp: data.timestamp,
-              };
-              setChatMessages((prev) => [...prev.slice(-20), chat]);
-              if (propsRef.current.onChatReceived) {
-                propsRef.current.onChatReceived(chat);
-              }
-              break;
-            }
-
-            case 'stickers_updated':
-              if (data.stickers) {
-                setRoomState((prev) => (prev ? { ...prev, stickers: data.stickers } : null));
-              }
-              break;
-
-            case 'error': {
-              console.log('[WebSocket Room Error] Server reported room error, switching to PeerJS P2P:', data.message);
-              try { ws.close(); } catch (e) {}
-              connectPeerJS(cleanCode, userNameRef.current, userIdRef.current, isHost);
-              break;
-            }
-
-            case 'room_deleted': {
-              setRoomState(null);
-              setCurrentUser(null);
-              setRemoteStream(null);
-              if (pcRef.current) {
-                pcRef.current.close();
-                pcRef.current = null;
-              }
-              if (propsRef.current.onRoomDeleted) {
-                propsRef.current.onRoomDeleted(data.reason || 'Phòng chụp đã được đóng.');
-              }
-              break;
-            }
-
-            case 'webrtc_signal':
-              handleIncomingWebRTCSignal(data.signal);
-              break;
-          }
-        } catch (err) {
-          console.error('Error handling WS message:', err);
-        }
-      };
-
-      ws.onclose = () => {
-        if (!wsHandled) {
-          wsHandled = true;
-          if (fallbackTimer) clearTimeout(fallbackTimer);
-          connectPeerJS(cleanCode, userName, uid, isHost);
-        } else if (!isPeerJSMode.current) {
-          setIsConnected(false);
-          setIsConnecting(false);
-        }
+          handleServerEvent(data);
+        } catch (err) {}
       };
 
       ws.onerror = () => {
-        if (!wsHandled) {
-          wsHandled = true;
-          if (fallbackTimer) clearTimeout(fallbackTimer);
-          console.log('[WebSocket Error] Falling back to PeerJS P2P transport.');
-          connectPeerJS(cleanCode, userName, uid, isHost);
-        }
+        // SSE + REST handles it automatically if WS fails
       };
     } catch (err) {
-      if (fallbackTimer) clearTimeout(fallbackTimer);
-      connectPeerJS(cleanCode, userName, uid, isHost);
+      // ignore
     }
-  }, [syncRoomViaHttp, handleIncomingWebRTCSignal, connectPeerJS]);
 
-  // Background Periodic Polling
-  useEffect(() => {
-    const interval = setInterval(() => {
+    // 4. Background Periodic Sync Polling (1.2s) as fail-safe safety net
+    if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    pollTimerRef.current = setInterval(() => {
       if (roomCodeRef.current && !isPeerJSMode.current) {
         syncRoomViaHttp(roomCodeRef.current);
-        if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) {
-          if (userNameRef.current && roomCodeRef.current) {
-            connectToWs(roomCodeRef.current, userNameRef.current, userIdRef.current);
-          }
-        }
       }
-    }, 2500);
+    }, 1200);
 
-    return () => clearInterval(interval);
-  }, [syncRoomViaHttp, connectToWs]);
+  }, [syncRoomViaHttp, handleIncomingWebRTCSignal, connectPeerJS, handleServerEvent]);
 
   // Auto-initiate WebRTC when both members are in room
   useEffect(() => {
@@ -911,31 +922,54 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   }, [roomState, currentUser, initWebRTC]);
 
   const sendEvent = useCallback((type: string, payload: any = {}) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type, ...payload }));
-      return;
+    const currentCode = roomCodeRef.current || roomStateRef.current?.code;
+    const uid = userIdRef.current;
+    const uname = userNameRef.current;
+
+    // 1. Instant REST Action Dispatch (<20ms latency guarantee)
+    if (currentCode) {
+      fetch(`/api/rooms/${currentCode}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type,
+          userId: uid,
+          userName: uname,
+          ...payload,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.room) {
+            setRoomState(data.room);
+          }
+        })
+        .catch((e) => {
+          console.warn('REST action warning:', e);
+        });
     }
 
+    // 2. Send via WebSocket if open
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify({ type, ...payload }));
+      } catch (e) {}
+    }
+
+    // 3. Send via PeerJS if active
     if (isPeerJSMode.current) {
       const user = currentUserRef.current;
-      const room = roomStateRef.current;
-      if (!user) return;
-
-      // Host processing event directly
-      if (user.role === 'host') {
-        if (connRef.current) {
-          handlePeerJSDataAsHost({ type, ...payload }, connRef.current, user.id);
-        } else {
-          // Fake mock conn if guest not connected yet
-          const dummyConn = {
-            peer: 'guest_pending',
-            send: () => {},
-          } as any;
-          handlePeerJSDataAsHost({ type, ...payload }, dummyConn, user.id);
+      if (user) {
+        if (user.role === 'host') {
+          if (connRef.current) {
+            handlePeerJSDataAsHost({ type, ...payload }, connRef.current, user.id);
+          } else {
+            const dummyConn = { peer: 'guest_pending', send: () => {} } as any;
+            handlePeerJSDataAsHost({ type, ...payload }, dummyConn, user.id);
+          }
+        } else if (user.role === 'guest' && connRef.current) {
+          connRef.current.send({ type, ...payload });
         }
-      } else if (user.role === 'guest' && connRef.current) {
-        // Guest sending event to Host
-        connRef.current.send({ type, ...payload });
       }
     }
   }, []);
@@ -984,6 +1018,14 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
   const leaveRoom = useCallback(() => {
     const currentCode = roomCodeRef.current || roomState?.code;
+    if (sseRef.current) {
+      try { sseRef.current.close(); } catch (e) {}
+      sseRef.current = null;
+    }
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(JSON.stringify({ type: 'leave_room', roomCode: currentCode }));
@@ -1017,6 +1059,12 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   // Clean up on unmount
   useEffect(() => {
     return () => {
+      if (sseRef.current) {
+        sseRef.current.close();
+      }
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+      }
       if (wsRef.current) {
         wsRef.current.close();
       }

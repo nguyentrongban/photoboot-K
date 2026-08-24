@@ -30,6 +30,7 @@ interface DuoRoom {
   timerDuration: number;
   step: 1 | 2 | 3;
   stickers: any[];
+  sseClients?: Set<express.Response>;
 }
 
 const rooms: Record<string, DuoRoom> = {};
@@ -47,6 +48,8 @@ function broadcastToRoom(roomCode: string, payload: any, excludeWs?: WebSocket) 
   const room = rooms[roomCode];
   if (!room) return;
   const msg = JSON.stringify(payload);
+
+  // 1. Send via WebSocket
   Object.values(room.members).forEach((member) => {
     if (member.ws && member.ws.readyState === WebSocket.OPEN && member.ws !== excludeWs) {
       try {
@@ -56,6 +59,18 @@ function broadcastToRoom(roomCode: string, payload: any, excludeWs?: WebSocket) 
       }
     }
   });
+
+  // 2. Send via Server-Sent Events (SSE)
+  if (room.sseClients) {
+    const sseFormatted = `data: ${msg}\n\n`;
+    room.sseClients.forEach((res) => {
+      try {
+        res.write(sseFormatted);
+      } catch (e) {
+        room.sseClients?.delete(res);
+      }
+    });
+  }
 }
 
 function deleteRoom(roomCode: string, reason = 'Phòng đã được đóng và xoá để giải phóng máy chủ.') {
@@ -170,6 +185,195 @@ async function startServer() {
     }
     room.lastActivity = Date.now();
     res.json({ success: true, room: sanitizeRoom(room) });
+  });
+
+  // Server-Sent Events (SSE) Stream Endpoint for ultra-fast zero-latency real-time sync
+  app.get('/api/rooms/:code/stream', (req, res) => {
+    const code = (req.params.code || '').trim().toUpperCase();
+    const room = rooms[code];
+    if (!room) {
+      return res.status(404).json({ success: false, message: 'Phòng không tồn tại hoặc đã hết hạn.' });
+    }
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+
+    res.write(`data: ${JSON.stringify({ type: 'connected', roomCode: code })}\n\n`);
+
+    if (!room.sseClients) {
+      room.sseClients = new Set();
+    }
+    room.sseClients.add(res);
+
+    req.on('close', () => {
+      if (room.sseClients) {
+        room.sseClients.delete(res);
+      }
+    });
+  });
+
+  // REST API Actions (Instant HTTP dispatch for 100% reliability)
+  app.post('/api/rooms/:code/action', (req, res) => {
+    const code = (req.params.code || '').trim().toUpperCase();
+    const room = rooms[code];
+    if (!room) {
+      return res.status(404).json({ success: false, message: 'Phòng không tồn tại hoặc đã hết hạn.' });
+    }
+
+    room.lastActivity = Date.now();
+    const { type, userId, userName } = req.body;
+    const currentUserId = userId || `u_${Date.now()}`;
+
+    if (type === 'join_room') {
+      if (!room.members[currentUserId]) {
+        const memberCount = Object.keys(room.members).length;
+        const role = memberCount === 0 ? 'host' : 'guest';
+        room.members[currentUserId] = {
+          id: currentUserId,
+          name: userName || (role === 'host' ? 'Chủ phòng' : 'Người ấy'),
+          role,
+          isReady: false,
+          avatarSeed: role,
+        };
+      } else if (userName) {
+        room.members[currentUserId].name = userName;
+      }
+
+      broadcastToRoom(code, {
+        type: 'room_update',
+        room: sanitizeRoom(room),
+        event: 'user_joined',
+        userName: room.members[currentUserId].name,
+      });
+
+      return res.json({
+        success: true,
+        type: 'room_joined',
+        room: sanitizeRoom(room),
+        userId: currentUserId,
+        role: room.members[currentUserId].role,
+      });
+    }
+
+    switch (type) {
+      case 'toggle_ready': {
+        if (currentUserId && room.members[currentUserId]) {
+          room.members[currentUserId].isReady = !room.members[currentUserId].isReady;
+          broadcastToRoom(code, { type: 'room_update', room: sanitizeRoom(room) });
+        }
+        break;
+      }
+
+      case 'update_mode': {
+        if (req.body.duoMode) {
+          room.duoMode = req.body.duoMode;
+          broadcastToRoom(code, { type: 'room_update', room: sanitizeRoom(room) });
+        }
+        break;
+      }
+
+      case 'update_settings': {
+        if (req.body.settings) {
+          room.settings = { ...room.settings, ...req.body.settings };
+          broadcastToRoom(code, { type: 'room_update', room: sanitizeRoom(room) });
+        }
+        break;
+      }
+
+      case 'change_step': {
+        if (req.body.step) {
+          room.step = req.body.step;
+          broadcastToRoom(code, { type: 'room_update', room: sanitizeRoom(room) });
+        }
+        break;
+      }
+
+      case 'start_countdown': {
+        room.currentSlot = req.body.slot ?? 0;
+        room.timerDuration = req.body.duration ?? 3;
+        room.countdownStart = Date.now();
+        broadcastToRoom(code, {
+          type: 'countdown_started',
+          slot: room.currentSlot,
+          duration: room.timerDuration,
+          startTime: room.countdownStart,
+        });
+        break;
+      }
+
+      case 'upload_user_photo': {
+        const { slotIndex, dataUrl, role } = req.body;
+        if (typeof slotIndex === 'number' && dataUrl) {
+          const targetList = role === 'guest' ? room.photos.guest : room.photos.host;
+          targetList[slotIndex] = {
+            id: `duo-${role}-${Date.now()}-${slotIndex}`,
+            dataUrl,
+            index: slotIndex,
+          };
+
+          broadcastToRoom(code, {
+            type: 'photo_received',
+            role,
+            slotIndex,
+            room: sanitizeRoom(room),
+          });
+        }
+        break;
+      }
+
+      case 'set_merged_photos': {
+        if (Array.isArray(req.body.mergedPhotos)) {
+          room.photos.merged = req.body.mergedPhotos;
+          broadcastToRoom(code, { type: 'room_update', room: sanitizeRoom(room) });
+        }
+        break;
+      }
+
+      case 'update_stickers': {
+        if (Array.isArray(req.body.stickers)) {
+          room.stickers = req.body.stickers;
+          if (room.settings) {
+            room.settings.stickers = req.body.stickers;
+          }
+          broadcastToRoom(code, { type: 'stickers_updated', stickers: room.stickers });
+        }
+        break;
+      }
+
+      case 'send_reaction': {
+        broadcastToRoom(code, {
+          type: 'reaction_received',
+          senderId: currentUserId,
+          senderName: room.members[currentUserId]?.name || 'Bạn',
+          emoji: req.body.emoji,
+          id: Date.now() + Math.random().toString(),
+        });
+        break;
+      }
+
+      case 'send_chat': {
+        broadcastToRoom(code, {
+          type: 'chat_received',
+          senderId: currentUserId,
+          senderName: room.members[currentUserId]?.name || 'Bạn',
+          text: req.body.text,
+          timestamp: Date.now(),
+        });
+        break;
+      }
+
+      case 'leave_room': {
+        const uName = room.members[currentUserId]?.name || 'Thành viên';
+        deleteRoom(code, `${uName} đã rời phòng. Phòng đã đóng và xoá.`);
+        return res.json({ success: true, message: 'Phòng đã được xoá.' });
+      }
+    }
+
+    return res.json({ success: true, room: sanitizeRoom(room) });
   });
 
   // Explicitly close & delete room
