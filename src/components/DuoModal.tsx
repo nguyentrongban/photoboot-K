@@ -95,7 +95,7 @@ export const DuoModal: React.FC<DuoModalProps> = ({
     }
   };
 
-  const handleJoinExistingRoom = async () => {
+  const handleJoinExistingRoom = () => {
     const code = sanitizeRoomCode(roomCodeInput);
     if (!code || code.length < 4) {
       setErrorMsg('Vui lòng nhập chính xác mã phòng gồm 6 ký tự!');
@@ -106,31 +106,10 @@ export const DuoModal: React.FC<DuoModalProps> = ({
       return;
     }
     setErrorMsg(null);
-    setIsJoining(true);
     localStorage.setItem('duo_username', userName.trim());
     localStorage.removeItem('duo_uid');
 
-    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
-
-    if (!isVercel) {
-      try {
-        const res = await fetch(`/api/rooms/${code}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.room) {
-            onJoinRoom(code, userName.trim(), false, data.room.duoMode);
-            setIsJoining(false);
-            return;
-          }
-        }
-      } catch (err) {
-        console.log('Server REST API check failed, joining room directly via P2P:', err);
-      }
-    }
-
-    // Client-side fallback for Vercel / P2P mode
     onJoinRoom(code, userName.trim(), false, selectedMode);
-    setIsJoining(false);
   };
 
   const shareUrl = createdRoomCode

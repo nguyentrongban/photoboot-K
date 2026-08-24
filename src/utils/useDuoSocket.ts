@@ -193,6 +193,8 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   // Main Connection Function (Server-Authoritative SSE + REST + Fallback Polling)
   const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string, isHost?: boolean) => {
     const cleanCode = roomCode.trim().toUpperCase();
+    if (!cleanCode) return;
+
     roomCodeRef.current = cleanCode;
     userNameRef.current = userName;
     
@@ -209,9 +211,72 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       localStorage.setItem('duo_uid', uid);
     }
 
-    setIsConnecting(true);
+    const role: 'host' | 'guest' = isHost === false ? 'guest' : 'host';
 
-    // 1. INSTANT REST JOIN
+    // 1. Synchronously set local user & room state so Duo Studio screen opens INSTANTLY
+    setCurrentUser({
+      id: uid,
+      role,
+      name: userName,
+    });
+
+    setRoomState((prev) => {
+      if (prev && prev.code === cleanCode) {
+        return {
+          ...prev,
+          members: {
+            ...prev.members,
+            [uid]: {
+              id: uid,
+              name: userName,
+              role,
+              isReady: false,
+              avatarSeed: role,
+            },
+          },
+        };
+      }
+      return {
+        code: cleanCode,
+        createdAt: Date.now(),
+        lastActivity: Date.now(),
+        members: {
+          [uid]: {
+            id: uid,
+            name: userName,
+            role,
+            isReady: false,
+            avatarSeed: role,
+          },
+        },
+        duoMode: 'split-heart',
+        settings: {
+          layoutType: 'strip-3',
+          themeId: 'love_letter_stamp',
+          colorId: 'love_blush',
+          filterId: 'none',
+          title: 'OUR DISTANCE LOVE',
+          subtitle: 'together forever',
+          showDate: true,
+          customDate: new Date().toLocaleDateString('vi-VN'),
+          showQrCode: true,
+          showFilmHoles: false,
+          isDoubleStrip: false,
+          stickers: [],
+        },
+        photos: { host: [], guest: [], merged: [] },
+        currentSlot: null,
+        countdownStart: null,
+        timerDuration: 3,
+        step: 1,
+        stickers: [],
+      } as DuoRoomState;
+    });
+
+    setIsConnecting(false);
+    setIsConnected(true);
+
+    // 2. Perform background REST join
     fetch(`/api/rooms/${cleanCode}/action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -219,27 +284,27 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         type: 'join_room',
         userName,
         userId: uid,
-        isHost,
+        isHost: role === 'host',
       }),
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.room) {
           setRoomState(data.room);
-          setCurrentUser({
-            id: data.userId || uid,
-            role: data.role || (isHost ? 'host' : 'guest'),
-            name: userName,
-          });
-          setIsConnecting(false);
-          setIsConnected(true);
+          if (data.userId && data.role) {
+            setCurrentUser({
+              id: data.userId,
+              role: data.role,
+              name: userName,
+            });
+          }
         }
       })
       .catch((err) => {
-        console.warn('REST Join error:', err);
+        console.warn('REST Join warning:', err);
       });
 
-    // 2. CONNECT SSE (Server-Sent Events) Stream
+    // 3. Connect SSE Stream for real-time updates
     if (sseRef.current) {
       try { sseRef.current.close(); } catch (e) {}
     }
@@ -255,12 +320,12 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         } catch (e) {}
       };
 
-      sse.onerror = (_err) => {
-        // SSE error handled by polling fallback
+      sse.onerror = () => {
+        // SSE network fallback handled by polling
       };
     } catch (e) {}
 
-    // 3. Background Periodic Sync Polling (1.0s)
+    // 4. Start background polling (1.0s)
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     pollTimerRef.current = setInterval(() => {
       if (roomCodeRef.current) {
