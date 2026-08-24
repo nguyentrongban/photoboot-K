@@ -43,6 +43,46 @@ function generateRoomCode(): string {
   return code;
 }
 
+function broadcastToRoom(roomCode: string, payload: any, excludeWs?: WebSocket) {
+  const room = rooms[roomCode];
+  if (!room) return;
+  const msg = JSON.stringify(payload);
+  Object.values(room.members).forEach((member) => {
+    if (member.ws && member.ws.readyState === WebSocket.OPEN && member.ws !== excludeWs) {
+      try {
+        member.ws.send(msg);
+      } catch (e) {
+        // ignore
+      }
+    }
+  });
+}
+
+function deleteRoom(roomCode: string, reason = 'Phòng đã được đóng và xoá để giải phóng máy chủ.') {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  const msg = JSON.stringify({
+    type: 'room_deleted',
+    roomCode,
+    reason,
+  });
+
+  Object.values(room.members).forEach((member) => {
+    if (member.ws && member.ws.readyState === WebSocket.OPEN) {
+      try {
+        member.ws.send(msg);
+        member.ws.close();
+      } catch (e) {
+        // ignore
+      }
+    }
+  });
+
+  delete rooms[roomCode];
+  console.log(`🗑️ [Duo Room] Room ${roomCode} was completely deleted and memory freed. Active rooms: ${Object.keys(rooms).length}`);
+}
+
 // Clean up stale rooms (older than 4 hours or completely abandoned for > 45 minutes)
 setInterval(() => {
   const now = Date.now();
@@ -169,50 +209,6 @@ async function startServer() {
       step: room.step,
       stickers: room.stickers,
     };
-  }
-
-  function broadcastToRoom(roomCode: string, payload: any, excludeWs?: WebSocket) {
-    const room = rooms[roomCode];
-    if (!room) return;
-    const msg = JSON.stringify(payload);
-    Object.values(room.members).forEach((member) => {
-      if (member.ws && member.ws.readyState === WebSocket.OPEN && member.ws !== excludeWs) {
-        try {
-          member.ws.send(msg);
-        } catch (e) {
-          // ignore
-        }
-      }
-    });
-  }
-
-  /**
-   * Delete room immediately and notify all participants
-   */
-  function deleteRoom(roomCode: string, reason = 'Phòng đã được đóng và xoá để giải phóng máy chủ.') {
-    const room = rooms[roomCode];
-    if (!room) return;
-
-    // Broadcast room_deleted event before clearing
-    const msg = JSON.stringify({
-      type: 'room_deleted',
-      roomCode,
-      reason,
-    });
-
-    Object.values(room.members).forEach((member) => {
-      if (member.ws && member.ws.readyState === WebSocket.OPEN) {
-        try {
-          member.ws.send(msg);
-          member.ws.close();
-        } catch (e) {
-          // ignore
-        }
-      }
-    });
-
-    delete rooms[roomCode];
-    console.log(`🗑️ [Duo Room] Room ${roomCode} was completely deleted and memory freed. Active rooms: ${Object.keys(rooms).length}`);
   }
 
   wss.on('connection', (ws) => {

@@ -17,6 +17,7 @@ export interface FrameTheme {
   cornerDecoration?: string;
   defaultTextColor: string;
   isSpecialArtwork?: boolean;
+  isImageOverlay?: boolean;
   hasFixedColor?: boolean;
   fixedColorId?: string;
 }

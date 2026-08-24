@@ -67,7 +67,14 @@ export const Step2Camera: React.FC<Step2CameraProps> = ({
   const selectedColor = FRAME_COLORS.find((c) => c.id === settings.colorId) || FRAME_COLORS[0];
   const selectedFilter = PHOTO_FILTERS.find((f) => f.id === settings.filterId) || PHOTO_FILTERS[0];
 
-  const targetPhotoCount = settings.layoutType === 'strip-3' ? 3 : 4;
+  const targetPhotoCount =
+    settings.layoutType === 'single-1'
+      ? 1
+      : settings.layoutType === 'strip-2'
+      ? 2
+      : settings.layoutType === 'strip-3'
+      ? 3
+      : 4;
   const hasAllPhotos = localPhotos.filter(Boolean).length === targetPhotoCount;
 
   // Initialize camera stream

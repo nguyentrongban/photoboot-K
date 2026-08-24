@@ -1,0 +1,249 @@
+<svg width="600" height="1800" viewBox="0 0 600 1800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mask: White is visible, Black is transparent cutout for photo slots -->
+    <mask id="photoCutoutMask">
+      <rect width="600" height="1800" fill="white" />
+      <!-- 4 Photo Slots cutouts -->
+      <rect x="45" y="100" width="510" height="330" rx="4" ry="4" fill="black" />
+      <rect x="45" y="475" width="510" height="330" rx="4" ry="4" fill="black" />
+      <rect x="45" y="850" width="510" height="330" rx="4" ry="4" fill="black" />
+      <rect x="45" y="1225" width="510" height="330" rx="4" ry="4" fill="black" />
+    </mask>
+
+    <!-- Heart Symbol with Charcoal Shadow -->
+    <g id="pinkHeartBig">
+      <!-- Charcoal Shadow Offset -->
+      <path d="M 0 -12 C -12 -30 -34 -25 -34 -5 C -34 16 -8 34 0 46 C 8 34 34 16 34 -5 C 34 -25 12 -30 0 -12 Z" fill="#4D3B47" transform="translate(3, 4)" />
+      <!-- Pink Heart Base -->
+      <path d="M 0 -12 C -12 -30 -34 -25 -34 -5 C -34 16 -8 34 0 46 C 8 34 34 16 34 -5 C 34 -25 12 -30 0 -12 Z" fill="#FF3575" />
+      <!-- Inner Light Highlight -->
+      <path d="M -8 2 C -16 -8 -26 -5 -26 4 C -26 15 -12 25 -8 32 C -12 25 -14 16 -14 8 C -14 3 -10 1 -8 2 Z" fill="#FFA5C3" opacity="0.8" />
+    </g>
+
+    <!-- Medium Pink Heart -->
+    <g id="pinkHeartMed">
+      <path d="M 0 -9 C -9 -22 -25 -18 -25 -4 C -25 12 -6 25 0 34 C 6 25 25 12 25 -4 C 25 -18 9 -22 0 -9 Z" fill="#4D3B47" transform="translate(2.5, 3)" />
+      <path d="M 0 -9 C -9 -22 -25 -18 -25 -4 C -25 12 -6 25 0 34 C 6 25 25 12 25 -4 C 25 -18 9 -22 0 -9 Z" fill="#FF3575" />
+    </g>
+
+    <!-- Small Pink Heart -->
+    <g id="pinkHeartSmall">
+      <path d="M 0 -6 C -6 -15 -17 -12 -17 -3 C -17 8 -4 17 0 23 C 4 17 17 8 17 -3 C 17 -12 6 -15 0 -6 Z" fill="#4D3B47" transform="translate(2, 2.5)" />
+      <path d="M 0 -6 C -6 -15 -17 -12 -17 -3 C -17 8 -4 17 0 23 C 4 17 17 8 17 -3 C 17 -12 6 -15 0 -6 Z" fill="#FF3575" />
+    </g>
+  </defs>
+
+  <!-- MASKED BACKGROUND (Base Pink + Giant Bottom Hearts + Lattice Grid Lines) -->
+  <g mask="url(#photoCutoutMask)">
+    <!-- Base Pastel Pink -->
+    <rect width="600" height="1800" fill="#FFB2C3" />
+
+    <!-- Charcoal Diagonal Wire Grid / Lattice -->
+    <g stroke="#52424E" stroke-width="2.8" stroke-linecap="round" opacity="0.95">
+      <!-- Slope +1 lines -->
+      <line x1="-300" y1="-300" x2="900" y2="900" />
+      <line x1="-300" y1="-150" x2="900" y2="1050" />
+      <line x1="-300" y1="0" x2="900" y2="1200" />
+      <line x1="-300" y1="150" x2="900" y2="1350" />
+      <line x1="-300" y1="300" x2="900" y2="1500" />
+      <line x1="-300" y1="450" x2="900" y2="1650" />
+      <line x1="-300" y1="600" x2="900" y2="1800" />
+      <line x1="-300" y1="750" x2="900" y2="1950" />
+      <line x1="-300" y1="900" x2="900" y2="2100" />
+      <line x1="-300" y1="1050" x2="900" y2="2250" />
+      <line x1="-300" y1="1200" x2="900" y2="2400" />
+      <line x1="-300" y1="1350" x2="900" y2="2550" />
+      <line x1="-300" y1="1500" x2="900" y2="2700" />
+      <line x1="-300" y1="1650" x2="900" y2="2850" />
+
+      <!-- Slope -1 lines -->
+      <line x1="900" y1="-300" x2="-300" y2="900" />
+      <line x1="900" y1="-150" x2="-300" y2="1050" />
+      <line x1="900" y1="0" x2="-300" y2="1200" />
+      <line x1="900" y1="150" x2="-300" y2="1350" />
+      <line x1="900" y1="300" x2="-300" y2="1500" />
+      <line x1="900" y1="450" x2="-300" y2="1650" />
+      <line x1="900" y1="600" x2="-300" y2="1800" />
+      <line x1="900" y1="750" x2="-300" y2="1950" />
+      <line x1="900" y1="900" x2="-300" y2="2100" />
+      <line x1="900" y1="1050" x2="-300" y2="2250" />
+      <line x1="900" y1="1200" x2="-300" y2="2400" />
+      <line x1="900" y1="1350" x2="-300" y2="2550" />
+      <line x1="900" y1="1500" x2="-300" y2="2700" />
+      <line x1="900" y1="1650" x2="-300" y2="2850" />
+    </g>
+
+    <!-- Bottom Giant Soft Pink Heart Clouds -->
+    <path d="M 270 1520 C 190 1420 80 1440 50 1560 C 10 1700 200 1810 270 1850 C 340 1810 530 1700 490 1560 C 460 1440 350 1420 270 1520 Z" fill="#FF84A2" opacity="0.9" />
+    <path d="M 530 1590 C 470 1510 380 1530 350 1620 C 310 1740 470 1820 530 1860 C 590 1820 750 1740 710 1620 C 680 1530 590 1510 530 1590 Z" fill="#FFA2BA" opacity="0.9" />
+  </g>
+
+  <!-- FOREGROUND LAYER: Frame Outlines, Corner Clips, Stickers, & Doodles -->
+  <g id="foregroundDecorations">
+    <!-- 4 Photo Outlines -->
+    <g stroke="#52424E" stroke-width="2.8" fill="none">
+      <rect x="45" y="100" width="510" height="330" rx="4" ry="4" />
+      <rect x="45" y="475" width="510" height="330" rx="4" ry="4" />
+      <rect x="45" y="850" width="510" height="330" rx="4" ry="4" />
+      <rect x="45" y="1225" width="510" height="330" rx="4" ry="4" />
+    </g>
+
+    <!-- ====== SLOT 1 (Top) ====== -->
+    <!-- Corner clips on Slot 1 -->
+    <g transform="translate(68, 100) rotate(-40)">
+      <rect x="-16" y="-3.5" width="32" height="7" rx="2" fill="#52424E" />
+    </g>
+    <g transform="translate(532, 100) rotate(40)">
+      <rect x="-16" y="-3.5" width="32" height="7" rx="2" fill="#52424E" />
+    </g>
+
+    <!-- Top-Left Hearts on Slot 1 -->
+    <g transform="translate(230, 85) rotate(-22)">
+      <use href="#pinkHeartMed" />
+    </g>
+    <g transform="translate(262, 92) rotate(15)">
+      <use href="#pinkHeartSmall" />
+    </g>
+    <g transform="translate(284, 94) rotate(-10)">
+      <use href="#pinkHeartSmall" transform="scale(0.85)" />
+    </g>
+
+    <!-- Top-Right Spiral Coil Doodle on Slot 1 -->
+    <g stroke="#FF3575" stroke-width="2.6" stroke-linecap="round" fill="none" transform="translate(350, 88)">
+      <path d="M 0 0 C 4 -8, 10 -8, 12 0 C 14 8, 20 8, 22 0 C 24 -8, 30 -8, 32 0 C 34 8, 40 8, 42 0" />
+    </g>
+
+    <!-- Side details on Slot 1 right margin -->
+    <circle cx="535" cy="155" r="4" fill="none" stroke="#FF3575" stroke-width="1.8" />
+    <circle cx="312" cy="92" r="3" fill="none" stroke="#FF3575" stroke-width="1.6" />
+    <g stroke="#52424E" stroke-width="2.2" stroke-linecap="round">
+      <line x1="535" y1="195" x2="535" y2="207" />
+      <line x1="529" y1="201" x2="541" y2="201" />
+      <line x1="540" y1="225" x2="540" y2="237" />
+      <line x1="534" y1="231" x2="546" y2="231" />
+    </g>
+
+    <!-- ====== SLOT 2 ====== -->
+    <!-- Corner clips on Slot 2 -->
+    <g transform="translate(68, 475) rotate(-40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+    <g transform="translate(532, 475) rotate(40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+
+    <!-- Center Cluster of 3 Hearts between Slot 1 & 2 -->
+    <g transform="translate(295, 458) rotate(-18)">
+      <use href="#pinkHeartSmall" />
+    </g>
+    <g transform="translate(322, 448) rotate(5)">
+      <use href="#pinkHeartMed" />
+    </g>
+    <g transform="translate(352, 460) rotate(22)">
+      <use href="#pinkHeartSmall" />
+    </g>
+
+    <!-- Right Side Spiral Doodle on Slot 2 -->
+    <g stroke="#FF3575" stroke-width="2.6" stroke-linecap="round" fill="none" transform="translate(535, 280) rotate(90)">
+      <path d="M 0 0 C 4 -8, 10 -8, 12 0 C 14 8, 20 8, 22 0 C 24 -8, 30 -8, 32 0" />
+    </g>
+
+    <!-- Left side spiral doodle & circles -->
+    <g stroke="#FF3575" stroke-width="2.6" stroke-linecap="round" fill="none" transform="translate(45, 400) rotate(90)">
+      <path d="M 0 0 C 4 -8, 10 -8, 12 0 C 14 8, 20 8, 22 0" />
+    </g>
+    <circle cx="225" cy="466" r="3.5" fill="none" stroke="#FF3575" stroke-width="1.8" />
+    <circle cx="295" cy="470" r="3" fill="none" stroke="#FF3575" stroke-width="1.6" />
+    <g stroke="#52424E" stroke-width="2" stroke-linecap="round">
+      <line x1="32" y1="242" x2="32" y2="252" />
+      <line x1="27" y1="247" x2="37" y2="247" />
+    </g>
+
+    <!-- ====== SLOT 3 ====== -->
+    <!-- Corner clips on Slot 3 -->
+    <g transform="translate(68, 850) rotate(-40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+    <g transform="translate(532, 850) rotate(40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+
+    <!-- Center Cluster of 3 Hearts between Slot 2 & 3 -->
+    <g transform="translate(235, 835) rotate(-22)">
+      <use href="#pinkHeartSmall" />
+    </g>
+    <g transform="translate(262, 822) rotate(-5)">
+      <use href="#pinkHeartMed" />
+    </g>
+    <g transform="translate(292, 835) rotate(18)">
+      <use href="#pinkHeartSmall" />
+    </g>
+
+    <circle cx="296" cy="828" r="3" fill="none" stroke="#FF3575" stroke-width="1.6" />
+    <circle cx="316" cy="840" r="3.5" fill="none" stroke="#FF3575" stroke-width="1.8" />
+
+    <!-- Side details on Slot 3 right margin -->
+    <g stroke="#52424E" stroke-width="2" stroke-linecap="round">
+      <line x1="535" y1="488" x2="535" y2="498" />
+      <line x1="530" y1="493" x2="540" y2="493" />
+      <line x1="540" y1="515" x2="540" y2="527" />
+      <line x1="534" y1="521" x2="546" y2="521" />
+      <line x1="535" y1="538" x2="535" y2="548" />
+      <line x1="530" y1="543" x2="540" y2="543" />
+      <circle cx="540" cy="570" r="3.5" fill="none" stroke="#FF3575" stroke-width="1.8" />
+      <!-- Left margin sparkles -->
+      <line x1="38" y1="562" x2="38" y2="572" />
+      <line x1="33" y1="567" x2="43" y2="567" />
+      <line x1="32" y1="578" x2="32" y2="588" />
+      <line x1="27" y1="583" x2="37" y2="583" />
+    </g>
+
+    <!-- ====== SLOT 4 ====== -->
+    <!-- Corner clips on Slot 4 -->
+    <g transform="translate(68, 1225) rotate(-40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+    <g transform="translate(532, 1225) rotate(40)">
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#52424E" stroke-width="2.8" />
+    </g>
+
+    <!-- Spiral doodle between Slot 3 & 4 -->
+    <g stroke="#FF3575" stroke-width="2.6" stroke-linecap="round" fill="none" transform="translate(258, 1212)">
+      <path d="M 0 0 C 4 -8, 10 -8, 12 0 C 14 8, 20 8, 22 0 C 24 -8, 30 -8, 32 0" />
+    </g>
+
+    <!-- Right side 3 tilted hearts near bottom of Slot 3 / top of Slot 4 -->
+    <g transform="translate(348, 1200) rotate(-22)">
+      <use href="#pinkHeartSmall" />
+    </g>
+    <g transform="translate(378, 1198) rotate(15)">
+      <use href="#pinkHeartMed" transform="scale(0.9)" />
+    </g>
+    <g transform="translate(408, 1204) rotate(-10)">
+      <use href="#pinkHeartSmall" />
+    </g>
+    <circle cx="328" cy="1218" r="3.5" fill="none" stroke="#FF3575" stroke-width="1.8" />
+
+    <!-- Bottom-Left 2 Hearts on Slot 4 -->
+    <g transform="translate(202, 1370) rotate(-35)">
+      <use href="#pinkHeartBig" />
+    </g>
+    <g transform="translate(238, 1345) rotate(25)">
+      <use href="#pinkHeartMed" />
+    </g>
+
+    <!-- Bottom-Right Spiral Coil Doodle on Slot 4 -->
+    <g stroke="#FF3575" stroke-width="2.6" stroke-linecap="round" fill="none" transform="translate(340, 1400)">
+      <path d="M 0 0 C 4 -8, 10 -8, 12 0 C 14 8, 20 8, 22 0 C 24 -8, 30 -8, 32 0 C 34 8, 40 8, 42 0" />
+    </g>
+    <g stroke="#52424E" stroke-width="2" stroke-linecap="round">
+      <line x1="406" y1="1406" x2="406" y2="1416" />
+      <line x1="401" y1="1411" x2="411" y2="1411" />
+    </g>
+
+    <!-- Side circles and sparkles on Slot 4 -->
+    <circle cx="540" cy="1215" r="3.5" fill="none" stroke="#FF3575" stroke-width="1.8" />
+    <circle cx="205" cy="1320" r="3" fill="none" stroke="#FF3575" stroke-width="1.6" />
+    <circle cx="200" cy="1335" r="2.5" fill="none" stroke="#FF3575" stroke-width="1.5" />
+  </g>
+</svg>

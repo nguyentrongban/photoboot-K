@@ -26,7 +26,18 @@ export const FrameThemeCard: React.FC<FrameThemeCardProps> = ({
 }) => {
   // Determine appropriate default background color for previewing this theme
   const getDefaultColor = () => {
+    if (theme.hasFixedColor && theme.fixedColorId) {
+      const fixed = FRAME_COLORS.find((c) => c.id === theme.fixedColorId);
+      if (fixed) return fixed;
+    }
+
     switch (theme.id) {
+      case 'grunge_sulfus':
+        return FRAME_COLORS.find((c) => c.id === 'grunge_pitch_black') || FRAME_COLORS[0];
+      case 'airmail_postcard':
+        return FRAME_COLORS.find((c) => c.id === 'airmail_kraft') || FRAME_COLORS[0];
+      case 'teddy_cozy_check':
+        return FRAME_COLORS.find((c) => c.id === 'cozy_gingham') || FRAME_COLORS[0];
       case 'wedding_cake':
         return FRAME_COLORS.find((c) => c.id === 'cream') || FRAME_COLORS[0];
       case 'astrology':

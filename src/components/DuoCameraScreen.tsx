@@ -102,7 +102,7 @@ export const DuoCameraScreen: React.FC<DuoCameraScreenProps> = ({
   const selectedFilter = PHOTO_FILTERS.find((f) => f.id === settings.filterId) || PHOTO_FILTERS[0];
 
   // Members
-  const memberList = Object.values(roomState.members);
+  const memberList = Object.values(roomState.members) as DuoMember[];
   const partner = memberList.find((m) => m.id !== currentUser.id);
 
   // Start Camera with high compatibility for mobile & desktop

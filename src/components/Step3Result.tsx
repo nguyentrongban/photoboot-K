@@ -578,53 +578,101 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
             {/* Tab 3: Theme Switcher */}
             {activeTab === 'theme' && (
-              <div
-                className={`grid gap-3 sm:gap-4 items-start ${
-                  settings.layoutType === 'grid-4'
-                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
-                    : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
-                }`}
-              >
-                {FRAME_THEMES.map((theme) => {
-                  const isSelected = theme.id === settings.themeId;
-                  return (
-                    <FrameThemeCard
-                      key={theme.id}
-                      theme={theme}
-                      isSelected={isSelected}
-                      layoutType={settings.layoutType}
-                      onSelect={() =>
-                        onUpdateSettings({
-                          themeId: theme.id,
-                          ...(theme.hasFixedColor
-                            ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
-                            : {}),
-                          ...(theme.id === 'airmail_postcard'
-                            ? {
-                                title: 'KATE & JACKSON',
-                                subtitle: 'got hitched!',
-                                customDate: '1.10.14',
-                              }
-                            : {}),
-                          ...(theme.id === 'teddy_cozy_check'
-                            ? {
-                                title: 'cozy moments',
-                                subtitle: 'love yourself ♡',
-                                customDate: '08. 23. 26',
-                              }
-                            : {}),
-                          ...(theme.id === 'wedding_cake'
-                            ? {
-                                title: 'AMIRA & SPENCE',
-                                subtitle: 'Our Wedding Day',
-                                customDate: '08. 23. 25',
-                              }
-                            : {}),
-                        })
-                      }
-                    />
-                  );
-                })}
+              <div className="space-y-4">
+                {/* Sub-section 1: Khung Ảnh Thiết Kế Độc Quyền */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/60">
+                      ✨ Khung Ảnh Nghệ Thuật (Image Frame)
+                    </span>
+                    <span className="text-[11px] text-neutral-400">Thiết kế viền ảnh độc quyền</span>
+                  </div>
+                  <div
+                    className={`grid gap-3 sm:gap-4 items-start ${
+                      settings.layoutType === 'grid-4'
+                        ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                        : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+                    }`}
+                  >
+                    {FRAME_THEMES.filter((t) => t.isImageOverlay).map((theme) => {
+                      const isSelected = theme.id === settings.themeId;
+                      return (
+                        <FrameThemeCard
+                          key={theme.id}
+                          theme={theme}
+                          isSelected={isSelected}
+                          layoutType={settings.layoutType}
+                          onSelect={() =>
+                            onUpdateSettings({
+                              themeId: theme.id,
+                              ...(theme.hasFixedColor
+                                ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                                : {}),
+                            })
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Sub-section 2: Khung Viền Hoạ Tiết & Tự Đổi Màu */}
+                <div className="space-y-2 pt-3 border-t border-rose-100/60">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-neutral-700 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200">
+                      🎨 Khung Viền Trang Trí & Tuỳ Chỉnh Màu
+                    </span>
+                    <span className="text-[11px] text-neutral-400">Tự do đổi màu nền & bố cục</span>
+                  </div>
+                  <div
+                    className={`grid gap-3 sm:gap-4 items-start ${
+                      settings.layoutType === 'grid-4'
+                        ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                        : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+                    }`}
+                  >
+                    {FRAME_THEMES.filter((t) => !t.isImageOverlay).map((theme) => {
+                      const isSelected = theme.id === settings.themeId;
+                      return (
+                        <FrameThemeCard
+                          key={theme.id}
+                          theme={theme}
+                          isSelected={isSelected}
+                          layoutType={settings.layoutType}
+                          onSelect={() =>
+                            onUpdateSettings({
+                              themeId: theme.id,
+                              ...(theme.hasFixedColor
+                                ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                                : {}),
+                              ...(theme.id === 'airmail_postcard'
+                                ? {
+                                    title: 'KATE & JACKSON',
+                                    subtitle: 'got hitched!',
+                                    customDate: '1.10.14',
+                                  }
+                                : {}),
+                              ...(theme.id === 'teddy_cozy_check'
+                                ? {
+                                    title: 'cozy moments',
+                                    subtitle: 'love yourself ♡',
+                                    customDate: '08. 23. 26',
+                                  }
+                                : {}),
+                              ...(theme.id === 'wedding_cake'
+                                ? {
+                                    title: 'AMIRA & SPENCE',
+                                    subtitle: 'Our Wedding Day',
+                                    customDate: '08. 23. 25',
+                                  }
+                                : {}),
+                            })
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
 

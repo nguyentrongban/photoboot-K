@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, X, Info } from 'lucide-react';
-import { CapturedPhoto, PhotoboothSettings, Step, DuoMode, PlacedSticker } from './types';
+import { CapturedPhoto, PhotoboothSettings, Step, DuoMode, PlacedSticker, DuoMember } from './types';
 import { Header } from './components/Header';
 import { Step1Config } from './components/Step1Config';
 import { Step2Camera } from './components/Step2Camera';
@@ -174,7 +174,7 @@ export default function App() {
   const canGoToStep3 = photos.filter(Boolean).length === targetPhotoCount;
   const isDuoActive = Boolean(roomState && currentUser);
   const partnerName = roomState && currentUser
-    ? Object.values(roomState.members).find((m) => m.id !== currentUser.id)?.name
+    ? (Object.values(roomState.members) as DuoMember[]).find((m) => m.id !== currentUser.id)?.name
     : undefined;
 
   return (

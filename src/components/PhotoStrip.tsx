@@ -452,6 +452,46 @@ const CozyScrapbookFooterDecor: React.FC<{ className?: string; isMini?: boolean 
   </div>
 );
 
+// --- HAPPY WITH YOU THEME SVG ARTWORKS ---
+const HappyBotanicalLeavesLeft: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 80" className={className || "w-10 h-8"} fill="none" stroke="#56412D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M 15,65 Q 40,40 85,25" />
+    <path d="M 28,52 Q 18,36 30,22 C 38,28 35,42 28,52 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <path d="M 45,43 Q 38,24 52,15 C 58,22 54,34 45,43 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <path d="M 65,34 Q 60,16 74,10 C 80,18 74,28 65,34 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <circle cx="88" cy="24" r="2.5" fill="#56412D" />
+  </svg>
+);
+
+const HappyBotanicalLeavesRight: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 80" className={className || "w-10 h-8"} fill="none" stroke="#56412D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M 85,65 Q 60,40 15,25" />
+    <path d="M 72,52 Q 82,36 70,22 C 62,28 65,42 72,52 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <path d="M 55,43 Q 62,24 48,15 C 42,22 46,34 55,43 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <path d="M 35,34 Q 40,16 26,10 C 20,18 26,28 35,34 Z" fill="#D8E2C2" fillOpacity="0.75" />
+    <circle cx="12" cy="24" r="2.5" fill="#56412D" />
+  </svg>
+);
+
+const HappyBotanicalFernSide: React.FC<{ className?: string; isLeft?: boolean }> = ({ className, isLeft = true }) => (
+  <svg viewBox="0 0 120 140" className={className || "w-16 h-20"} fill="none">
+    <g transform={isLeft ? "rotate(15 60 70)" : "scale(-1, 1) translate(-120, 0) rotate(15 60 70)"} opacity="0.85">
+      <path d="M 10 130 Q 50 80 90 20" stroke="#8B735B" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 30 105 Q 10 85 22 75 C 32 80 34 95 30 105 Z" fill="#B5A18C" />
+      <path d="M 45 88 Q 65 70 55 60 C 45 65 42 78 45 88 Z" fill="#9E8873" />
+      <path d="M 60 68 Q 38 50 50 40 C 60 45 62 58 60 68 Z" fill="#B5A18C" />
+      <path d="M 75 48 Q 95 30 85 22 C 75 28 72 40 75 48 Z" fill="#9E8873" />
+      <path d="M 88 28 Q 80 10 92 6 C 98 14 94 22 88 28 Z" fill="#B5A18C" />
+    </g>
+  </svg>
+);
+
+const HappyFourPointStar: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 40 40" className={className || "w-4 h-4"} fill="#56412D">
+    <path d="M 20 2 Q 20 20 2 20 Q 20 20 20 38 Q 20 20 38 20 Q 20 20 20 2 Z" />
+  </svg>
+);
+
 // --- AIRMAIL POSTCARD THEME SVG ARTWORKS ---
 const AirmailPostalCancelStamp: React.FC<{ className?: string }> = ({ className }) => (
   <svg viewBox="0 0 170 85" className={className || "w-32 h-16"} fill="none">
@@ -479,6 +519,154 @@ const AirmailPostalCancelStamp: React.FC<{ className?: string }> = ({ className 
   </svg>
 );
 
+// --- GRUNGE SULFUS 7:77 THEME SVG ARTWORKS (EXACT 1:1 TO TEMPLATE) ---
+const GrungeTapeCorner: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 120 120" className={className || "w-16 h-16"} fill="none">
+    {/* Tape 1 (Topmost slanted) */}
+    <g transform="rotate(-36 50 30)">
+      <polygon
+        points="0,4 2,0 48,0 50,4 49,18 47,22 2,22 0,16"
+        fill="#FFFFFF"
+        stroke="#000000"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+    </g>
+
+    {/* Tape 2 (Middle slanted) */}
+    <g transform="rotate(-44 60 55)">
+      <polygon
+        points="0,4 3,0 62,0 65,5 63,20 60,24 2,24 0,18"
+        fill="#FFFFFF"
+        stroke="#000000"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+    </g>
+
+    {/* Tape 3 (Bottom-left slanted) */}
+    <g transform="rotate(-34 35 70)">
+      <polygon
+        points="0,3 2,0 42,0 44,4 43,18 40,21 1,21 0,15"
+        fill="#FFFFFF"
+        stroke="#000000"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+    </g>
+  </svg>
+);
+
+const GrungeDoodleHeart: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 70 70" className={className || "w-8 h-8"} fill="none">
+    <path
+      d="M 35 23 C 35 13 20 11 15 22 C 9 32 19 46 35 58 C 51 46 61 32 55 22 C 50 11 35 13 35 23 Z"
+      fill="#FFFFFF"
+      stroke="#000000"
+      strokeWidth="3.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Radiating sketch lines */}
+    <line x1="12" y1="14" x2="5" y2="7" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="57" y1="14" x2="64" y2="7" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="35" y1="62" x2="35" y2="69" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="61" y1="36" x2="68" y2="36" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+  </svg>
+);
+
+const GrungeDividerTape: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 160 30" className={className || "w-28 h-6"} fill="none">
+    <polygon
+      points="4,3 8,0 152,0 156,5 151,12 155,20 149,28 8,28 3,21 7,13 2,6"
+      fill="rgba(242, 242, 242, 0.88)"
+      stroke="#999999"
+      strokeWidth="0.9"
+    />
+    <line x1="12" y1="6" x2="145" y2="6" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.7" />
+    <line x1="15" y1="22" x2="142" y2="22" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.7" />
+  </svg>
+);
+
+const GrungeSparkleStars: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 60 60" className={className || "w-7 h-7"} fill="none">
+    {/* Large Star */}
+    <path
+      d="M 28 4 Q 28 22 10 22 Q 28 22 28 40 Q 28 22 46 22 Q 28 22 28 4 Z"
+      fill="#FFFFFF"
+      stroke="#000000"
+      strokeWidth="1.5"
+    />
+    {/* Small Star */}
+    <path
+      d="M 46 34 Q 46 43 37 43 Q 46 43 46 52 Q 46 43 55 43 Q 46 43 46 34 Z"
+      fill="#FFFFFF"
+      stroke="#000000"
+      strokeWidth="1.2"
+    />
+  </svg>
+);
+
+const GrungeBrushBanner: React.FC<{ className?: string; isMini?: boolean }> = ({ className, isMini = false }) => (
+  <div className={`w-full h-full relative flex flex-col items-center justify-center select-none ${className || ''}`}>
+    {/* Grunge White Acrylic Brush Stroke Banner */}
+    <div className="relative w-[90%] max-w-[280px] h-[78%] max-h-[75px] flex items-center justify-center">
+      <svg
+        viewBox="0 0 320 85"
+        className="w-full h-full drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M 12 18 
+             C 25 14, 45 10, 80 12 
+             C 120 14, 180 8, 240 11 
+             C 280 13, 305 16, 314 24 
+             C 318 35, 316 52, 310 66 
+             C 298 75, 260 76, 210 74 
+             C 160 72, 100 78, 50 75 
+             C 20 73, 8 68, 5 52 
+             C 3 38, 5 24, 12 18 Z"
+          fill="#FFFFFF"
+        />
+        <path d="M 2 30 Q 14 32 8 42 Q 0 38 2 30 Z" fill="#FFFFFF" opacity="0.9" />
+        <path d="M 314 26 Q 320 38 316 48 Q 308 44 314 26 Z" fill="#FFFFFF" opacity="0.9" />
+        <path d="M 18 10 Q 30 12 24 16 Q 14 14 18 10 Z" fill="#FFFFFF" opacity="0.8" />
+        <path d="M 295 12 Q 308 14 300 20 Q 288 18 295 12 Z" fill="#FFFFFF" opacity="0.8" />
+        <circle cx="3" cy="22" r="1.5" fill="#FFFFFF" />
+        <circle cx="317" cy="58" r="1.8" fill="#FFFFFF" />
+        <circle cx="312" cy="18" r="1.2" fill="#FFFFFF" />
+        <circle cx="8" cy="62" r="1.5" fill="#FFFFFF" />
+      </svg>
+
+      {/* 7:77 and sulfus inside the brush stroke */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+        <span
+          className={`font-black tracking-widest text-[#0C0C0C] ${
+            isMini ? 'text-[11px]' : 'text-xl sm:text-2xl md:text-3xl'
+          }`}
+          style={{
+            fontFamily: "'Impact', 'Arial Black', 'Trebuchet MS', sans-serif",
+            letterSpacing: '0.12em',
+          }}
+        >
+          7:77
+        </span>
+        <span
+          className={`font-bold italic text-[#0C0C0C] -mt-1 sm:-mt-2 ${
+            isMini ? 'text-[8px]' : 'text-sm sm:text-base md:text-lg'
+          }`}
+          style={{
+            fontFamily: "'Caveat', 'Brush Script MT', cursive",
+            letterSpacing: '0.04em',
+          }}
+        >
+          sulfus
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
 export const PhotoStrip: React.FC<PhotoStripProps> = ({
   photos,
   settings,
@@ -498,17 +686,19 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
   const stripRef = useRef<HTMLDivElement | null>(null);
   const bgColor = settings.customColorHex || color.hex;
   const layout = settings.layoutType || 'grid-4';
+  const isImageOverlayTheme = theme.isImageOverlay || theme.id === 'happy_with_you' || theme.id === 'grunge_sulfus';
+  const effectiveLayout = isImageOverlayTheme ? 'strip-4' : layout;
   const isWeddingTheme = theme.id === 'wedding_cake';
-  const isSpecialArtwork = !!theme.isSpecialArtwork;
+  const isSpecialArtwork = !isImageOverlayTheme && !!theme.isSpecialArtwork;
   const artworkColor = isSpecialArtwork ? color.textColor : theme.accentColor;
 
   // Determine photo count based on layout
   const photoIndices =
-    layout === 'single-1'
+    effectiveLayout === 'single-1'
       ? [0]
-      : layout === 'strip-2'
+      : effectiveLayout === 'strip-2'
       ? [0, 1]
-      : layout === 'strip-3'
+      : effectiveLayout === 'strip-3'
       ? [0, 1, 2]
       : [0, 1, 2, 3];
 
@@ -573,7 +763,9 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
         <div
           key={`frame-${index}`}
           id={`photo-slot-${index}`}
-          className={`w-full h-full relative rounded-none overflow-hidden bg-neutral-200/80 shadow-xs border transition-all duration-300 ${
+          className={`w-full h-full relative ${
+            theme.id === 'happy_with_you' ? 'rounded-xl sm:rounded-2xl' : 'rounded-none'
+          } overflow-hidden bg-neutral-200/80 shadow-xs border transition-all duration-300 ${
             isTarget ? 'ring-4 ring-rose-400 ring-offset-2 scale-[1.02]' : 'border-black/5'
           }`}
         >
@@ -617,6 +809,73 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
   };
 
   const renderHeader = () => {
+    if (theme.id === 'pink_lattice_hearts') {
+      return null;
+    }
+
+    if (theme.id === 'grunge_sulfus') {
+      return (
+        <div className={`w-full h-full flex items-center justify-between px-2 sm:px-3 relative select-none ${isMiniPreview ? 'px-1' : ''}`}>
+          <div className="flex items-center gap-1 z-10">
+            <div className="w-3 sm:w-4 h-1.5 sm:h-2 bg-neutral-200/90 -rotate-12 shadow-2xs" />
+            <span className={`font-mono font-black text-neutral-300 ${isMiniPreview ? 'text-[5px]' : 'text-[7px] sm:text-[9px]'}`}>
+              ◀ 7 ▶
+            </span>
+          </div>
+          <span
+            className={`font-black tracking-widest text-neutral-100 uppercase truncate ${
+              isMiniPreview ? 'text-[6px]' : 'text-[9px] sm:text-xs'
+            }`}
+            style={{ fontFamily: "'Impact', sans-serif" }}
+          >
+            {settings.title || 'SULFUS'}
+          </span>
+          <div className="flex items-center gap-1 z-10">
+            <span className={`font-mono font-black text-neutral-300 ${isMiniPreview ? 'text-[5px]' : 'text-[7px] sm:text-[9px]'}`}>
+              ◀ 0 ▶
+            </span>
+            <div className="w-3 sm:w-4 h-1.5 sm:h-2 bg-neutral-200/90 rotate-12 shadow-2xs" />
+          </div>
+        </div>
+      );
+    }
+
+    if (theme.id === 'happy_with_you') {
+      return (
+        <div className={`w-full h-full flex flex-col items-center justify-center relative px-2 select-none ${isMiniPreview ? 'px-1' : ''}`}>
+          {/* Top Leaves Line Art Left & Right */}
+          <div className="absolute left-1 top-0 bottom-0 flex items-center pointer-events-none">
+            <HappyBotanicalLeavesLeft className={isMiniPreview ? "w-3 h-3" : "w-6 h-5 sm:w-8 sm:h-7"} />
+          </div>
+          <div className="absolute right-1 top-0 bottom-0 flex items-center pointer-events-none">
+            <HappyBotanicalLeavesRight className={isMiniPreview ? "w-3 h-3" : "w-6 h-5 sm:w-8 sm:h-7"} />
+          </div>
+
+          {/* Pill Badge */}
+          <div className="border border-[#56412D]/80 rounded-full px-2 py-0.2 sm:px-2.5 sm:py-0.5 bg-white/40 shadow-2xs z-10">
+            <span
+              className={`font-semibold tracking-wider text-[#56412D] block leading-none ${
+                isMiniPreview ? 'text-[4px]' : 'text-[6px] sm:text-[8px]'
+              }`}
+              style={{ fontFamily: "'Quicksand', 'Plus Jakarta Sans', sans-serif" }}
+            >
+              {settings.subtitle || '@reallygreatsite'}
+            </span>
+          </div>
+
+          {/* Cursive Title */}
+          <h2
+            className={`font-bold italic text-[#56412D] leading-tight mt-0.5 z-10 truncate max-w-[60%] ${
+              isMiniPreview ? 'text-[6px]' : 'text-[10px] sm:text-sm md:text-base'
+            }`}
+            style={{ fontFamily: "'Caveat', cursive, serif" }}
+          >
+            {settings.title || 'happy with you'}
+          </h2>
+        </div>
+      );
+    }
+
     if (theme.id === 'airmail_postcard') {
       return (
         <div className={`w-full h-full flex items-center justify-between z-10 ${isMiniPreview ? 'px-1' : 'px-2.5 sm:px-3'}`}>
@@ -714,6 +973,56 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
   };
 
   const renderFooter = () => {
+    if (theme.id === 'pink_lattice_hearts') {
+      return null;
+    }
+
+    if (theme.id === 'grunge_sulfus') {
+      return (
+        <div className="w-full h-full relative overflow-hidden flex flex-col justify-center items-center px-2 select-none">
+          {/* White brush / chalk background block */}
+          <div className="bg-neutral-100 text-neutral-900 px-3 py-0.5 rounded-xs font-black shadow-xs tracking-wider flex items-center gap-1.5">
+            <span className={`font-mono ${isMiniPreview ? 'text-[5px]' : 'text-[8px] sm:text-[10px]'}`}>7:77</span>
+            <span className={`font-serif italic ${isMiniPreview ? 'text-[6px]' : 'text-[9px] sm:text-xs'}`}>sulfus</span>
+          </div>
+          {settings.showDate && (
+            <p className={`font-mono font-bold tracking-widest text-neutral-400 mt-0.5 text-center ${isMiniPreview ? 'text-[4px]' : 'text-[6px] sm:text-[8px]'}`}>
+              {settings.customDate || '08. 23. 26'}
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    if (theme.id === 'happy_with_you') {
+      return (
+        <div className={`w-full h-full flex flex-col items-center justify-center relative px-2 select-none ${isMiniPreview ? 'px-1' : ''}`}>
+          <div className="flex items-center gap-2">
+            <HappyFourPointStar className={isMiniPreview ? "w-2 h-2" : "w-3 h-3 sm:w-3.5 sm:h-3.5"} />
+            <span
+              className={`font-semibold tracking-wider text-[#56412D] truncate ${
+                isMiniPreview ? 'text-[5px]' : 'text-[7px] sm:text-[9px]'
+              }`}
+              style={{ fontFamily: "'Caveat', cursive" }}
+            >
+              sweet memories
+            </span>
+            <HappyFourPointStar className={isMiniPreview ? "w-2 h-2" : "w-3 h-3 sm:w-3.5 sm:h-3.5"} />
+          </div>
+          {settings.showDate && (
+            <p
+              className={`font-bold tracking-widest text-[#56412D]/80 mt-0.5 ${
+                isMiniPreview ? 'text-[4px]' : 'text-[6px] sm:text-[8px]'
+              }`}
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              {settings.customDate || '08. 23. 26'}
+            </p>
+          )}
+        </div>
+      );
+    }
+
     if (theme.id === 'airmail_postcard') {
       const titleParts = (settings.title || 'KATE & JACKSON').split('&');
       const name1 = titleParts[0]?.trim() || 'KATE';
@@ -837,7 +1146,34 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
     let leftVineStyle: React.CSSProperties | null = null;
     let rightVineStyle: React.CSSProperties | null = null;
 
-    if (layout === 'grid-4') {
+    if (theme.id === 'pink_lattice_hearts') {
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.556%', position: 'absolute' };
+      footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
+      slotsConfig = [
+        { left: '7.5%', top: '5.556%', width: '85.0%', height: '18.333%' },
+        { left: '7.5%', top: '26.389%', width: '85.0%', height: '18.333%' },
+        { left: '7.5%', top: '47.222%', width: '85.0%', height: '18.333%' },
+        { left: '7.5%', top: '68.056%', width: '85.0%', height: '18.333%' },
+      ];
+    } else if (theme.id === 'happy_with_you') {
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '16.389%', position: 'absolute' };
+      footerStyle = { top: '95.0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
+      slotsConfig = [
+        { left: '7.5%', top: '16.389%', width: '85.0%', height: '17.778%' },
+        { left: '7.5%', top: '36.667%', width: '85.0%', height: '17.778%' },
+        { left: '7.5%', top: '56.944%', width: '85.0%', height: '17.778%' },
+        { left: '7.5%', top: '77.222%', width: '85.0%', height: '17.778%' },
+      ];
+    } else if (theme.id === 'grunge_sulfus') {
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '3.158%', position: 'absolute' };
+      footerStyle = { top: '84.632%', left: '0%', width: '100%', height: '15.368%', position: 'absolute' };
+      slotsConfig = [
+        { left: '8.955%', top: '3.158%', width: '82.388%', height: '18.947%' },
+        { left: '8.955%', top: '24.000%', width: '82.388%', height: '18.947%' },
+        { left: '8.955%', top: '44.842%', width: '82.388%', height: '18.947%' },
+        { left: '8.955%', top: '65.684%', width: '82.388%', height: '18.947%' },
+      ];
+    } else if (layout === 'grid-4') {
       headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.5%', position: 'absolute' };
       footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
       slotsConfig = [
@@ -886,46 +1222,29 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
         rightVineStyle = { right: '1.2%', top: '6.0%', width: '4.0%', height: '86.0%', position: 'absolute' };
       }
     } else if (layout === 'strip-3') {
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
+      footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
+      slotsConfig = [
+        { left: '4.5%', top: '5.0%', width: '91.0%', height: '28.8%' },
+        { left: '4.5%', top: '34.8%', width: '91.0%', height: '28.8%' },
+        { left: '4.5%', top: '64.6%', width: '91.0%', height: '28.8%' },
+      ];
       if (isSpecialArtwork) {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
-        footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
-        slotsConfig = [
-          { left: '4.5%', top: '5.0%', width: '91.0%', height: '28.8%' },
-          { left: '4.5%', top: '34.8%', width: '91.0%', height: '28.8%' },
-          { left: '4.5%', top: '64.6%', width: '91.0%', height: '28.8%' },
-        ];
         leftVineStyle = { left: '1.2%', top: '5.0%', width: '4.0%', height: '88.0%', position: 'absolute' };
         rightVineStyle = { right: '1.2%', top: '5.0%', width: '4.0%', height: '88.0%', position: 'absolute' };
-      } else {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '5.0%', position: 'absolute' };
-        footerStyle = { top: '93.5%', left: '0%', width: '100%', height: '6.5%', position: 'absolute' };
-        slotsConfig = [
-          { left: '4.5%', top: '5.0%', width: '91.0%', height: '28.8%' },
-          { left: '4.5%', top: '34.8%', width: '91.0%', height: '28.8%' },
-          { left: '4.5%', top: '64.6%', width: '91.0%', height: '28.8%' },
-        ];
       }
     } else { // strip-4
+      headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.5%', position: 'absolute' };
+      footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
+      slotsConfig = [
+        { left: '4.5%', top: '4.5%', width: '91.0%', height: '21.6%' },
+        { left: '4.5%', top: '26.9%', width: '91.0%', height: '21.6%' },
+        { left: '4.5%', top: '49.3%', width: '91.0%', height: '21.6%' },
+        { left: '4.5%', top: '71.7%', width: '91.0%', height: '21.6%' },
+      ];
       if (isSpecialArtwork) {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.5%', position: 'absolute' };
-        footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
-        slotsConfig = [
-          { left: '4.5%', top: '4.5%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '26.9%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '49.3%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '71.7%', width: '91.0%', height: '21.6%' },
-        ];
         leftVineStyle = { left: '1.2%', top: '4.5%', width: '4.0%', height: '89.0%', position: 'absolute' };
         rightVineStyle = { right: '1.2%', top: '4.5%', width: '4.0%', height: '89.0%', position: 'absolute' };
-      } else {
-        headerStyle = { top: '0%', left: '0%', width: '100%', height: '4.5%', position: 'absolute' };
-        footerStyle = { top: '94.0%', left: '0%', width: '100%', height: '6.0%', position: 'absolute' };
-        slotsConfig = [
-          { left: '4.5%', top: '4.5%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '26.9%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '49.3%', width: '91.0%', height: '21.6%' },
-          { left: '4.5%', top: '71.7%', width: '91.0%', height: '21.6%' },
-        ];
       }
     }
 
@@ -937,12 +1256,16 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
         onClick={handleContainerClick}
         className="relative w-full rounded-2xl select-none shadow-xl transition-all duration-300 border overflow-hidden"
         style={{
-          backgroundColor: theme.id === 'airmail_postcard' ? '#E5D5BC' : theme.id === 'teddy_cozy_check' ? '#FAF6EF' : bgColor,
+          backgroundColor: theme.id === 'pink_lattice_hearts' ? '#FFB2C3' : theme.id === 'happy_with_you' ? '#F7F4EB' : theme.id === 'grunge_sulfus' ? '#0D0D0D' : theme.id === 'airmail_postcard' ? '#E5D5BC' : theme.id === 'teddy_cozy_check' ? '#FAF6EF' : bgColor,
           borderColor: color.borderHex || 'rgba(0,0,0,0.08)',
           color: color.textColor,
           fontFamily: theme.fontFamily,
           aspectRatio:
-            layout === 'grid-4'
+            theme.id === 'pink_lattice_hearts' || theme.id === 'happy_with_you'
+              ? '1 / 3'
+              : theme.id === 'grunge_sulfus'
+              ? '335 / 950'
+              : layout === 'grid-4'
               ? '9 / 11'
               : layout === 'grid-4-rect'
               ? '3 / 4.2'
@@ -955,6 +1278,18 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
               : '3 / 11',
         }}
       >
+        {/* Happy With You Soft Organic Background Blob Shapes */}
+        {theme.id === 'happy_with_you' && (
+          <div className="absolute inset-0 pointer-events-none opacity-80 overflow-hidden">
+            {/* Top-right matcha blob */}
+            <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-[#EBF2DD] blur-xs" />
+            {/* Mid-left matcha blob */}
+            <div className="absolute top-[40%] -left-12 w-36 h-36 rounded-full bg-[#EBF2DD] blur-xs" />
+            {/* Bottom-right matcha blob */}
+            <div className="absolute -bottom-10 -right-8 w-40 h-40 rounded-full bg-[#EBF2DD] blur-xs" />
+          </div>
+        )}
+
         {/* Airmail Outer Stripe Border */}
         {theme.id === 'airmail_postcard' && (
           <div
@@ -1046,6 +1381,39 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
             <div className="absolute top-[47.2%] right-[1%] w-[46%] sm:w-[48%] z-30 drop-shadow-xs">
               <CozyKraftTapeLabel className="w-full h-auto" />
             </div>
+          </div>
+        )}
+
+        {/* Pink Lattice Hearts Overlay */}
+        {theme.id === 'pink_lattice_hearts' && (
+          <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+            <img
+              src="/frames/pink_lattice_hearts_overlay.png"
+              alt="Pink Lattice Hearts Frame Overlay"
+              className="w-full h-full object-fill pointer-events-none"
+            />
+          </div>
+        )}
+
+        {/* Happy With You Overlays from reference template */}
+        {theme.id === 'happy_with_you' && (
+          <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+            <img
+              src="/frames/happy_with_you_overlay.png"
+              alt="Happy With You Frame Overlay"
+              className="w-full h-full object-fill pointer-events-none"
+            />
+          </div>
+        )}
+
+        {/* Grunge 7:77 Sulfus Overlays from original reference photo */}
+        {theme.id === 'grunge_sulfus' && (
+          <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+            <img
+              src="/frames/grunge_sulfus_full_overlay.png"
+              alt="Grunge 7:77 Sulfus Frame"
+              className="w-full h-full object-fill pointer-events-none"
+            />
           </div>
         )}
 

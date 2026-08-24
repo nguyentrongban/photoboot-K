@@ -37,6 +37,11 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
 
   // Visual Theme Stickers & Icons
   const themeIcons: Record<string, string> = {
+    pink_lattice_hearts: '💕',
+    happy_with_you: '🌿',
+    grunge_sulfus: '🖤',
+    airmail_postcard: '✈️',
+    teddy_cozy_check: '🧸',
     wedding_cake: '🕊️',
     cute: '🎀',
     minimal: '🖤',
@@ -181,7 +186,7 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
           </div>
 
           {/* 2. Theme & Sticker Style Picker */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-5 sm:p-6 border border-rose-100/80 shadow-[0_4px_20px_rgba(244,114,182,0.03)] space-y-3.5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-5 sm:p-6 border border-rose-100/80 shadow-[0_4px_20px_rgba(244,114,182,0.03)] space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-pink-50 border border-pink-200/60 flex items-center justify-center p-1 shadow-2xs">
@@ -196,54 +201,101 @@ export const Step1Config: React.FC<Step1ConfigProps> = ({
               </span>
             </div>
 
-            <div
-              className={`grid gap-3 sm:gap-4 items-start ${
-                settings.layoutType === 'grid-4'
-                  ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
-                  : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
-              }`}
-            >
-              {FRAME_THEMES.map((theme) => {
-                const isSelected = theme.id === settings.themeId;
+            {/* Sub-section 1: Khung Ảnh Thiết Kế Độc Quyền (Image Overlay Templates) */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/60">
+                  ✨ Khung Ảnh Nghệ Thuật (Image Frame)
+                </span>
+                <span className="text-[11px] text-neutral-400">Thiết kế viền ảnh độc quyền</span>
+              </div>
+              <div
+                className={`grid gap-3 sm:gap-4 items-start ${
+                  settings.layoutType === 'grid-4'
+                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                    : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+                }`}
+              >
+                {FRAME_THEMES.filter((t) => t.isImageOverlay).map((theme) => {
+                  const isSelected = theme.id === settings.themeId;
 
-                return (
-                  <FrameThemeCard
-                    key={theme.id}
-                    theme={theme}
-                    isSelected={isSelected}
-                    layoutType={settings.layoutType}
-                    onSelect={() => {
-                      onUpdateSettings({
-                        themeId: theme.id,
-                        ...(theme.hasFixedColor
-                          ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
-                          : {}),
-                        ...(theme.id === 'airmail_postcard'
-                          ? {
-                              title: 'KATE & JACKSON',
-                              subtitle: 'got hitched!',
-                              customDate: '1.10.14',
-                            }
-                          : {}),
-                        ...(theme.id === 'teddy_cozy_check'
-                          ? {
-                              title: 'cozy moments',
-                              subtitle: 'love yourself ♡',
-                              customDate: '08. 23. 26',
-                            }
-                          : {}),
-                        ...(theme.id === 'wedding_cake'
-                          ? {
-                              title: 'AMIRA & SPENCE',
-                              subtitle: 'Our Wedding Day',
-                              customDate: '08. 23. 25',
-                            }
-                          : {}),
-                      });
-                    }}
-                  />
-                );
-              })}
+                  return (
+                    <FrameThemeCard
+                      key={theme.id}
+                      theme={theme}
+                      isSelected={isSelected}
+                      layoutType={settings.layoutType}
+                      onSelect={() => {
+                        onUpdateSettings({
+                          themeId: theme.id,
+                          ...(theme.hasFixedColor
+                            ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                            : {}),
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sub-section 2: Khung Viền Hoạ Tiết & Tự Đổi Màu (Standard Decorative Frames) */}
+            <div className="space-y-2 pt-3 border-t border-neutral-100">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-neutral-700 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200">
+                  🎨 Khung Viền Trang Trí & Tuỳ Chỉnh Màu
+                </span>
+                <span className="text-[11px] text-neutral-400">Tự do đổi màu nền & bố cục</span>
+              </div>
+              <div
+                className={`grid gap-3 sm:gap-4 items-start ${
+                  settings.layoutType === 'grid-4'
+                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+                    : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+                }`}
+              >
+                {FRAME_THEMES.filter((t) => !t.isImageOverlay).map((theme) => {
+                  const isSelected = theme.id === settings.themeId;
+
+                  return (
+                    <FrameThemeCard
+                      key={theme.id}
+                      theme={theme}
+                      isSelected={isSelected}
+                      layoutType={settings.layoutType}
+                      onSelect={() => {
+                        onUpdateSettings({
+                          themeId: theme.id,
+                          ...(theme.hasFixedColor
+                            ? { colorId: theme.fixedColorId || 'cream', customColorHex: undefined }
+                            : {}),
+                          ...(theme.id === 'airmail_postcard'
+                            ? {
+                                title: 'KATE & JACKSON',
+                                subtitle: 'got hitched!',
+                                customDate: '1.10.14',
+                              }
+                            : {}),
+                          ...(theme.id === 'teddy_cozy_check'
+                            ? {
+                                title: 'cozy moments',
+                                subtitle: 'love yourself ♡',
+                                customDate: '08. 23. 26',
+                              }
+                            : {}),
+                          ...(theme.id === 'wedding_cake'
+                            ? {
+                                title: 'AMIRA & SPENCE',
+                                subtitle: 'Our Wedding Day',
+                                customDate: '08. 23. 25',
+                              }
+                            : {}),
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
 

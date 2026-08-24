@@ -1498,6 +1498,61 @@ function drawCanvasWinterSnowglobe(ctx: CanvasRenderingContext2D, cx: number, cy
   ctx.restore();
 }
 
+// --- HAPPY WITH YOU DYNAMIC CANVAS DRAWINGS ---
+function drawCanvasHappyLeavesHeader(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isLeft: boolean) {
+  ctx.save();
+  ctx.translate(x, y);
+  const scale = (size / 80) * (isLeft ? 1 : -1);
+  ctx.scale(scale, Math.abs(scale));
+  ctx.strokeStyle = '#5B7052';
+  ctx.fillStyle = '#6E8A63';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Main arching vine stem
+  ctx.beginPath();
+  ctx.moveTo(10, 50);
+  ctx.bezierCurveTo(25, 40, 45, 20, 75, 12);
+  ctx.stroke();
+
+  // Leaf pairs along stem
+  const leaves = [
+    { x: 30, y: 38, rx: 10, ry: 4, rot: -0.6 },
+    { x: 45, y: 28, rx: 11, ry: 4.5, rot: -0.5 },
+    { x: 60, y: 19, rx: 10, ry: 4, rot: -0.4 },
+    { x: 74, y: 13, rx: 9, ry: 3.5, rot: -0.2 },
+    { x: 38, y: 44, rx: 9, ry: 4, rot: 0.8 },
+    { x: 54, y: 32, rx: 10, ry: 4.5, rot: 0.7 },
+  ];
+  leaves.forEach(leaf => {
+    ctx.beginPath();
+    ctx.ellipse(leaf.x, leaf.y, leaf.rx, leaf.ry, leaf.rot, 0, Math.PI * 2);
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.restore();
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
+function drawCanvasHappyStar(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number, color = '#6E8A63') {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.quadraticCurveTo(0, 0, size, 0);
+  ctx.quadraticCurveTo(0, 0, 0, size);
+  ctx.quadraticCurveTo(0, 0, -size, 0);
+  ctx.quadraticCurveTo(0, 0, 0, -size);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
 export async function generateStripCanvas(options: ExportOptions): Promise<HTMLCanvasElement> {
   const { photos, settings, theme, color, filter } = options;
   const layout = settings.layoutType || 'grid-4';
@@ -1509,16 +1564,55 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     photos.map(p => (p && p.dataUrl ? loadImage(p.dataUrl).catch(() => null) : Promise.resolve(null)))
   );
 
+  // Preload Pink Lattice Hearts Overlay if pink_lattice_hearts theme
+  let pinkLatticeOverlayImg: HTMLImageElement | null = null;
+  if (theme.id === 'pink_lattice_hearts') {
+    try {
+      pinkLatticeOverlayImg = await loadImage('/frames/pink_lattice_hearts_overlay.png');
+    } catch {
+      pinkLatticeOverlayImg = null;
+    }
+  }
+
+  // Preload Grunge Frame Overlay if grunge_sulfus theme
+  let grungeOverlayImg: HTMLImageElement | null = null;
+  if (theme.id === 'grunge_sulfus') {
+    try {
+      grungeOverlayImg = await loadImage('/frames/grunge_sulfus_full_overlay_hd.png');
+    } catch {
+      grungeOverlayImg = null;
+    }
+  }
+
+  // Preload Happy With You Overlay if happy_with_you theme
+  let happyWithYouOverlayImg: HTMLImageElement | null = null;
+  if (theme.id === 'happy_with_you') {
+    try {
+      happyWithYouOverlayImg = await loadImage('/frames/happy_with_you_overlay.png');
+    } catch {
+      happyWithYouOverlayImg = null;
+    }
+  }
+
   const bgColor = settings.customColorHex || color.hex;
   const textColor = color.textColor;
   const subtextColor = color.subtextColor;
   const artworkColor = isSpecialArtwork ? textColor : theme.accentColor;
 
-  // Setup Canvas Dimensions based on Layout
+  // Setup Canvas Dimensions dynamically based on Layout for all themes
   let totalWidth = 600;
   let totalHeight = 1800;
 
-  if (layout === 'grid-4') {
+  if (theme.id === 'pink_lattice_hearts') {
+    totalWidth = settings.isDoubleStrip ? 1240 : 600;
+    totalHeight = 1800;
+  } else if (theme.id === 'grunge_sulfus') {
+    totalWidth = settings.isDoubleStrip ? 1240 : 600;
+    totalHeight = 1701;
+  } else if (theme.id === 'happy_with_you') {
+    totalWidth = settings.isDoubleStrip ? 1240 : 600;
+    totalHeight = 1800;
+  } else if (layout === 'grid-4') {
     // 2x2 Square / Instagram Photocard layout
     totalWidth = 900;
     totalHeight = 1100;
@@ -2139,6 +2233,220 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     ctx.restore();
   }
 
+  // GRUNGE SULFUS 7:77 CANVAS DRAWING HELPERS (EXACT 1:1 TO TEMPLATE)
+  function drawCanvasGrungeCornerTape(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Tape 1 (Topmost slanted)
+    ctx.save();
+    ctx.translate(50, 30);
+    ctx.rotate((-36 * Math.PI) / 180);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(0, 4); ctx.lineTo(2, 0); ctx.lineTo(48, 0); ctx.lineTo(50, 4); ctx.lineTo(49, 18); ctx.lineTo(47, 22); ctx.lineTo(2, 22); ctx.lineTo(0, 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.restore();
+
+    // Tape 2 (Middle slanted)
+    ctx.save();
+    ctx.translate(60, 55);
+    ctx.rotate((-44 * Math.PI) / 180);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(0, 4); ctx.lineTo(3, 0); ctx.lineTo(62, 0); ctx.lineTo(65, 5); ctx.lineTo(63, 20); ctx.lineTo(60, 24); ctx.lineTo(2, 24); ctx.lineTo(0, 18);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.restore();
+
+    // Tape 3 (Bottom-left slanted)
+    ctx.save();
+    ctx.translate(35, 70);
+    ctx.rotate((-34 * Math.PI) / 180);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(0, 3); ctx.lineTo(2, 0); ctx.lineTo(42, 0); ctx.lineTo(44, 4); ctx.lineTo(43, 18); ctx.lineTo(40, 21); ctx.lineTo(1, 21); ctx.lineTo(0, 15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawCanvasGrungeDoodleHeart(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const scale = size / 70;
+    ctx.scale(scale, scale);
+
+    // Heart Outline with solid White fill & Black stroke
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(35, 23);
+    ctx.bezierCurveTo(35, 13, 20, 11, 15, 22);
+    ctx.bezierCurveTo(9, 32, 19, 46, 35, 58);
+    ctx.bezierCurveTo(51, 46, 61, 32, 55, 22);
+    ctx.bezierCurveTo(50, 11, 35, 13, 35, 23);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Radiating black sketch lines
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(12, 14); ctx.lineTo(5, 7);
+    ctx.moveTo(57, 14); ctx.lineTo(64, 7);
+    ctx.moveTo(35, 62); ctx.lineTo(35, 69);
+    ctx.moveTo(61, 36); ctx.lineTo(68, 36);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawCanvasGrungeDividerTape(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = 'rgba(242, 242, 242, 0.88)';
+    ctx.beginPath();
+    ctx.moveTo(4, 3);
+    ctx.lineTo(8, 0);
+    ctx.lineTo(width - 8, 0);
+    ctx.lineTo(width - 4, 5);
+    ctx.lineTo(width - 9, 12);
+    ctx.lineTo(width - 5, 20);
+    ctx.lineTo(width - 11, height);
+    ctx.lineTo(8, height);
+    ctx.lineTo(3, height - 7);
+    ctx.lineTo(7, height - 15);
+    ctx.lineTo(2, 6);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    // Subtle texture highlights
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(12, 6); ctx.lineTo(width - 15, 6);
+    ctx.moveTo(15, height - 6); ctx.lineTo(width - 18, height - 6);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawCanvasGrungeSparkleStars(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const scale = size / 60;
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#000000';
+
+    // Big Star
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(28, 4);
+    ctx.quadraticCurveTo(28, 22, 10, 22);
+    ctx.quadraticCurveTo(28, 22, 28, 40);
+    ctx.quadraticCurveTo(28, 22, 46, 22);
+    ctx.quadraticCurveTo(28, 22, 28, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Small Star
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(46, 34);
+    ctx.quadraticCurveTo(46, 43, 37, 43);
+    ctx.quadraticCurveTo(46, 43, 46, 52);
+    ctx.quadraticCurveTo(46, 43, 55, 43);
+    ctx.quadraticCurveTo(46, 43, 46, 34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawCanvasGrungeFooterBanner(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    width: number,
+    height: number,
+    settings: PhotoboothSettings
+  ) {
+    ctx.save();
+    ctx.translate(cx - width / 2, cy - height / 2);
+
+    // Acrylic Brush Stroke Banner in White
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(12, 18);
+    ctx.bezierCurveTo(25, 14, 60, 10, 110, 12);
+    ctx.bezierCurveTo(170, 14, 250, 8, 340, 11);
+    ctx.bezierCurveTo(400, 13, 440, 16, 455, 24);
+    ctx.bezierCurveTo(462, 35, 460, 68, 450, 88);
+    ctx.bezierCurveTo(430, 102, 370, 104, 300, 100);
+    ctx.bezierCurveTo(220, 96, 140, 105, 70, 100);
+    ctx.bezierCurveTo(28, 97, 10, 88, 6, 68);
+    ctx.bezierCurveTo(4, 50, 6, 28, 12, 18);
+    ctx.closePath();
+    ctx.fill();
+
+    // Texture bristle dots
+    ctx.beginPath();
+    ctx.arc(3, 40, 3, 0, Math.PI * 2);
+    ctx.arc(458, 45, 3.5, 0, Math.PI * 2);
+    ctx.arc(454, 75, 2.5, 0, Math.PI * 2);
+    ctx.arc(10, 85, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Text: 7:77 (Impact / Arial Black)
+    ctx.fillStyle = '#0C0C0C';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 44px "Impact", "Arial Black", "Trebuchet MS", sans-serif';
+    ctx.fillText('7:77', width / 2, 44);
+
+    // Text: sulfus (Caveat cursive)
+    ctx.font = 'bold italic 30px "Caveat", "Brush Script MT", cursive';
+    ctx.fillText('sulfus', width / 2, 80);
+
+    ctx.restore();
+
+    // Date below banner
+    if (settings.showDate) {
+      ctx.save();
+      ctx.font = 'bold 16px "Courier New", monospace';
+      ctx.fillStyle = '#E5E5E5';
+      ctx.textAlign = 'center';
+      ctx.fillText(settings.customDate || '08. 23. 26', cx, cy + height / 2 + 30);
+      ctx.restore();
+    }
+  }
+
   // 3. RENDER VERTICAL STRIP (Single-1, Strip-3, or Strip-4)
   const singleWidth = 600;
   const isDouble = settings.isDoubleStrip;
@@ -2147,7 +2455,27 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
   const renderSingleStrip = (startX: number) => {
     // 1. Background
     ctx.save();
-    if (theme.id === 'airmail_postcard') {
+    if (theme.id === 'happy_with_you') {
+      ctx.fillStyle = '#F7F4EB';
+      ctx.fillRect(startX, 0, singleWidth, totalHeight);
+
+      // Soft matcha background organic blobs
+      ctx.save();
+      ctx.fillStyle = '#EBF2DD';
+      ctx.beginPath();
+      ctx.arc(startX + singleWidth - 10, 30, 90, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(startX + 10, totalHeight * 0.45, 75, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(startX + singleWidth - 15, totalHeight - 40, 85, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    } else if (theme.id === 'grunge_sulfus') {
+      ctx.fillStyle = '#0D0D0D';
+      ctx.fillRect(startX, 0, singleWidth, totalHeight);
+    } else if (theme.id === 'airmail_postcard') {
       drawCanvasAirmailBg(ctx, startX, 0, singleWidth, totalHeight);
     } else if (theme.id === 'teddy_cozy_check') {
       drawCanvasGinghamBg(ctx, startX, 0, singleWidth, totalHeight);
@@ -2162,7 +2490,7 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     ctx.strokeRect(startX + 2, 2, singleWidth - 4, totalHeight - 4);
 
     // Side Vines / Borders for Special Themes
-    if (isSpecialArtwork && theme.id !== 'teddy_cozy_check') {
+    if (isSpecialArtwork && theme.id !== 'teddy_cozy_check' && theme.id !== 'happy_with_you' && theme.id !== 'grunge_sulfus' && theme.id !== 'pink_lattice_hearts') {
       if (theme.id === 'wedding_cake') {
         drawCanvasSideVine(ctx, startX + 22, 140, totalHeight - 420, true, artworkColor);
         drawCanvasSideVine(ctx, startX + singleWidth - 22, 140, totalHeight - 420, false, artworkColor);
@@ -2179,7 +2507,46 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     }
 
     // 2. Header Area
-    if (theme.id === 'airmail_postcard') {
+    if (theme.id === 'pink_lattice_hearts') {
+      // Header is part of full image overlay
+    } else if (theme.id === 'happy_with_you') {
+      // Top botanical leafy line art
+      drawCanvasHappyLeavesHeader(ctx, startX + 20, 10, 55, true);
+      drawCanvasHappyLeavesHeader(ctx, startX + singleWidth - 75, 10, 55, false);
+
+      // Top subtitle pill / handle
+      ctx.save();
+      const handleText = (settings.subtitle || '@reallygreatsite').toLowerCase();
+      ctx.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+      const handleW = ctx.measureText(handleText).width + 20;
+      ctx.fillStyle = '#6E8A63';
+      ctx.beginPath();
+      ctx.roundRect(startX + singleWidth / 2 - handleW / 2, 14, handleW, 20, 10);
+      ctx.fill();
+      ctx.fillStyle = '#FAF6EE';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(handleText, startX + singleWidth / 2, 24);
+      ctx.restore();
+
+      // Cursive title
+      ctx.save();
+      ctx.font = 'italic bold 28px "Caveat", cursive, serif';
+      ctx.fillStyle = '#5B7052';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(settings.title || 'happy with you', startX + singleWidth / 2, 48);
+      ctx.restore();
+    } else if (theme.id === 'grunge_sulfus') {
+      ctx.save();
+      // Film strip header code
+      ctx.font = 'bold 16px "Courier New", monospace';
+      ctx.fillStyle = '#E5E5E5';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('◀  7  ▶   •   S U L F U S   •   ◀  0  ▶', startX + singleWidth / 2, 28);
+      ctx.restore();
+    } else if (theme.id === 'airmail_postcard') {
       ctx.save();
       ctx.fillStyle = '#1D3E6E';
       ctx.fillRect(startX + 30, 20, 110, 26);
@@ -2250,15 +2617,64 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
     }
 
     // 3. Photo Frames
-    const framePaddingX = 25;
-    const photoWidth = singleWidth - framePaddingX * 2; // 550px
-    const photoHeight = layout === 'single-1' ? 670 : 380;
-    const startY = 65;
-    const gap = 10;
-    const borderRadius = 0;
+    const isPinkLattice = theme.id === 'pink_lattice_hearts';
+    const isGrungeSulfus = theme.id === 'grunge_sulfus';
+    const isHappyWithYou = theme.id === 'happy_with_you';
+    const framePaddingX = isPinkLattice || isHappyWithYou
+      ? Math.round(singleWidth * (45 / 600))
+      : isGrungeSulfus
+      ? Math.round(singleWidth * (30 / 335))
+      : 30;
+    const photoWidth = isPinkLattice || isHappyWithYou
+      ? Math.round(singleWidth * (510 / 600))
+      : isGrungeSulfus
+      ? Math.round(singleWidth * (276 / 335))
+      : singleWidth - framePaddingX * 2;
+    const startY = layout === 'single-1' ? 85 : 65;
+    const gap = 12;
+    const footerSpace = layout === 'single-1' ? 90 : 120;
+    const availableHeight = totalHeight - startY - footerSpace;
+    const photoHeight = isPinkLattice
+      ? Math.round(totalHeight * (330 / 1800))
+      : isHappyWithYou
+      ? Math.round(totalHeight * (320 / 1800))
+      : isGrungeSulfus
+      ? Math.round(totalHeight * (180 / 950))
+      : layout === 'single-1'
+      ? availableHeight
+      : Math.floor((availableHeight - (photoCount - 1) * gap) / photoCount);
+    const borderRadius = isHappyWithYou ? Math.round(photoWidth * (32 / 510)) : isPinkLattice ? Math.round(photoWidth * (8 / 510)) : 0;
+
+    const pinkLatticeSlotYs = [
+      Math.round(totalHeight * (100 / 1800)),
+      Math.round(totalHeight * (475 / 1800)),
+      Math.round(totalHeight * (850 / 1800)),
+      Math.round(totalHeight * (1225 / 1800)),
+    ];
+
+    const grungeSlotYs = [
+      Math.round(totalHeight * (30 / 950)),
+      Math.round(totalHeight * (228 / 950)),
+      Math.round(totalHeight * (426 / 950)),
+      Math.round(totalHeight * (624 / 950)),
+    ];
+
+    const happySlotYs = [
+      Math.round(totalHeight * (295 / 1800)),
+      Math.round(totalHeight * (660 / 1800)),
+      Math.round(totalHeight * (1025 / 1800)),
+      Math.round(totalHeight * (1390 / 1800)),
+    ];
 
     for (let i = 0; i < photoCount; i++) {
-      const currentY = startY + i * (photoHeight + gap);
+      const currentY =
+        isPinkLattice && pinkLatticeSlotYs[i] !== undefined
+          ? pinkLatticeSlotYs[i]
+          : isHappyWithYou && happySlotYs[i] !== undefined
+          ? happySlotYs[i]
+          : isGrungeSulfus && grungeSlotYs[i] !== undefined
+          ? grungeSlotYs[i]
+          : startY + i * (photoHeight + gap);
       const img = loadedImages[i];
 
       // Draw Airmail Perforated Stamp Frame
@@ -2321,7 +2737,7 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
       ctx.restore();
 
       // Side decorations
-      if (!isSpecialArtwork && theme.sideDecorations && theme.sideDecorations.length > 0) {
+      if (!isSpecialArtwork && theme.id !== 'happy_with_you' && theme.id !== 'grunge_sulfus' && theme.sideDecorations && theme.sideDecorations.length > 0) {
         ctx.save();
         ctx.font = '22px sans-serif';
         const leftDeco = theme.sideDecorations[i % theme.sideDecorations.length];
@@ -2345,10 +2761,61 @@ export async function generateStripCanvas(options: ExportOptions): Promise<HTMLC
       drawCanvasCozyKraftTape(ctx, startX + singleWidth - 270, gap2Y - 18, 250, 42);
     }
 
+    // Pink Lattice Hearts Overlays
+    if (theme.id === 'pink_lattice_hearts') {
+      if (pinkLatticeOverlayImg) {
+        ctx.save();
+        ctx.drawImage(pinkLatticeOverlayImg, startX, 0, singleWidth, totalHeight);
+        ctx.restore();
+      }
+    }
+
+    // Happy With You Overlays (Botanical Clouds PNG Overlay)
+    if (theme.id === 'happy_with_you') {
+      if (happyWithYouOverlayImg) {
+        ctx.save();
+        ctx.drawImage(happyWithYouOverlayImg, startX, 0, singleWidth, totalHeight);
+        ctx.restore();
+      }
+    }
+
+    // Grunge Sulfus Overlays (100% exact from user Pinterest image HD Overlay)
+    if (theme.id === 'grunge_sulfus') {
+      if (grungeOverlayImg) {
+        ctx.save();
+        ctx.drawImage(grungeOverlayImg, startX, 0, singleWidth, totalHeight);
+        ctx.restore();
+      }
+    }
+
     // 4. Footer Area
     const footerY = startY + photoCount * (photoHeight + gap) + 10;
 
-    if (theme.id === 'airmail_postcard') {
+    if (theme.id === 'pink_lattice_hearts') {
+      // Footer is part of full image overlay
+    } else if (theme.id === 'happy_with_you') {
+      ctx.save();
+      // Happy with you cursive subtitle
+      ctx.font = 'italic bold 22px "Caveat", cursive, serif';
+      ctx.fillStyle = '#6E8A63';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('happy with you', startX + singleWidth / 2, footerY + 20);
+
+      // Date
+      if (settings.showDate) {
+        ctx.font = '600 16px "Plus Jakarta Sans", monospace, sans-serif';
+        ctx.fillStyle = '#5B7052';
+        ctx.fillText(settings.customDate || '08. 23. 26', startX + singleWidth / 2, footerY + 48);
+      }
+
+      // 4-point star sparkles
+      drawCanvasHappyStar(ctx, startX + 45, footerY + 25, 8, '#6E8A63');
+      drawCanvasHappyStar(ctx, startX + singleWidth - 45, footerY + 25, 8, '#6E8A63');
+      ctx.restore();
+    } else if (theme.id === 'grunge_sulfus') {
+      drawCanvasGrungeFooterBanner(ctx, startX + singleWidth / 2, footerY + 35, 320, 50, settings);
+    } else if (theme.id === 'airmail_postcard') {
       drawCanvasAirmailFooter(ctx, startX, footerY, singleWidth, settings);
     } else if (theme.id === 'teddy_cozy_check') {
       drawCanvasCozyScrapbookFooter(ctx, startX, footerY, singleWidth);
