@@ -176,24 +176,57 @@ async function startServer() {
     });
   });
 
+  function getOrCreateRoom(code: string): DuoRoom {
+    const cleanCode = code.trim().toUpperCase();
+    if (!rooms[cleanCode]) {
+      const now = Date.now();
+      rooms[cleanCode] = {
+        code: cleanCode,
+        createdAt: now,
+        lastActivity: now,
+        members: {},
+        duoMode: 'split-heart',
+        settings: {
+          layoutType: 'strip-3',
+          themeId: 'love_letter_stamp',
+          colorId: 'love_blush',
+          filterId: 'none',
+          title: 'OUR DISTANCE LOVE',
+          subtitle: 'together forever',
+          showDate: true,
+          customDate: new Date().toLocaleDateString('vi-VN'),
+          showQrCode: true,
+          showFilmHoles: false,
+          isDoubleStrip: false,
+          stickers: [],
+        },
+        photos: {
+          host: [],
+          guest: [],
+          merged: [],
+        },
+        currentSlot: null,
+        countdownStart: null,
+        timerDuration: 3,
+        step: 1,
+        stickers: [],
+      };
+    }
+    rooms[cleanCode].lastActivity = Date.now();
+    return rooms[cleanCode];
+  }
+
   // Get room info
   app.get('/api/rooms/:code', (req, res) => {
     const code = (req.params.code || '').trim().toUpperCase();
-    const room = rooms[code];
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Phòng không tồn tại hoặc đã hết hạn.' });
-    }
-    room.lastActivity = Date.now();
+    const room = getOrCreateRoom(code);
     res.json({ success: true, room: sanitizeRoom(room) });
   });
 
   // Server-Sent Events (SSE) Stream Endpoint for ultra-fast zero-latency real-time sync
   app.get('/api/rooms/:code/stream', (req, res) => {
     const code = (req.params.code || '').trim().toUpperCase();
-    const room = rooms[code];
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Phòng không tồn tại hoặc đã hết hạn.' });
-    }
+    const room = getOrCreateRoom(code);
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -219,19 +252,24 @@ async function startServer() {
   // REST API Actions (Instant HTTP dispatch for 100% reliability)
   app.post('/api/rooms/:code/action', (req, res) => {
     const code = (req.params.code || '').trim().toUpperCase();
-    const room = rooms[code];
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Phòng không tồn tại hoặc đã hết hạn.' });
-    }
+    const room = getOrCreateRoom(code);
 
     room.lastActivity = Date.now();
-    const { type, userId, userName } = req.body;
+    const { type, userId, userName, isHost } = req.body;
     const currentUserId = userId || `u_${Date.now()}`;
 
     if (type === 'join_room') {
       if (!room.members[currentUserId]) {
-        const memberCount = Object.keys(room.members).length;
-        const role = memberCount === 0 ? 'host' : 'guest';
+        const existingMembers = Object.values(room.members);
+        const hasHost = existingMembers.some((m) => m.role === 'host');
+        
+        let role: 'host' | 'guest' = 'guest';
+        if (isHost || (!hasHost && existingMembers.length === 0)) {
+          role = 'host';
+        } else {
+          role = 'guest';
+        }
+
         room.members[currentUserId] = {
           id: currentUserId,
           name: userName || (role === 'host' ? 'Chủ phòng' : 'Người ấy'),
@@ -426,22 +464,26 @@ async function startServer() {
 
         if (type === 'join_room') {
           const code = (roomCode || '').toUpperCase();
-          const room = rooms[code];
-          if (!room) {
-            ws.send(JSON.stringify({ type: 'error', message: 'Phòng không tồn tại hoặc đã hết hạn.' }));
-            return;
-          }
+          const room = getOrCreateRoom(code);
 
           currentRoomCode = code;
           currentUserId = userId || `user-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`;
 
           // Check if already in room or join as guest
           if (!room.members[currentUserId]) {
-            const memberCount = Object.keys(room.members).length;
-            const role = memberCount === 0 ? 'host' : 'guest';
+            const existingMembers = Object.values(room.members);
+            const hasHost = existingMembers.some((m) => m.role === 'host');
+            
+            let role: 'host' | 'guest' = 'guest';
+            if (message.isHost || (!hasHost && existingMembers.length === 0)) {
+              role = 'host';
+            } else {
+              role = 'guest';
+            }
+
             room.members[currentUserId] = {
               id: currentUserId,
-              name: message.userName || (role === 'host' ? 'Bạn thân A' : 'Bạn thân B'),
+              name: message.userName || (role === 'host' ? 'Chủ phòng' : 'Người ấy'),
               role,
               isReady: false,
               avatarSeed: role,

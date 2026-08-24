@@ -488,17 +488,52 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     switch (data.type) {
       case 'join_room': {
         const guestUid = data.userId || `guest_${Date.now()}`;
-        const newRoom = { ...roomStateRef.current! };
-        newRoom.members = {
-          ...newRoom.members,
-          [guestUid]: {
-            id: guestUid,
-            role: 'guest' as const,
-            name: data.userName || 'Bạn ghép',
-            isReady: false,
-            avatarSeed: data.userName || 'Guest',
+        const baseRoom = roomStateRef.current || {
+          code: roomCodeRef.current || 'DUO',
+          createdAt: Date.now(),
+          members: {},
+          duoMode: 'split-heart',
+          settings: {
+            layoutType: 'strip-3',
+            themeId: 'love_letter_stamp',
+            colorId: 'love_blush',
+            filterId: 'none',
+            title: 'OUR DISTANCE LOVE',
+            subtitle: 'together forever',
+            showDate: true,
+            customDate: new Date().toLocaleDateString('vi-VN'),
+            showQrCode: true,
+            showFilmHoles: false,
+            isDoubleStrip: false,
+            stickers: [],
           },
+          photos: { host: [], guest: [], merged: [] },
+          currentSlot: null,
+          countdownStart: null,
+          timerDuration: 3,
+          step: 1,
+          stickers: [],
         };
+
+        const existingMembers = { ...baseRoom.members };
+        if (!existingMembers[hostUid]) {
+          existingMembers[hostUid] = {
+            id: hostUid,
+            role: 'host' as const,
+            name: userNameRef.current || 'Chủ phòng',
+            isReady: false,
+            avatarSeed: 'Host',
+          };
+        }
+        existingMembers[guestUid] = {
+          id: guestUid,
+          role: 'guest' as const,
+          name: data.userName || 'Người ấy',
+          isReady: false,
+          avatarSeed: 'Guest',
+        };
+
+        const newRoom = { ...baseRoom, members: existingMembers } as DuoRoomState;
         setRoomState(newRoom);
         conn.send({
           type: 'room_joined',
@@ -803,13 +838,8 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
     setIsConnecting(true);
 
-    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
-
-    if (isVercel) {
-      console.log('[Environment] Vercel detected. Connecting via PeerJS P2P transport...');
-      connectPeerJS(cleanCode, userName, uid, isHost);
-      return;
-    }
+    // Initialize PeerJS P2P in parallel for guaranteed device-to-device WebRTC video call & room backup sync
+    connectPeerJS(cleanCode, userName, uid, isHost);
 
     // 1. INSTANT REST JOIN (Returns room state in <20ms, zero spinning!)
     fetch(`/api/rooms/${cleanCode}/action`, {
@@ -819,6 +849,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         type: 'join_room',
         userName,
         userId: uid,
+        isHost,
       }),
     })
       .then((r) => r.json())
