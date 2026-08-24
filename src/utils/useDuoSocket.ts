@@ -595,6 +595,14 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
     setIsConnecting(true);
 
+    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
+
+    if (isVercel) {
+      console.log('[Environment] Vercel detected. Connecting directly via PeerJS P2P transport...');
+      connectPeerJS(cleanCode, userName, uid);
+      return;
+    }
+
     // Immediate HTTP sync so UI reflects room instantly if REST API is available
     syncRoomViaHttp(cleanCode);
 

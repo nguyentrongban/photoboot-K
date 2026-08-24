@@ -53,31 +53,41 @@ export const DuoModal: React.FC<DuoModalProps> = ({
     setIsCreating(true);
     localStorage.setItem('duo_username', userName.trim());
 
-    try {
-      const res = await fetch('/api/rooms/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hostName: userName.trim(),
-          duoMode: selectedMode,
-          settings,
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.room) {
-        if (data.userId) {
-          localStorage.setItem('duo_uid', data.userId);
+    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
+
+    if (!isVercel) {
+      try {
+        const res = await fetch('/api/rooms/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hostName: userName.trim(),
+            duoMode: selectedMode,
+            settings,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.room) {
+            if (data.userId) {
+              localStorage.setItem('duo_uid', data.userId);
+            }
+            setCreatedRoomCode(data.room.code);
+            setIsCreating(false);
+            return;
+          }
         }
-        setCreatedRoomCode(data.room.code);
-      } else {
-        setErrorMsg(data.message || 'Không thể tạo phòng, vui lòng thử lại.');
+      } catch (err) {
+        console.log('Server REST API not available, switching to P2P mode:', err);
       }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg('Lỗi kết nối máy chủ.');
-    } finally {
-      setIsCreating(false);
     }
+
+    // Client-side fallback for Vercel / P2P mode
+    const fallbackCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const fallbackUid = `u_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    localStorage.setItem('duo_uid', fallbackUid);
+    setCreatedRoomCode(fallbackCode);
+    setIsCreating(false);
   };
 
   const handleEnterCreatedRoom = () => {
@@ -100,20 +110,27 @@ export const DuoModal: React.FC<DuoModalProps> = ({
     setIsJoining(true);
     localStorage.setItem('duo_username', userName.trim());
 
-    try {
-      const res = await fetch(`/api/rooms/${code}`);
-      const data = await res.json();
-      if (data.success && data.room) {
-        onJoinRoom(code, userName.trim(), false, data.room.duoMode);
-      } else {
-        setErrorMsg(data.message || 'Mã phòng không tồn tại hoặc đã hết hạn.');
+    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
+
+    if (!isVercel) {
+      try {
+        const res = await fetch(`/api/rooms/${code}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.room) {
+            onJoinRoom(code, userName.trim(), false, data.room.duoMode);
+            setIsJoining(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.log('Server REST API check failed, joining room directly via P2P:', err);
       }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg('Lỗi kết nối kiểm tra phòng.');
-    } finally {
-      setIsJoining(false);
     }
+
+    // Client-side fallback for Vercel / P2P mode
+    onJoinRoom(code, userName.trim(), false, selectedMode);
+    setIsJoining(false);
   };
 
   const shareUrl = createdRoomCode

@@ -778,6 +778,13 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
               className="w-full h-full object-cover transition-all duration-300"
               style={{ filter: getBaseFilter() }}
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80';
+                }
+              }}
             />
             {/* Smooth skin overlay */}
             {smoothValue > 0 && (
@@ -1391,6 +1398,13 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
               src="/frames/pink_lattice_hearts_overlay.png"
               alt="Pink Lattice Hearts Frame Overlay"
               className="w-full h-full object-fill pointer-events-none"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = '/frames/pink_lattice_hearts_overlay.svg';
+                }
+              }}
             />
           </div>
         )}
@@ -1402,6 +1416,13 @@ export const PhotoStrip: React.FC<PhotoStripProps> = ({
               src="/frames/happy_with_you_overlay.png"
               alt="Happy With You Frame Overlay"
               className="w-full h-full object-fill pointer-events-none"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = '/frames/happy_with_you_overlay.svg';
+                }
+              }}
             />
           </div>
         )}
