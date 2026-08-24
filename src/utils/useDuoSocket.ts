@@ -46,15 +46,21 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
   // Central Broadcast Sender over WebSocket + REST Fallback
   const broadcastMsg = useCallback((msgObj: any) => {
-    const raw = JSON.stringify(msgObj);
+    const code = roomCodeRef.current;
+    const uid = userIdRef.current;
+    const fullPayload = {
+      ...msgObj,
+      roomCode: code,
+      userId: uid,
+    };
+    const raw = JSON.stringify(fullPayload);
+
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(raw);
       } catch (e) {}
     }
 
-    // Also send via REST as a fallback if room code exists
-    const code = roomCodeRef.current;
     if (code) {
       fetch(`/api/rooms/${code}/action`, {
         method: 'POST',
@@ -68,64 +74,23 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   const processServerEvent = useCallback((data: any) => {
     if (!data) return;
 
-    const currUser = currentUserRef.current;
-    const currRoom = roomStateRef.current;
-
     switch (data.type) {
-      case 'presence_ping':
-        // When someone pings, if I am the host or I have members, make sure they are in members
-        if (data.userId && data.userName && data.role) {
-          setRoomState((prev) => {
-            if (!prev) return prev;
-            const existingMember = prev.members?.[data.userId];
-            if (existingMember) return prev;
-
-            const updatedMembers = {
-              ...prev.members,
-              [data.userId]: {
-                id: data.userId,
-                name: data.userName,
-                role: data.role,
-                isReady: false,
-                avatarSeed: data.role,
-              },
-            };
-            const nextState = { ...prev, members: updatedMembers };
-
-            // If I am host, broadcast the updated state to everyone
-            if (currUser?.role === 'host') {
-              setTimeout(() => {
-                broadcastMsg({ type: 'room_update', room: nextState });
-              }, 50);
-            }
-            return nextState;
-          });
-        }
-        break;
-
-      case 'request_sync':
-        // If guest asks for state sync and I am host, send my roomState
-        if (currUser?.role === 'host' && currRoom) {
-          broadcastMsg({ type: 'room_update', room: currRoom });
-        }
-        break;
-
       case 'room_joined':
       case 'room_update':
         if (data.room) {
           setRoomState((prev) => {
-            // Merge member records so nobody is erased
-            const mergedMembers = { ...prev?.members, ...data.room.members };
-            const updatedRoom = {
+            if (!prev) return data.room;
+            return {
               ...data.room,
-              members: mergedMembers,
-              liveFrames: { ...prev?.liveFrames, ...data.room.liveFrames },
+              liveFrames: {
+                ...(prev.liveFrames || {}),
+                ...(data.room.liveFrames || {}),
+              },
             };
-            return updatedRoom;
           });
+          setIsConnecting(false);
+          setIsConnected(true);
         }
-        setIsConnecting(false);
-        setIsConnected(true);
         break;
 
       case 'live_frame':
@@ -268,9 +233,9 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         }
         break;
     }
-  }, [broadcastMsg]);
+  }, []);
 
-  // Main Connection Function (Serverless WebSocket PubSub Cluster + SSE/REST Fallback)
+  // Main Connection Function (Native WebSocket + SSE + 1s HTTP Poll)
   const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string, isHost?: boolean) => {
     const cleanCode = roomCode.trim().toUpperCase();
     if (!cleanCode) return;
@@ -343,33 +308,43 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     setIsConnecting(false);
     setIsConnected(true);
 
-    // 2. CONNECT WEBSOCKET PUBSUB CHANNEL
+    // 2. HTTP REST Join call
+    const joinPayload = {
+      type: 'join_room',
+      roomCode: cleanCode,
+      userId: uid,
+      userName,
+      isHost: role === 'host',
+    };
+
+    fetch(`/api/rooms/${cleanCode}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(joinPayload),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.room) {
+          processServerEvent({ type: 'room_joined', room: data.room });
+        }
+      })
+      .catch((e) => console.log('REST join error:', e));
+
+    // 3. Connect Native WebSocket (/ws)
     if (wsRef.current) {
       try { wsRef.current.close(); } catch (e) {}
     }
 
     try {
-      // Use free public PieSocket WebSocket cluster for instant cross-device pubsub
-      const pieSocketUrl = `wss://free.piesocket.com/v3/piczo_duo_${cleanCode}?api_key=pcskey_demo&notify_self=1`;
-      const ws = new WebSocket(pieSocketUrl);
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         setIsConnected(true);
         setIsConnecting(false);
-
-        // Ping presence to everyone in the room
-        ws.send(JSON.stringify({
-          type: 'presence_ping',
-          userId: uid,
-          userName,
-          role,
-        }));
-
-        // Request state sync if guest
-        if (role === 'guest') {
-          ws.send(JSON.stringify({ type: 'request_sync', userId: uid }));
-        }
+        ws.send(JSON.stringify(joinPayload));
       };
 
       ws.onmessage = (event) => {
@@ -390,34 +365,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       console.warn('WebSocket init exception:', e);
     }
 
-    // 3. Setup Heartbeat Timer (pings presence & requests sync every 2.5s)
-    if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
-    heartbeatTimerRef.current = setInterval(() => {
-      const pingPayload = {
-        type: 'presence_ping',
-        userId: uid,
-        userName,
-        role,
-      };
-
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        try {
-          wsRef.current.send(JSON.stringify(pingPayload));
-        } catch (e) {}
-      }
-
-      // Also try REST polling sync if code exists
-      fetch(`/api/rooms/${cleanCode}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data && data.success && data.room) {
-            processServerEvent({ type: 'room_update', room: data.room });
-          }
-        })
-        .catch(() => {});
-    }, 2500);
-
-    // 4. Connect SSE Stream as supplementary fallback
+    // 4. Connect SSE Stream (/api/rooms/:code/stream)
     if (sseRef.current) {
       try { sseRef.current.close(); } catch (e) {}
     }
@@ -433,6 +381,19 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         } catch (e) {}
       };
     } catch (e) {}
+
+    // 5. High-Frequency 1s HTTP Polling Fallback
+    if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+    heartbeatTimerRef.current = setInterval(() => {
+      fetch(`/api/rooms/${cleanCode}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.success && data.room) {
+            processServerEvent({ type: 'room_update', room: data.room });
+          }
+        })
+        .catch(() => {});
+    }, 1000);
 
   }, [processServerEvent]);
 

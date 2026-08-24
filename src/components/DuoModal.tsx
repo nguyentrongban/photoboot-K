@@ -53,33 +53,29 @@ export const DuoModal: React.FC<DuoModalProps> = ({
     setIsCreating(true);
     localStorage.setItem('duo_username', userName.trim());
 
-    const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
-
-    if (!isVercel) {
-      try {
-        const res = await fetch('/api/rooms/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            hostName: userName.trim(),
-            duoMode: selectedMode,
-            settings,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.room) {
-            if (data.userId) {
-              localStorage.setItem('duo_uid', data.userId);
-            }
-            setCreatedRoomCode(data.room.code);
-            setIsCreating(false);
-            return;
+    try {
+      const res = await fetch('/api/rooms/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hostName: userName.trim(),
+          duoMode: selectedMode,
+          settings,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.room) {
+          if (data.userId) {
+            localStorage.setItem('duo_uid', data.userId);
           }
+          setCreatedRoomCode(data.room.code);
+          setIsCreating(false);
+          return;
         }
-      } catch (err) {
-        console.log('Server REST API create error:', err);
       }
+    } catch (err) {
+      console.log('Server REST API create error:', err);
     }
 
     const fallbackCode = Math.random().toString(36).substring(2, 8).toUpperCase();
