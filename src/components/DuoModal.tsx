@@ -78,11 +78,10 @@ export const DuoModal: React.FC<DuoModalProps> = ({
           }
         }
       } catch (err) {
-        console.log('Server REST API not available, switching to P2P mode:', err);
+        console.log('Server REST API create error:', err);
       }
     }
 
-    // Client-side fallback for Vercel / P2P mode
     const fallbackCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const fallbackUid = `u_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     localStorage.setItem('duo_uid', fallbackUid);
