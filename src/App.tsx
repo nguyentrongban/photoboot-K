@@ -146,7 +146,7 @@ export default function App() {
     if (duoMode) {
       setSettings((prev) => ({ ...prev, duoMode }));
     }
-    connectToWs(roomCode, userName);
+    connectToWs(roomCode, userName, undefined, isHost);
     setIsDuoModalOpen(false);
     setCurrentStep(2); // Jump directly to Camera studio for Duo
   };

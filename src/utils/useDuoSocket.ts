@@ -197,8 +197,8 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   }, [initWebRTC]);
 
   // PeerJS P2P Signaling Engine (For Vercel Serverless environment)
-  const connectPeerJS = useCallback((cleanCode: string, userName: string, uid: string) => {
-    console.log('[PeerJS] Starting PeerJS P2P fallback transport for room:', cleanCode);
+  const connectPeerJS = useCallback((cleanCode: string, userName: string, uid: string, isHostInput?: boolean) => {
+    console.log('[PeerJS] Starting PeerJS P2P transport. Room:', cleanCode, '| IsHost:', isHostInput);
     isPeerJSMode.current = true;
     setIsConnecting(true);
 
@@ -210,23 +210,23 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     }
 
     const hostPeerId = `piczo_duo_${cleanCode}_host`;
+    const guestPeerId = `piczo_duo_${cleanCode}_guest_${uid.slice(-6)}`;
 
-    // Try creating Host Peer
-    const hostPeer = new Peer(hostPeerId, {
+    const peerOptions = {
       debug: 1,
       config: {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
         ],
       },
-    });
+    };
 
-    peerRef.current = hostPeer;
-
-    hostPeer.on('open', () => {
-      // Successfully registered as HOST
-      console.log('[PeerJS] Created room as HOST:', hostPeerId);
+    const setupAsHost = (hostPeer: Peer) => {
+      console.log('[PeerJS] Initialized as HOST:', hostPeerId);
       setIsConnected(true);
       setIsConnecting(false);
 
@@ -268,21 +268,30 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       setRoomState(initialRoomState);
       setCurrentUser({ id: uid, role: 'host', name: userName });
 
-      // Host listens for Guest connections
       hostPeer.on('connection', (conn) => {
+        console.log('[PeerJS Host] Guest connected:', conn.peer);
         connRef.current = conn;
+
+        const sendStateToGuest = () => {
+          if (roomStateRef.current) {
+            conn.send({
+              type: 'room_joined',
+              room: roomStateRef.current,
+              userId: conn.peer,
+              role: 'guest',
+            });
+          }
+        };
+
+        conn.on('open', () => {
+          sendStateToGuest();
+        });
+
         conn.on('data', (data: any) => {
           handlePeerJSDataAsHost(data, conn, uid);
         });
-        conn.on('open', () => {
-          // Send current state to guest immediately
-          if (roomStateRef.current) {
-            conn.send({ type: 'room_joined', room: roomStateRef.current, userId: conn.peer, role: 'guest' });
-          }
-        });
       });
 
-      // Host listens for Guest video call
       hostPeer.on('call', (call) => {
         mediaCallRef.current = call;
         if (localStreamRef.current) {
@@ -294,79 +303,123 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
           setRemoteStream(stream);
         });
       });
-    });
+    };
 
-    hostPeer.on('error', (err: any) => {
-      if (err.type === 'unavailable-id') {
-        // Host ID is already taken! This user is a GUEST connecting to existing room
-        console.log('[PeerJS] Room exists. Connecting as GUEST to host:', hostPeerId);
-        hostPeer.destroy();
+    const setupAsGuest = () => {
+      console.log('[PeerJS] Connecting as GUEST to host:', hostPeerId);
+      const guestPeer = new Peer(guestPeerId, peerOptions);
+      peerRef.current = guestPeer;
 
-        const guestPeer = new Peer({
-          debug: 1,
-          config: {
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:stun1.l.google.com:19302' },
-            ],
-          },
-        });
-        peerRef.current = guestPeer;
+      guestPeer.on('open', () => {
+        console.log('[PeerJS Guest] Peer open. Connecting to Host:', hostPeerId);
 
-        guestPeer.on('open', () => {
-          setIsConnected(true);
+        let attemptCount = 0;
+        let joined = false;
+
+        const tryConnect = () => {
+          attemptCount++;
+          console.log(`[PeerJS Guest] Attempt ${attemptCount} connecting to Host:`, hostPeerId);
           const conn = guestPeer.connect(hostPeerId, { reliable: true });
           connRef.current = conn;
 
           conn.on('open', () => {
-            setIsConnecting(false);
+            console.log('[PeerJS Guest] Data connection open. Sending join_room...');
             conn.send({
               type: 'join_room',
               roomCode: cleanCode,
               userName,
               userId: uid,
             });
+
+            // Fallback retry join_room after 800ms if no response yet
+            setTimeout(() => {
+              if (!joined && conn.open) {
+                conn.send({
+                  type: 'join_room',
+                  roomCode: cleanCode,
+                  userName,
+                  userId: uid,
+                });
+              }
+            }, 800);
           });
 
           conn.on('data', (data: any) => {
+            if (data?.type === 'room_joined' || data?.type === 'room_update') {
+              joined = true;
+              setIsConnecting(false);
+              setIsConnected(true);
+            }
             handlePeerJSDataAsGuest(data);
           });
 
-          // Call Host with local video stream if available
-          if (localStreamRef.current) {
-            try {
-              const call = guestPeer.call(hostPeerId, localStreamRef.current);
-              mediaCallRef.current = call;
-              call.on('stream', (stream) => {
-                setRemoteStream(stream);
-              });
-            } catch (e) {
-              console.warn('Guest media call error:', e);
+          conn.on('error', (err) => {
+            console.warn('[PeerJS Guest Conn Error]', err);
+            if (!joined && attemptCount < 6) {
+              setTimeout(tryConnect, 1200);
+            } else {
+              setIsConnecting(false);
             }
-          }
-        });
-
-        guestPeer.on('call', (call) => {
-          mediaCallRef.current = call;
-          if (localStreamRef.current) {
-            call.answer(localStreamRef.current);
-          } else {
-            call.answer();
-          }
-          call.on('stream', (stream) => {
-            setRemoteStream(stream);
           });
-        });
+        };
 
-        guestPeer.on('error', (e) => {
-          console.warn('[PeerJS Guest Error]', e);
-          setIsConnecting(false);
+        tryConnect();
+
+        // Call Host with video
+        if (localStreamRef.current) {
+          try {
+            const call = guestPeer.call(hostPeerId, localStreamRef.current);
+            mediaCallRef.current = call;
+            call.on('stream', (stream) => {
+              setRemoteStream(stream);
+            });
+          } catch (e) {
+            console.warn('Guest media call error:', e);
+          }
+        }
+      });
+
+      guestPeer.on('call', (call) => {
+        mediaCallRef.current = call;
+        if (localStreamRef.current) {
+          call.answer(localStreamRef.current);
+        } else {
+          call.answer();
+        }
+        call.on('stream', (stream) => {
+          setRemoteStream(stream);
         });
-      } else {
-        console.warn('[PeerJS Host Error]', err);
+      });
+
+      guestPeer.on('error', (err) => {
+        console.warn('[PeerJS Guest Error]', err);
         setIsConnecting(false);
-      }
-    });
+      });
+    };
+
+    if (isHostInput === true) {
+      const hostPeer = new Peer(hostPeerId, peerOptions);
+      peerRef.current = hostPeer;
+      hostPeer.on('open', () => setupAsHost(hostPeer));
+      hostPeer.on('error', (err) => {
+        console.warn('[PeerJS Host Open Error]', err);
+        setIsConnecting(false);
+      });
+    } else if (isHostInput === false) {
+      setupAsGuest();
+    } else {
+      const hostPeer = new Peer(hostPeerId, peerOptions);
+      peerRef.current = hostPeer;
+      hostPeer.on('open', () => setupAsHost(hostPeer));
+      hostPeer.on('error', (err: any) => {
+        if (err.type === 'unavailable-id') {
+          hostPeer.destroy();
+          setupAsGuest();
+        } else {
+          setIsConnecting(false);
+        }
+      });
+    }
   }, []);
 
   // Helper: Process PeerJS incoming data when Host
@@ -584,7 +637,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
   };
 
   // Main Connection Function (Tries WebSocket first; falls back to PeerJS for Vercel)
-  const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string) => {
+  const connectToWs = useCallback((roomCode: string, userName: string, initialUserId?: string, isHost?: boolean) => {
     const cleanCode = roomCode.trim().toUpperCase();
     roomCodeRef.current = cleanCode;
     userNameRef.current = userName;
@@ -599,7 +652,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
 
     if (isVercel) {
       console.log('[Environment] Vercel detected. Connecting directly via PeerJS P2P transport...');
-      connectPeerJS(cleanCode, userName, uid);
+      connectPeerJS(cleanCode, userName, uid, isHost);
       return;
     }
 
@@ -626,7 +679,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
           wsHandled = true;
           try { ws.close(); } catch (e) {}
           console.log('[WebSocket Timeout] Vercel or Serverless environment detected. Falling back to PeerJS P2P transport.');
-          connectPeerJS(cleanCode, userName, uid);
+          connectPeerJS(cleanCode, userName, uid, isHost);
         }
       }, 1800);
 
@@ -745,7 +798,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         if (!wsHandled) {
           wsHandled = true;
           if (fallbackTimer) clearTimeout(fallbackTimer);
-          connectPeerJS(cleanCode, userName, uid);
+          connectPeerJS(cleanCode, userName, uid, isHost);
         } else if (!isPeerJSMode.current) {
           setIsConnected(false);
           setIsConnecting(false);
@@ -757,12 +810,12 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
           wsHandled = true;
           if (fallbackTimer) clearTimeout(fallbackTimer);
           console.log('[WebSocket Error] Falling back to PeerJS P2P transport.');
-          connectPeerJS(cleanCode, userName, uid);
+          connectPeerJS(cleanCode, userName, uid, isHost);
         }
       };
     } catch (err) {
       if (fallbackTimer) clearTimeout(fallbackTimer);
-      connectPeerJS(cleanCode, userName, uid);
+      connectPeerJS(cleanCode, userName, uid, isHost);
     }
   }, [syncRoomViaHttp, handleIncomingWebRTCSignal, connectPeerJS]);
 
