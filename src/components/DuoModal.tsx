@@ -109,6 +109,7 @@ export const DuoModal: React.FC<DuoModalProps> = ({
     setErrorMsg(null);
     setIsJoining(true);
     localStorage.setItem('duo_username', userName.trim());
+    localStorage.removeItem('duo_uid');
 
     const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('now.sh'));
 

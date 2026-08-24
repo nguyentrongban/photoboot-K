@@ -53,7 +53,7 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     propsRef.current = props;
   }, [props]);
 
-  // Fetch room state directly via REST API as a fallback if available
+  // Fetch room state directly via REST API as a continuous real-time source of truth
   const syncRoomViaHttp = useCallback(async (code: string) => {
     if (!code) return null;
     try {
@@ -62,6 +62,29 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
         const data = await res.json();
         if (data.success && data.room) {
           setRoomState(data.room);
+
+          // Auto-heal membership if current user is missing from server room.members
+          const currUser = currentUserRef.current;
+          if (currUser && data.room.members && !data.room.members[currUser.id]) {
+            fetch(`/api/rooms/${code}/action`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'join_room',
+                userName: currUser.name,
+                userId: currUser.id,
+                isHost: currUser.role === 'host',
+              }),
+            })
+              .then((r) => r.json())
+              .then((healData) => {
+                if (healData.success && healData.room) {
+                  setRoomState(healData.room);
+                }
+              })
+              .catch(() => {});
+          }
+
           return data.room;
         }
       }
@@ -832,9 +855,18 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
     roomCodeRef.current = cleanCode;
     userNameRef.current = userName;
     
-    let uid = initialUserId || userIdRef.current || localStorage.getItem('duo_uid') || `u_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    let uid = initialUserId || userIdRef.current;
+    if (!uid) {
+      if (isHost === false) {
+        uid = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      } else {
+        uid = localStorage.getItem('duo_uid') || `u_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      }
+    }
     userIdRef.current = uid;
-    localStorage.setItem('duo_uid', uid);
+    if (isHost !== false) {
+      localStorage.setItem('duo_uid', uid);
+    }
 
     setIsConnecting(true);
 
@@ -931,13 +963,13 @@ export function useDuoSocket(props: UseDuoSocketProps = {}) {
       // ignore
     }
 
-    // 4. Background Periodic Sync Polling (1.2s) as fail-safe safety net
+    // 4. Background Periodic Sync Polling (1.0s) as fail-safe safety net
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     pollTimerRef.current = setInterval(() => {
-      if (roomCodeRef.current && !isPeerJSMode.current) {
+      if (roomCodeRef.current) {
         syncRoomViaHttp(roomCodeRef.current);
       }
-    }, 1200);
+    }, 1000);
 
   }, [syncRoomViaHttp, handleIncomingWebRTCSignal, connectPeerJS, handleServerEvent]);
 

@@ -104,6 +104,8 @@ export const DuoCameraScreen: React.FC<DuoCameraScreenProps> = ({
   // Members
   const memberList = Object.values(roomState.members) as DuoMember[];
   const partner = memberList.find((m) => m.id !== currentUser.id);
+  const partnerRole = partner ? partner.role : (currentUser.role === 'host' ? 'guest' : 'host');
+  const partnerLiveFrame = (roomState as any).liveFrames?.[partnerRole];
 
   // Start Camera with high compatibility for mobile & desktop
   const startCamera = useCallback(async () => {
@@ -201,6 +203,42 @@ export const DuoCameraScreen: React.FC<DuoCameraScreenProps> = ({
     }, 4500);
     return () => clearInterval(timer);
   }, []);
+
+  // Periodically publish live preview frame as zero-dependency fallback
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const video = localVideoRef.current;
+      if (!video || video.videoWidth === 0 || !roomState?.code || !currentUser) return;
+
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 240;
+        canvas.height = Math.round((240 * video.videoHeight) / video.videoWidth) || 180;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        if (isMirror) {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const lowResJpeg = canvas.toDataURL('image/jpeg', 0.5);
+
+        fetch(`/api/rooms/${roomState.code}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'live_frame',
+            userId: currentUser.id,
+            role: currentUser.role,
+            dataUrl: lowResJpeg,
+          }),
+        }).catch(() => {});
+      } catch (e) {}
+    }, 1500);
+
+    return () => clearInterval(timer);
+  }, [roomState?.code, currentUser, isMirror]);
 
   // Capture frame from local webcam
   const captureLocalFrame = useCallback((): string | null => {
@@ -478,6 +516,12 @@ export const DuoCameraScreen: React.FC<DuoCameraScreenProps> = ({
                     ref={remoteVideoRef}
                     autoPlay
                     playsInline
+                    className={`w-full h-full object-cover ${selectedFilter.filterClass}`}
+                  />
+                ) : partnerLiveFrame ? (
+                  <img
+                    src={partnerLiveFrame}
+                    alt={partner?.name || 'Người ấy'}
                     className={`w-full h-full object-cover ${selectedFilter.filterClass}`}
                   />
                 ) : (

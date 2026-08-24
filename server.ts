@@ -404,6 +404,20 @@ async function startServer() {
         break;
       }
 
+      case 'live_frame': {
+        const { role, dataUrl } = req.body;
+        if (role && dataUrl) {
+          if (!(room as any).liveFrames) (room as any).liveFrames = {};
+          (room as any).liveFrames[role] = dataUrl;
+          broadcastToRoom(code, {
+            type: 'live_frame_received',
+            role,
+            dataUrl,
+          });
+        }
+        break;
+      }
+
       case 'leave_room': {
         const uName = room.members[currentUserId]?.name || 'Thành viên';
         deleteRoom(code, `${uName} đã rời phòng. Phòng đã đóng và xoá.`);
@@ -450,6 +464,7 @@ async function startServer() {
       timerDuration: room.timerDuration,
       step: room.step,
       stickers: room.stickers,
+      liveFrames: (room as any).liveFrames || {},
     };
   }
 
